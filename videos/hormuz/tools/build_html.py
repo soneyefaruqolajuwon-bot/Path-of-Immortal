@@ -25,14 +25,14 @@ canvas{{max-height:calc(100% - 56px);width:100%;aspect-ratio:16/9;object-fit:con
 body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1920px;border-radius:0;box-shadow:none}}
 </style></head><body>
 <div id="wrap"><canvas id="cv" width="1920" height="1080"></canvas>
-<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="115" step="0.01" value="0"></div></div>
+<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="205" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
 window.ASSETS={json.dumps(assets)};</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""
-out = os.path.join(R, "dist", "hormuz_part1.html")
+out = os.path.join(R, "dist", "hormuz_preview.html")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 open(out, "w").write(html)
 print(out, os.path.getsize(out) // 1024, "KB")

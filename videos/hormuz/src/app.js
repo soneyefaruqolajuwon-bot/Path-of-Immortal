@@ -3,7 +3,7 @@
  * Assets: window.ASSETS {name: dataURI}, geometry: GEO (geo_data.js).
  */
 'use strict';
-const W = 1920, H = 1080, DURATION = 115;
+const W = 1920, H = 1080, DURATION = 205;
 const C = {
   ocean: '#0A3652', land: '#8A855C', coast: '#5E5A3B', halo: '#2C6A78', ink: '#141416',
   gold: '#F4D03F', goldDark: '#3A2A08', yellow: '#FFD43B', cyan: '#25E3FF', white: '#FFFFFF',
@@ -35,11 +35,18 @@ const V = {
   gulf: [52.4, 27.6, 105],
   mid: [56.05, 25.6, 330],
   arcs: [56.2, 26.7, 640],
+  northGulf: [49.6, 29.0, 300],
+  gulfWide: [52.6, 27.2, 118],
+  convoy: [55.6, 26.35, 420],
+  hero: [53.5, 26.6, 260],
+  mantis: [54.4, 26.2, 300],
 };
 const KEYS = [  // [t, view, zoomMul, rot, tilt]
   [0, 'strait', 0.8], [6, 'strait', 1], [10.5, 'tight', 1], [17.0, 'tight', 1.04], [18.8, 'strait', 0.72], [32.0, 'strait', 0.76],
   [34.2, 'outside', 1], [41.0, 'outside', 0.94], [45.5, 'gulf', 1], [52, 'gulf', 1.04], [65, 'gulf', 1.06], [75, 'gulf', 1.03],
   [77.2, 'mid', 1], [88, 'mid', 1.08], [90, 'arcs', 1], [115, 'arcs', 1.1],
+  [117.5, 'strait', 0.9], [123, 'strait', 0.95], [125, 'northGulf', 1], [136.5, 'northGulf', 1.06], [138.5, 'gulfWide', 1], [155, 'gulfWide', 1.05],
+  [157, 'convoy', 1], [166, 'convoy', 1.06], [168, 'hero', 1], [181, 'hero', 1.04], [183, 'mantis', 1], [198, 'mantis', 1.06], [200.5, 'strait', 0.85], [205, 'strait', 0.9],
 ];
 function camAt(t) {
   let i = 0;
@@ -446,6 +453,157 @@ function sceneChapter1(ctx, c, t) {   // 45–115
   }
 }
 
+
+// ------------------------------------------------------------------ Part 2 — Chapter 2: The Tanker War (115–205)
+function chapterCard(ctx, t, t0, t1, num, title) {
+  const k = win(t, t0, t1, 0.5, 0.35);
+  if (k <= 0) return;
+  ctx.save(); ctx.globalAlpha = clamp(k) * 0.6; ctx.fillStyle = '#071C2A'; ctx.fillRect(0, 0, W, H); ctx.restore();
+  styledText(ctx, 'CHAPTER ' + num, W / 2, H / 2 - 80, 44, { k, fill: '#EDE3B8', shadow: 3 });
+  styledText(ctx, title, W / 2, H / 2 + 10, 110, { k, font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
+}
+function boom(ctx, x, y, s, k) {   // explosion that pops and fades (k: 0..1)
+  if (k <= 0 || k >= 1) return;
+  sprite(ctx, 'explosion', x, y, s * (0.5 + back(k * 2.2) * 0.6), { alpha: 1 - easeIn(k), rot: k * 30 });
+  puff(ctx, x, y - s * 0.15, s * 0.7, k, Math.floor(x));
+}
+const ATTACKS = [ // tankers hit across the Gulf: [lon, lat, t]
+  [49.6, 28.6, 141.0], [51.0, 27.7, 142.2], [52.4, 26.9, 143.2], [50.4, 28.2, 144.0], [53.6, 26.5, 144.8], [55.0, 26.3, 145.5],
+  [51.8, 27.2, 146.1], [49.9, 28.9, 146.6], [54.2, 26.7, 147.1], [52.9, 26.6, 147.5], [50.9, 28.0, 147.9], [55.5, 26.0, 148.3],
+];
+function sceneChapter2(ctx, c, t) {
+  if (t < 115 || t > 205.5) return;
+  drawBorders(ctx, c, 0.7);
+  // "it already happened once": warning pulse on the strait
+  const [sx, sy] = P(c, 56.37, 26.62);
+  if (t < 119.5) for (let i = 0; i < 2; i++) {
+    const u = ((t - 115) * 0.7 + i / 2) % 1;
+    ctx.save(); ctx.strokeStyle = `rgba(255,77,87,${(1 - u) * 0.8})`; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(sx, sy, 50 + u * 360, 0, 7); ctx.stroke(); ctx.restore();
+  }
+  styledText(ctx, '!', sx, sy - 40, 200, { k: win(t, 115.6, 119.2), fill: '#FF4D57', stroke: C.ink });
+  chapterCard(ctx, t, 119.2, 123.4, 2, 'The Tanker War');
+  // Iran vs Iraq: eight-year war (border fight near the Shatt al-Arab)
+  if (t > 124 && t < 138) {
+    const ex = popOut(137.6 - t);
+    tintCountry(ctx, c, 'IRN', '#239F40', 0.22 * clamp((t - 124.4) / 0.6) * ex);
+    tintCountry(ctx, c, 'IRQ', '#CE1126', 0.22 * clamp((t - 124.6) / 0.6) * ex);
+    const bx = W / 2, by = 470;
+    sprite(ctx, 'iraq_war', 520, 520, 440, { k: win(t, 124.6, 137.6) });
+    sprite(ctx, 'iran_war', 1400, 520, 440, { k: win(t, 124.9, 137.6) });
+    if (t > 126.5 && t < 131.5) { for (let i = 0; i < 6; i++) puff(ctx, bx + Math.sin(i * 2 + t * 6) * 70, by + 40 + Math.cos(i * 3 + t * 5) * 40, 130, ((t * 1.4 + i / 6) % 1), i + 1); }
+    styledText(ctx, '1980 – 1988', W / 2, 140, 96, { k: win(t, 125.4, 132.0), fill: C.gold, stroke: C.goldDark, rot: -2 });
+    // turn to the water: arrows from the coasts into the Gulf
+    const ka = clamp((t - 132.2) / 1.2) * ex;
+    if (ka > 0) { geoLine(ctx, c, [[48.2, 30.4], [49.2, 29.4], [50.0, 28.7]], ka, '#FF6B6B', 6, [14, 10], true);
+      geoLine(ctx, c, [[50.9, 29.4], [50.4, 28.9], [50.1, 28.6]], ka, '#FF6B6B', 6, [14, 10], true);
+      styledText(ctx, 'THE TANKER WAR', W / 2, 140, 96, { k: win(t, 133.0, 137.6), font: 'Playfair Display', grad: ['#FFB3B3', '#FF4D57'], stroke: C.ink }); }
+  }
+  // the attacks: tankers hit all over the Gulf, counter to 400+
+  if (t > 138 && t < 156) {
+    const ex = popOut(155.6 - t);
+    ATTACKS.forEach(([lon, lat, t0], i) => {
+      const [x, y] = P(c, lon, lat);
+      const sunk = t > t0;
+      sprite(ctx, 'tanker_top', x, y, 120, { k: pop(t - 138.4 - i * 0.12) * ex, rot: -28, alpha: sunk ? 0.55 : 1 });
+      if (sunk) { boom(ctx, x, y, 150, (t - t0) / 1.4); puff(ctx, x + 10, y - 30, 70, ((t - t0) * 0.5) % 1, i + 9); }
+      if (i % 4 === 1) sprite(ctx, 'sea_mine', x + 60, y + 40, 40, { k: win(t, t0 - 0.6, t0 + 0.2) });
+      if (i % 4 === 3) sprite(ctx, 'fast_boat', x - 120 + (t - t0 + 0.8) * 90, y + 30, 80, { k: win(t, t0 - 0.8, t0 + 0.1), rot: -20 });
+    });
+    const n = Math.min(400, Math.round(400 * easeOut((t - 141.0) / 7.5) / 10) * 10);
+    const kn = win(t, 140.8, 155.6);
+    styledText(ctx, (n >= 400 ? '400+' : String(n)) + ' Ships Hit', W / 2, 140, 104, { k: kn * (n >= 400 ? 1 + 0.08 * Math.max(0, 1 - (t - 148.5) * 3) : 1), fill: C.gold, stroke: C.goldDark, rot: -2 });
+    // insurance soared
+    const ki = win(t, 149.4, 155.6);
+    if (ki > 0) {
+      ctx.save(); ctx.translate(1640, 760); ctx.scale(ki, ki);
+      ctx.fillStyle = '#0F2E38'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-200, -120, 400, 240, 16); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#4ADE80'; ctx.lineWidth = 9; ctx.lineJoin = 'round'; ctx.beginPath();
+      [[-170, 80], [-110, 60], [-60, 70], [0, 20], [50, 30], [110, -40], [170, -90]].forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+      ctx.restore();
+      styledText(ctx, 'SHIPPING INSURANCE', 1640, 600, 34, { k: ki, fill: C.white });
+    }
+    sprite(ctx, 'marker_usa', 300, 420, 120, { k: win(t, 152.6, 155.6), ay: 0.95 });
+    [[52.0, 25.4, 152.8], [53.2, 25.2, 153.2], [50.7, 26.2, 153.6]].forEach(([lon, lat, t0], i) => {
+      const [x, y] = P(c, lon, lat), slide = 1 - easeOut((t - t0) / 0.9);
+      sprite(ctx, 'warship_top', x + slide * 1200, y, 170, { k: t > t0 ? ex : 0, rot: -20 });
+    });
+  }
+  // reflagging + escorted convoys
+  if (t > 156 && t < 167) {
+    const ex = popOut(166.6 - t);
+    const kh = win(t, 156.4, 161.4);
+    if (kh > 0) {
+      ctx.save(); ctx.globalAlpha = 0.35 * clamp(kh); ctx.fillStyle = '#071C2A'; ctx.fillRect(0, 0, W, H); ctx.restore();
+      sprite(ctx, 'tanker_side', W / 2, 560, 1100, { k: kh });
+      const flip = clamp((t - 158.2) / 0.5);           // Kuwait flag flips to the US flag
+      const fx = W / 2 - 1100 * 0.5 + 135 * 1100 / 900, fy = 560 - 110;
+      ctx.save(); ctx.translate(fx, fy); ctx.scale(clamp(kh) * Math.abs(Math.cos(flip * Math.PI)) || 0.02, clamp(kh));
+      const im = IMG[flip < 0.5 ? 'flag_kwt' : 'flag_usa']; if (im) ctx.drawImage(im, -90, -140, 180, 120); ctx.restore();
+      ctx.save(); ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(fx - 90, fy - 140); ctx.lineTo(fx - 90, fy + 30); ctx.stroke(); ctx.restore();
+    }
+    if (t > 161) {   // convoy: warship leads tankers through the strait
+      const lane = offsetLine(laneScreen(c), -2 * NMI(c));
+      for (let i = 0; i < 4; i++) {
+        const u = clamp(0.25 + (t - 161.2) * 0.07 - i * 0.075);
+        const [x, y] = pointAlong(lane, 1 - u), [x2, y2] = pointAlong(lane, clamp(1 - u - 0.01));
+        const ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
+        sprite(ctx, i === 0 ? 'warship_top' : 'tanker_top', x, y, i === 0 ? 300 : 270, { rot: ang, k: pop(t - 161.2 - i * 0.2) * ex });
+      }
+      drawLanes(ctx, c, ex * 0.8, 0);
+    }
+  }
+  // April 1988: USS Samuel B. Roberts hits a mine, then Operation Praying Mantis
+  if (t > 167 && t < 199) {
+    const ks = win(t, 168.4, 181.0);
+    if (ks > 0) {
+      ctx.save(); ctx.globalAlpha = 0.45 * clamp(ks); ctx.fillStyle = '#071C2A'; ctx.fillRect(0, 0, W, H); ctx.restore();
+      const hit = t > 172.6, tilt = hit ? Math.min(8, (t - 172.6) * 6) : 0;
+      sprite(ctx, 'warship_side', W / 2, 600 + (hit ? Math.min(30, (t - 172.6) * 20) : 0), 1000, { k: ks, rot: tilt });
+      styledText(ctx, 'USS Samuel B. Roberts', W / 2, 360, 54, { k: win(t, 169.0, 177.0), fill: C.white });
+      if (t < 172.8) sprite(ctx, 'sea_mine', W / 2 + 120, 720 + Math.sin(t * 2) * 6, 110, { k: pop(t - 170.4) });
+      boom(ctx, W / 2 + 120, 690, 360, (t - 172.6) / 1.6);
+      if (hit) for (let i = 0; i < 4; i++) puff(ctx, W / 2 + 40 + i * 30, 560, 160, ((t - 172.8) * 0.45 + i / 4) % 1, 20 + i);
+    }
+    styledText(ctx, 'April 14, 1988', W / 2, 140, 90, { k: win(t, 168.6, 175.0), fill: C.gold, stroke: C.goldDark, rot: -2 });
+    styledText(ctx, 'April 18, 1988', W / 2, 140, 90, { k: win(t, 177.4, 181.4), fill: C.gold, stroke: C.goldDark, rot: -2 });
+    // Praying Mantis on the map
+    const km = win(t, 181.6, 198.6);
+    if (km > 0) {
+      styledText(ctx, 'OPERATION PRAYING MANTIS', W / 2, 140, 76, { k: win(t, 181.6, 186.6), font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
+      const targets = [['oil_platform', 53.1, 25.9, 186.4, 180], ['oil_platform', 54.55, 25.85, 187.0, 180],
+                       ['warship_top', 55.9, 26.45, 188.0, 230], ['warship_top', 54.2, 26.2, 188.6, 190],
+                       ['fast_boat', 55.3, 26.55, 189.2, 140], ['fast_boat', 55.55, 26.3, 189.5, 140]];
+      targets.forEach(([name, lon, lat, t0, w], i) => {
+        const [x, y] = P(c, lon, lat);
+        const gone = t > t0 + 0.6;
+        sprite(ctx, name, x, y + (gone && name !== 'oil_platform' ? Math.min(20, (t - t0) * 15) : 0), w,
+               { k: pop(t - 182.4 - i * 0.2) * km, alpha: gone ? Math.max(name === 'oil_platform' ? 0.6 : 0.15, 1 - (t - t0 - 0.6)) : 1, rot: name === 'warship_top' && gone ? (t - t0) * 6 : -15 });
+        boom(ctx, x, y, name === 'oil_platform' ? 200 : 150, (t - t0) / 1.5);
+        if (gone && name === 'oil_platform') puff(ctx, x, y - 50, 90, ((t - t0) * 0.4) % 1, 30 + i);
+      });
+      styledText(ctx, 'Largest US surface naval battle\nsince World War II', W / 2, 160, 64, { k: win(t, 192.2, 198.6), fill: C.gold, stroke: C.goldDark });
+    }
+  }
+  // a permanent tripwire across the strait
+  if (t > 199) {
+    const a = P(c, 56.40, 26.41), b = P(c, 56.36, 26.85), k = clamp((t - 200.6) / 1.0);
+    if (k > 0) {
+      ctx.save(); ctx.strokeStyle = '#FF4D57'; ctx.shadowColor = '#FF4D57'; ctx.shadowBlur = 24; ctx.lineWidth = 5 + Math.sin(t * 20) * 1.2;
+      ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(lerp(a[0], b[0], easeOut(k)), lerp(a[1], b[1], easeOut(k))); ctx.stroke(); ctx.restore();
+    }
+    drawLanes(ctx, c, clamp((t - 199.2) / 1.0), 100);
+  }
+}
+const CAPTIONS2 = [
+  [115.3, 119.0, 'It already happened once'],
+  [123.6, 128.0, 'Iran vs Iraq: 8 years'], [128.1, 132.0, 'A stalemate on land'], [132.1, 137.4, 'So they turned to the water'],
+  [137.6, 142.0, 'Hit the enemy’s oil'], [142.1, 149.2, 'Missiles, mines, gunboats'], [149.3, 152.5, 'Insurance soared'], [152.6, 155.4, 'Superpowers jump in'],
+  [155.6, 161.0, 'Kuwaiti tankers, US flags'], [161.1, 166.4, 'Navy escorts'],
+  [168.4, 172.4, 'April 1988'], [172.5, 177.2, 'A US frigate hits a mine'], [177.3, 181.4, 'Four days later…'],
+  [181.5, 186.2, 'Operation Praying Mantis'], [186.3, 192.0, 'Platforms, ships: gone'], [192.1, 198.4, 'All in a single day'],
+  [198.6, 205, 'A permanent tripwire'],
+];
+
 const CAPTIONS = [
   [0.3, 4.3, 'This tiny curve of water'], [4.4, 7.4, '21 nautical miles wide'], [7.5, 11.0, 'Lanes just 2 miles across'],
   [11.2, 17.4, "One-fifth of the world's oil"], [17.6, 22.0, 'The Strait of Hormuz'], [22.1, 27.8, 'A global flashpoint'],
@@ -457,7 +615,7 @@ const CAPTIONS = [
 ];
 
 function drawText(ctx, t) {
-  for (const [t0, t1, txt] of CAPTIONS) { const k = win(t, t0, t1, .26, .18); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1400 }); }
+  for (const [t0, t1, txt] of CAPTIONS.concat(CAPTIONS2)) { const k = win(t, t0, t1, .26, .18); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1400 }); }
 }
 
 function vignette(ctx) {
@@ -471,7 +629,7 @@ function renderAt(t, ctx) {
   const c = camAt(t);
   drawMap(ctx, c);
   vignette(ctx);
-  sceneHook(ctx, c, t); sceneChapter1(ctx, c, t); sceneChapterCard(ctx, t);
+  sceneHook(ctx, c, t); if (t < 115.2) sceneChapter1(ctx, c, t); sceneChapterCard(ctx, t); sceneChapter2(ctx, c, t);
   drawText(ctx, t);
   ctx.save(); ctx.globalAlpha = 0.4; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
 }

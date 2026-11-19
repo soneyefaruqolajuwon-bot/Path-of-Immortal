@@ -31,6 +31,13 @@ ANCHORS = [
     (7, "exit", 0, 68.4), (7, "europe", 0, 70.2),
     (8, "musandam", 0, 78.4), (8, "exclave", 0, 81.6),
     (9, "keys", 0, 90.2), (9, "neutral", 0, 95.4), (9, "missiles", 0, 101.4), (9, "mines", 0, 106.0),
+    # Part 2
+    (11, "eighties", 0, 125.4), (11, "water", 0, 132.2), (11, "tanker", 0, 133.0),
+    (12, "four", 0, 141.0), (12, "insurance", 0, 149.4), (12, "superpowers", 0, 152.6),
+    (13, "reflagged", 0, 156.4), (13, "american", 0, 158.2), (13, "escort", 0, 161.2),
+    (14, "april", 0, 168.6), (14, "mine", 0, 172.6), (14, "four", 0, 177.4), (14, "praying", 0, 181.6),
+    (14, "platforms", 0, 186.4), (14, "largest", 0, 192.2),
+    (15, "tripwire", 0, 200.6),
 ]
 VO_DELAY, VO_TAIL = 0.06, 0.3
 
@@ -41,14 +48,28 @@ SFX_CUES = [
     (53.4, "pop", -0.4), (54.6, "pop", -0.4), (55.6, "pop", -0.3), (56.6, "pop", 0), (57.6, "pop", 0.2), (58.8, "pop", 0.2), (60.4, "chaching", 0),
     (65.6, "whoosh", 0), (68.4, "thud", 0.3), (77.2, "whoosh", 0), (78.4, "ding", 0.3), (90.2, "ding", 0),
     (101.4, "thud", -0.3), (102.4, "thud", 0.2), (104.2, "whoosh", 0.3), (106.0, "pop", 0),
+    # Part 2
+    (115.4, "zap", 0), (119.2, "whoosh", 0), (119.5, "ding", 0), (124.6, "pop", -0.4), (124.9, "pop", 0.4), (126.6, "drums", 0),
+    (132.2, "whoosh", 0), (133.0, "thud", 0),
+    (141.0, "bang", -0.3), (142.2, "gunshot", 0), (143.2, "bang", 0.2), (144.8, "gunshot", 0.3), (146.1, "bang", -0.2), (147.5, "gunshot", 0.1), (148.4, "ding", 0),
+    (149.4, "chaching", 0.4), (152.8, "horn", 0.3),
+    (156.4, "whoosh", 0), (158.2, "whoosh", -0.3), (158.5, "ding", 0), (161.2, "horn", 0),
+    (168.4, "whoosh", 0), (170.4, "pop", 0.2), (172.6, "bang", 0), (172.7, "thud", 0),
+    (177.4, "whoosh", 0), (181.6, "ding", 0), (186.4, "bang", -0.4), (187.0, "bang", -0.1), (188.0, "gunshot", 0.3), (188.6, "bang", 0.1),
+    (189.2, "gunshot", 0.3), (189.5, "gunshot", 0.4), (192.2, "ding", 0),
+    (200.6, "zap", 0),
 ]
 
 
 def music_env(T):
     if 42.4 <= T < 45.5:          # chapter card: let it breathe
         return 1.0
-    if T >= 100.8:                # threat build-up
+    if 100.8 <= T < 115:          # threat build-up
         return 0.7
+    if 119.2 <= T < 123.4:        # chapter 2 card
+        return 1.0
+    if 168.4 <= T < 181.4:        # the mine strike: let it breathe
+        return 0.45
     return 0.8
 
 

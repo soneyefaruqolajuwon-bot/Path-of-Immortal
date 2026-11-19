@@ -258,8 +258,41 @@ def build_map():
     save("persian-gulf-map.svg", svg(W, H, "".join(body), defs))
 
 
+# ------------------------------------------------------------------ Part 2 props (Tanker War)
+
+def build_part2():
+    # Iran vs Iraq flag characters (direct comparison during the war)
+    s, _, _ = PR.flag_character("irn", "irnwar", larm=(-150, -100), rarm=(10, -20), eyes=dict(look=(1, 0), lid=0.3, slope_l=16, slope_r=-16))
+    save("iran_war.svg", s)
+    s, _, _ = PR.flag_character("irq", "irqwar", larm=(190, 200), rarm=(-30, -80), eyes=dict(look=(-1, 0), lid=0.3, slope_l=16, slope_r=-16))
+    save("iraq_war.svg", s)
+    # offshore oil platform
+    plat = (f'<path d="M60,330 L90,150 M240,330 L210,150 M100,330 L120,150 M200,330 L180,150" stroke="{INK}" stroke-width="10"/>'
+            f'<path d="M70,260 L230,260 M80,200 L220,200" stroke="{INK}" stroke-width="7"/>'
+            f'<rect x="40" y="110" width="220" height="44" rx="6" fill="#8C979F" stroke="{INK}" stroke-width="7"/>'
+            f'<rect x="60" y="60" width="90" height="52" rx="4" fill="#E8B33A" stroke="{INK}" stroke-width="6"/>'
+            f'<path d="M190,110 L210,20 L230,110" fill="none" stroke="{INK}" stroke-width="7"/><path d="M196,80 H224 M202,52 H218" stroke="{INK}" stroke-width="5"/>'
+            f'<path d="M230,40 Q260,30 262,10" stroke="#E63946" stroke-width="6" fill="none"/>'
+            f'<path d="M20,335 q40,-12 80,0 t80,0 t80,0" stroke="#7FD3FF" stroke-width="6" fill="none" opacity="0.7"/>')
+    save("oil_platform.svg", svg(300, 350, plat))
+    # explosion burst
+    pts = []
+    for i in range(22):
+        r = 150 if i % 2 == 0 else 80
+        a = math.radians(i * 360 / 22 - 90)
+        pts.append(f"{160 + r*math.cos(a):.0f},{160 + r*math.sin(a):.0f}")
+    pts2 = []
+    for i in range(18):
+        r = 92 if i % 2 == 0 else 48
+        a = math.radians(i * 20 - 80)
+        pts2.append(f"{160 + r*math.cos(a):.0f},{160 + r*math.sin(a):.0f}")
+    save("explosion.svg", svg(320, 320, f'<polygon points="{" ".join(pts)}" fill="#FF7A00" stroke="{INK}" stroke-width="7" stroke-linejoin="round"/>'
+                                       f'<polygon points="{" ".join(pts2)}" fill="#FFD43B"/><circle cx="160" cy="160" r="30" fill="#FFF6C8"/>'))
+
+
 if __name__ == "__main__":
     build_flags()
     build_props()
     build_map()
+    build_part2()
     print("\n".join(sorted(f for f in os.listdir(OUT) if f.endswith(".svg"))))
