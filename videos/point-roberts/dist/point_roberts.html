@@ -107,7 +107,8 @@ function loadAssets() {
   }
   NOISE = noiseTile(256, 10, 0.035);
   NOISE_FINE = noiseTile(256, 1.5, 0.025);
-  return Promise.all([...jobs, document.fonts.ready]);
+  const fonts = ['800 84px "Playfair Display"', '800 64px "Montserrat"'].map(f => document.fonts.load(f));
+  return Promise.all([...jobs, ...fonts]).then(() => document.fonts.ready);
 }
 function noiseTile(n, blob, amp) {
   const cv = document.createElement('canvas'); cv.width = cv.height = n;
@@ -327,8 +328,8 @@ function scene1846(ctx, c, t) {       // 14–25
   if (t < 14.2 || t > 25.5) return;
   const ex = popOut(25.4 - t);
   // Britain (north) and USA (south) flag characters
-  const [bx, by] = P(c, -110, 56), [ux, uy] = P(c, -100, 40);
-  sprite(ctx, 'britain_surprised', bx, by, 440, { k: win(t, 15.0, 19.4), rot: wob(t, .8, 3) });
+  const [bx, by] = P(c, -113, 51.9), [ux, uy] = P(c, -100, 40);
+  sprite(ctx, 'britain_surprised', bx, by, 360, { k: win(t, 15.0, 19.4), rot: wob(t, .8, 3) });
   sprite(ctx, 'usa_confident', ux, uy, 440, { k: win(t, 15.3, 19.4), rot: wob(t, .8, 3, 1) });
   // giant ruler slams onto the 49th parallel
   const [lx0, ly] = P(c, -123.3, 49), [lx1] = P(c, -95.15, 49);

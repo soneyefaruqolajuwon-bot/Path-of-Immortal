@@ -23,6 +23,8 @@ python tools/build_html.py       # dist/point_roberts.html
 python tools/render.py           # out/point_roberts*.mp4 (needs Chromium + Playwright for Node, ffmpeg)
 ```
 
+Voice speed: always 1.2x (house style). `tools/align_vo.py take.mp3` splits a full-script take, writes word timings and applies the 1.2x speed-up automatically (`--tempo` to override).
+
 Voice: drop `vo/01.mp3` … `vo/11.mp3` (plus `vo/timing.json` word timings, which I generate from the
 recording) and re-run `render.py`. Each beat re-times to the voice, key visuals snap to their spoken
 words, and the music ducks under the voice. Sound effects and music come from the Pig War project's
