@@ -431,7 +431,7 @@ const CAPTIONS = [
   [65.4, 68.5, 'Residents compensated'], [68.6, 71.6, 'The maze, cleared'], [71.7, 77.0, 'Torn down'],
   [77.6, 81.0, 'Now, a quiet park'], [81.2, 85.0, 'Almost nothing left'],
 ];
-const KINETIC = [[8.6, 12.4, '1898'], [26.0, 31.0, '300 Towers'], [72.4, 77.0, '1994']];
+const KINETIC = [[8.6, 12.4, '1898'], [26.0, 30.2, '300 Towers'], [72.4, 77.0, '1994']];
 
 function drawText(ctx, t) {
   for (const [t0, t1, txt] of CAPTIONS) { const k = win(t, t0, t1, .26, .18); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 960 }); }
@@ -440,7 +440,7 @@ function drawText(ctx, t) {
   if (kp > 0) { const n = Math.round(35000 * easeOut((t - 36.4) / 1.6) / 100) * 100;
     styledText(ctx, n.toLocaleString('en-US'), W / 2, 270, 150, { k: kp, fill: C.yellow, stroke: C.goldDark, rot: -3 });
     styledText(ctx, 'PEOPLE', W / 2, 400, 80, { k: kp, fill: C.white, stroke: C.goldDark, rot: -3 }); }
-  const kff = win(t, 39.6, 42.0);           // size comparison: four football fields
+  const kff = win(t, 39.5, 44.6);           // size comparison: four football fields (held so it can be read)
   if (kff > 0) sprite(ctx, 'football_fields', 540, 1600, 560, { k: kff });
 }
 
