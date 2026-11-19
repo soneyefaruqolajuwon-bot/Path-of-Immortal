@@ -6,7 +6,7 @@ out). Send one long take in order, or 7 clips named `01`–`07`. I split, align 
 | # | Paste this |
 |---|---|
 | 01 | [intriguing] Look at this tiny six-acre block in the middle of Hong Kong. For almost a century, NEITHER Britain nor China wanted anything to do with it… [dramatic] and accidentally created the wildest city on Earth. |
-| 02 | [storytelling] Back in eighteen ninety-eight, when Britain leased Hong Kong, they left out this one old Chinese military fort. [conspiratorial] Because of a diplomatic loophole, neither side enforced laws inside. [punchy] No taxes. No building codes. No police. |
+| 02 | [storytelling] Back in eighteen ninety-eight, when Britain leased the land around Hong Kong, they left out this one old Chinese military fort. [conspiratorial] Because of a diplomatic loophole, neither side enforced laws inside. [punchy] No taxes. No building codes. No police. |
 | 03 | [amazed] So people just started building… [beat] and never stopped. THREE HUNDRED apartment towers fused together into one giant concrete brick. [hushed] Sunlight literally couldn't reach the bottom alleys — people had to carry umbrellas INDOORS just to dodge water dripping from leaky pipes above. |
 | 04 | [building] At its peak, thirty-five thousand people lived inside a space the size of four football fields. [excited] Planes landing at the nearby airport skimmed just feet above the rooftop TV antennas. [deadpan] Unlicensed dentists lined the hallways… [ominous] and organized gangs basically ran the place. |
 | 05 | [thoughtful] Honestly, it sounds like a dystopian movie — [warm] except real families lived, worked, and raised kids there for decades. [serious] Until nineteen eighty-seven, when Britain and China finally agreed things had gone too far. |
@@ -17,7 +17,7 @@ out). Send one long take in order, or 7 clips named `01`–`07`. I split, align 
 
 | Line | Status | Note |
 |---|---|---|
-| 02 "when Britain leased Hong Kong" | ⚠️ Slightly off | The 1898 lease was the **New Territories** (Hong Kong Island and Kowloon's tip were already British). Safer: "when Britain leased the land around Hong Kong" or "…expanded Hong Kong". |
+| 02 "when Britain leased the land around Hong Kong" | ✅ Corrected | Originally "when Britain leased Hong Kong". The 1898 lease covered the **New Territories** around Hong Kong; Hong Kong Island and Kowloon's tip were already British. |
 | 01 "six-acre" | ✅ | About 6.4 acres (2.6 ha). |
 | 03 "Three hundred towers" | ✅ | Roughly 300–350 interconnected buildings. |
 | 04 "35,000 people" | ✅ | A 1987 survey counted about 33,000; estimates range higher. |

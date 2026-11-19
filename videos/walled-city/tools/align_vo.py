@@ -13,7 +13,7 @@ VO = os.path.join(HERE, "..", "vo")
 RAW = os.path.join(VO, "raw")
 LINES = [
     "Look at this tiny six acre block in the middle of Hong Kong For almost a century neither Britain nor China wanted anything to do with it and accidentally created the wildest city on Earth",
-    "Back in eighteen ninety eight when Britain leased Hong Kong they left out this one old Chinese military fort Because of a diplomatic loophole neither side enforced laws inside No taxes no building codes no police",
+    "Back in eighteen ninety eight when Britain leased the land around Hong Kong they left out this one old Chinese military fort Because of a diplomatic loophole neither side enforced laws inside No taxes no building codes no police",
     "So people just started building and never stopped Three hundred apartment towers fused together into one giant concrete brick Sunlight literally couldn't reach the bottom alleys people had to carry umbrellas indoors just to dodge water dripping from leaky pipes above",
     "At its peak thirty five thousand people lived inside a space the size of four football fields Planes landing at the nearby airport skimmed just feet above the rooftop TV antennas Unlicensed dentists lined the hallways and organized gangs basically ran the place",
     "Honestly it sounds like a dystopian movie except real families lived worked and raised kids there for decades Until nineteen eighty seven when Britain and China finally agreed things had gone too far",
