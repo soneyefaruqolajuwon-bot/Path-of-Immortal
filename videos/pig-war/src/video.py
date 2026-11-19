@@ -61,8 +61,8 @@ ANCHORS = [
     (12, "london", 0, 79.0), (12, "kaiser", 0, 81.9), (12, "winner", 0, 84.8),
     (13, "seventy", 0, 89.9), (13, "us", 0, 90.4), (13, "zero", 0, 91.9), (13, "one", 0, 92.4),
 ]
-VO_DELAY = {13: 1.1, 5: 0.3}   # extra lead-in before a line (lets camera moves breathe)
-VO_TAIL = 0.3
+VO_DELAY = {13: 0.6, 5: 0.15}   # extra lead-in before a line (lets camera moves breathe)
+VO_TAIL = 0.12
 
 
 class Timeline:
@@ -90,7 +90,7 @@ class Timeline:
             delay = VO_DELAY.get(bid, 0.0) + 0.08
             if bid in self.vo:
                 d = self.vo[bid][1]
-                dur = max(d + delay + VO_TAIL, nom * 0.7)
+                dur = max(d + delay + VO_TAIL, nom * 0.45)
             else:
                 dur = nom
             self.real.append((bid, t, t + dur, s, e))
