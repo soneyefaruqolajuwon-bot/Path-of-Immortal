@@ -47,46 +47,83 @@ def probe_duration(path):
     return float(out.stdout.strip())
 
 
+# Word anchors: (beat, word, nth occurrence in that line, storyboard time).
+# With vo/timing.json present, these storyboard moments land exactly on the spoken word.
+ANCHORS = [
+    (2, "shot", 0, 4.2), (3, "warships", 0, 7.0),
+    (4, "over", 0, 11.25),
+    (6, "vaguely", 0, 21.2), (6, "both", 0, 22.9),
+    (7, "side", 0, 27.6), (7, "tensions", 0, 31.1),
+    (8, "june", 0, 35.2), (8, "lyman", 0, 37.5), (8, "pulled", 0, 44.3),
+    (9, "ten", 0, 46.4), (9, "british", 0, 49.5), (9, "hundred", 0, 51.0), (9, "arrest", 0, 53.4),
+    (10, "pickett", 0, 58.2), (10, "five", 0, 62.0), (10, "two", 0, 64.3),
+    (11, "instead", 0, 69.0), (11, "drinking", 0, 72.6),
+    (12, "london", 0, 79.0), (12, "kaiser", 0, 81.9), (12, "winner", 0, 84.8),
+    (13, "seventy", 0, 89.9), (13, "us", 0, 90.4), (13, "zero", 0, 91.9), (13, "one", 0, 92.4),
+]
+VO_DELAY = {13: 1.1, 5: 0.3}   # extra lead-in before a line (lets camera moves breathe)
+VO_TAIL = 0.3
+
+
 class Timeline:
-    """Maps real time <-> storyboard time, beat by beat."""
+    """Maps real time <-> storyboard time with piecewise-linear knots."""
 
     def __init__(self, use_vo=True):
+        import json
         self.vo = {}
+        self.words = {}
         if use_vo:
             for b in BEATS:
                 hits = sorted(glob.glob(os.path.join(VO_DIR, f"{b[0]:02d}*")))
                 hits = [h for h in hits if h.lower().endswith((".mp3", ".wav", ".m4a", ".ogg", ".aac", ".flac"))]
                 if hits:
                     self.vo[b[0]] = (hits[0], probe_duration(hits[0]))
+            tj = os.path.join(VO_DIR, "timing.json")
+            if self.vo and os.path.exists(tj):
+                with open(tj) as f:
+                    self.words = {int(k): v for k, v in json.load(f).items()}
         self.real = []  # (bid, real_start, real_end, nom_start, nom_end)
+        knots = [(0.0, 0.0)]
         t = 0.0
         for bid, s, e, *_ in BEATS:
             nom = e - s
+            delay = VO_DELAY.get(bid, 0.0) + 0.08
             if bid in self.vo:
                 d = self.vo[bid][1]
-                dur = max(d + 0.35, nom * 0.8)
+                dur = max(d + delay + VO_TAIL, nom * 0.7)
             else:
                 dur = nom
             self.real.append((bid, t, t + dur, s, e))
+            beat_knots = []
+            for ab, word, nth, tn in ANCHORS:
+                if ab != bid or bid not in self.words:
+                    continue
+                hits = [w for w in self.words[bid] if w[0] == word]
+                if len(hits) > nth:
+                    beat_knots.append((t + delay + hits[nth][1], tn))
+            beat_knots.sort()
+            last_r, last_n = knots[-1]
+            for r, n in beat_knots:
+                if r > last_r + 0.05 and n > last_n + 0.05 and r < t + dur - 0.05 and n < e - 0.05:
+                    knots.append((r, n))
+                    last_r, last_n = r, n
+            knots.append((t + dur, e))
             t += dur
         self.duration = t
+        self.kr = np.array([k[0] for k in knots])
+        self.kn = np.array([k[1] for k in knots])
 
     def nominal(self, tr):
-        for bid, rs, re, ns, ne in self.real:
-            if tr < re or bid == self.real[-1][0]:
-                return ns + (tr - rs) / (re - rs) * (ne - ns)
-        return BEATS[-1][2]
+        return float(np.interp(tr, self.kr, self.kn))
 
     def to_real(self, tn):
-        for bid, rs, re, ns, ne in self.real:
-            if tn < ne or bid == self.real[-1][0]:
-                return rs + (tn - ns) / (ne - ns) * (re - rs)
+        return float(np.interp(tn, self.kn, self.kr))
 
     def vo_events(self):
         out = []
         for bid, rs, re, ns, ne in self.real:
             if bid in self.vo:
-                out.append((rs + 0.08, self.vo[bid][0]))
+                out.append((rs + 0.08 + VO_DELAY.get(bid, 0.0), self.vo[bid][0]))
         return out
 
 
