@@ -23,7 +23,7 @@ const FPS = 30, DUR = 28;
     }
   } else {
     const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-',
-      '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '17', '-preset', 'medium', '-r', String(FPS), a],
+      '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23', '-maxrate', '8M', '-bufsize', '16M', '-preset', 'medium', '-r', String(FPS), a],
       { stdio: ['pipe', 'inherit', 'inherit'] });
     const N = FPS * DUR;
     for (let f = 0; f < N; f++) {

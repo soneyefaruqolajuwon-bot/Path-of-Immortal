@@ -306,7 +306,7 @@ window.draw=function(T){
 
   // slider
   let sa=.28;if(t>=6.0)sa=1;if(t>=16.2&&t<23.0)sa=.3;if(t>=23.0)sa=1;
-  let act=0;if(t>=6.2&&t<23.0)act=Math.round(markerPos(t));
+  let act=0;if(t>=6.2&&t<23.0)act=levelAt(t);
   if(t>=23.25){act=0;}
   slider(t,sa,act);
   if(t>=23.0){ // reset pulse on marker
