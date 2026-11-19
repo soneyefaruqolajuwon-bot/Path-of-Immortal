@@ -15,8 +15,12 @@ VO_DIR = os.path.join(R, "vo")
 OUT = os.path.join(R, "out")
 FPS = 30
 
-BEATS = [(1, 0, 11), (2, 11, 17.5), (3, 17.5, 32), (4, 32, 42.4), (5, 45, 52), (6, 52, 65), (7, 65, 75), (8, 75, 88), (9, 88, 115)]
-# beat 4 -> 5 gap (42.4–45) is the silent chapter card
+BEATS_BY_PART = {
+    1: [(1, 0, 11), (2, 11, 17.5), (3, 17.5, 32), (4, 32, 42.4), (5, 45, 52), (6, 52, 65), (7, 65, 75), (8, 75, 88), (9, 88, 115)],
+    2: [(10, 115, 119), (11, 123, 137), (12, 137, 155), (13, 155, 166), (14, 166, 198), (15, 198, 205)],
+}
+BEATS = BEATS_BY_PART[1]
+# gaps between beats (e.g. 42.4–45, 119–123) are silent chapter cards and keep their storyboard length
 ANCHORS = [
     (1, "twenty", 0, 4.4), (1, "shipping", 0, 7.5),
     (2, "fifth", 0, 12.0),
@@ -87,10 +91,18 @@ class Timeline:
             tj = os.path.join(VO_DIR, "timing.json")
             if self.vo and os.path.exists(tj):
                 self.words = {int(k): v for k, v in json.load(open(tj)).items()}
-        knots, t = [(0.0, 0.0)], 0.0
+        knots, t = [(0.0, BEATS[0][1])], 0.0
         self.real = []
+        prev_e = BEATS[0][1]
         for bid, s, e in BEATS:
-            dur = max(self.vo[bid][1] + VO_DELAY + VO_TAIL, (e - s) * 0.45) if bid in self.vo else e - s
+            if s > prev_e + 1e-6:          # silent chapter card between beats
+                t += s - prev_e
+                knots.append((t, s))
+            prev_e = e
+            if bid in self.vo:
+                dur = max(self.vo[bid][1] + VO_DELAY + VO_TAIL, (e - s) * 0.45)
+            else:
+                dur = (e - s) * (0.4 if self.vo else 1.0)   # line missing from the take: keep the visual short
             self.real.append((bid, t, t + dur))
             ks = []
             for ab, w, nth, tn in ANCHORS:
@@ -113,7 +125,11 @@ class Timeline:
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--part", type=int, default=1)
     a = ap.parse_args()
+    global BEATS
+    BEATS = BEATS_BY_PART[a.part]
+    lo_t, hi_t = BEATS[0][1], BEATS[-1][2]
     subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")], check=True)
     _register_sfx()
     tl = Timeline(not a.no_vo)
@@ -131,9 +147,9 @@ def main():
     silent = os.path.join(seg, "silent.mp4")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(seg, "list.txt"), "-c", "copy", silent], check=True)
     wav = os.path.join(seg, "mix.wav")
-    AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES], tl.vo_events(),
+    AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES if lo_t <= t < hi_t], tl.vo_events(),
            lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18)
-    name = "hormuz_part1.mp4" if tl.vo else "hormuz_part1_draft_no_voice.mp4"
+    name = f"hormuz_part{a.part}.mp4" if tl.vo else f"hormuz_part{a.part}_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)
