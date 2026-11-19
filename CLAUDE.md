@@ -6,5 +6,6 @@
   `tools/align_vo.py` does this by default.
 - Write ElevenLabs lines with tone tags (`[deadpan]`, `[dramatic]`…), `…` pauses, CAPS for emphasis and spelled-out numbers.
 - The user often works from a phone: always paste the voiceover lines directly in chat, not only in a file.
+- When pasting a script for ElevenLabs, do NOT number the lines: plain paragraphs only, so it copies and pastes cleanly.
 - Style blueprint: Map Warden-like 9:16 map explainers (teal ocean #1E4D5C, olive land #8A855C, flag characters
   with stick arms and eyes, white 2–4 word captions, gold title cards, yellow kinetic numbers).
