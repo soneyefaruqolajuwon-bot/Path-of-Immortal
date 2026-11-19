@@ -1,0 +1,178 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#181c20;overflow:hidden}#stage{width:1080px;height:1920px}#stage svg{display:block}</style>
+</head><body><div id="stage"></div>
+<script>
+// SlumxPsych — "Stare at His Nose" (afterimage). window.draw(t) renders one 1080x1920 frame.
+const W=1080,H=1920,DUR=33;
+const C={slate:'#181c20',white:'#FFFFFF',cyan:'#00F0FF',gold:'#FFD700',red:'#FF2A4B',magenta:'#FF00FF',ink:'#111216',
+  orange:'#FF6A00',orangeSh:'#D2520A',skinSh:'#C3CEDA',grey:'#808080'};
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const lerp=(a,b,x)=>a+(b-a)*x;
+const eo=x=>1-Math.pow(1-x,3);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const spring=x=>x>=1?1:1-Math.exp(-6*x)*Math.cos(10*x);
+const S=`stroke="${C.ink}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"`;
+const NOSE={x:545,y:1036};          // fixation point (nose tip)
+
+// ---------------- defs + static background ----------------
+const DEFS=`<defs>
+ <pattern id="ht" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="5.5" cy="5.5" r="2.4" fill="#000" opacity=".28"/></pattern>
+ <pattern id="htbg" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="4.2" fill="#B8703F"/></pattern>
+ <radialGradient id="htmask" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".7" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ <mask id="htm"><rect width="${W}" height="${H}" fill="url(#htmask)"/></mask>
+ <filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="rim" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="5"/></filter>
+ <filter id="shadow" x="-10%" y="-30%" width="120%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".9"/></filter>
+ <filter id="inv" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="-1 0 0 0 1  0 -1 0 0 1  0 0 -1 0 1  0 0 0 1 0"/></filter>
+ <clipPath id="leftHalf"><rect x="0" y="0" width="540" height="${H}"/></clipPath>
+ <clipPath id="rightHalf"><rect x="540" y="0" width="540" height="${H}"/></clipPath>
+</defs>`;
+function background(){
+  let s=`<rect width="${W}" height="${H}" fill="${C.slate}"/>`;
+  // blueprint grid
+  for(let x=0;x<=W;x+=60)s+=`<path d="M${x+.5} 0V${H}" stroke="#222831" stroke-width="1"/>`;
+  for(let y=0;y<=H;y+=60)s+=`<path d="M0 ${y+.5}H${W}" stroke="#222831" stroke-width="1"/>`;
+  // halftone glow behind the host
+  s+=`<g mask="url(#htm)"><ellipse cx="540" cy="1420" rx="560" ry="520" fill="url(#htbg)"/></g>`;
+  // viewfinder brackets at the safe zone corners
+  const b=(x,y,dx,dy)=>`<path d="M${x+dx*50} ${y}H${x}V${y+dy*50}" fill="none" stroke="#3A4250" stroke-width="4"/>`;
+  s+=b(60,346,1,1)+b(1020,346,-1,1)+b(60,1440,1,-1)+b(1020,1440,-1,-1);
+  // telemetry readouts
+  const m=(x,y,t,a='start')=>`<text x="${x}" y="${y}" font-family="DejaVu Sans Mono,monospace" font-size="18" fill="#5A6576" text-anchor="${a}">${t}</text>`;
+  s+=m(80,330,'SLMX // TEST 09 // AFTERIMAGE')+m(1000,330,'FIX: 545,1036','end')+m(80,1468,'CONE ADAPTATION')+m(1000,1468,'λ 470 / 590 nm','end');
+  // sparkle accents (static)
+  const plus=(x,y,c)=>`<path d="M${x-10} ${y}H${x+10}M${x} ${y-10}V${y+10}" stroke="${c}" stroke-width="3" stroke-linecap="round" opacity=".8"/>`;
+  const dash=(x1,y1,x2,y2,c)=>`<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${c}" stroke-width="4" stroke-linecap="round" opacity=".75"/>`;
+  s+=dash(90,760,150,810,C.cyan)+dash(990,760,940,810,C.cyan)+dash(330,770,350,800,C.magenta)+dash(760,770,740,800,C.magenta);
+  s+=plus(820,880,C.cyan)+plus(250,1110,C.magenta)+plus(860,1150,C.magenta)+plus(230,880,C.cyan);
+  return s;
+}
+const BG=background();
+
+// ---------------- the host rig (absolute coords, 1080x1920) ----------------
+function pointHand(x,y,ang,flip=false){
+  // local: index finger points along +x, fist centred at 0,0
+  const fy=flip?-1:1;
+  return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(1 ${fy})">
+    <rect x="-50" y="-46" width="96" height="92" rx="36" fill="#fff" ${S}/>
+    <path d="M18 -40 L104 -40 Q124 -40 124 -22 Q124 -4 104 -4 L18 -4" fill="#fff" ${S}/>
+    <path d="M-8 -46 Q22 -66 48 -50 Q54 -36 34 -34" fill="#fff" ${S}/>
+    <path d="M46 -2 Q60 8 46 18 M46 18 Q58 28 44 38" fill="#fff" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M-20 0 Q14 6 44 0 M-20 20 Q12 26 42 20" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round"/>
+    <path d="M100 -32 Q112 -32 114 -22" fill="none" stroke="${C.skinSh}" stroke-width="4" stroke-linecap="round"/>
+  </g>`;
+}
+function sleeve(sx,sy,ex,ey,wx,wy){
+  const d=`M${sx} ${sy} Q${ex} ${ey} ${wx} ${wy}`;
+  return `<path d="${d}" fill="none" stroke="${C.ink}" stroke-width="124" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${C.orange}" stroke-width="110" stroke-linecap="round"/>
+          <path d="${d}" fill="none" stroke="${C.orangeSh}" stroke-width="40" stroke-linecap="round" opacity=".55" transform="translate(16 6)"/>`;
+}
+const HEAD='M540 772 C656 772 718 866 715 990 C713 1094 656 1176 540 1180 C424 1176 367 1094 365 990 C362 866 424 772 540 772 Z';
+const TORSO='M200 1940 L218 1400 C226 1300 312 1246 420 1232 L660 1232 C768 1246 854 1300 862 1400 L880 1940 Z';
+function host(o){
+  // o: {brows:'neutral'|'smirk'|'raised', mouth:'smirk'|'open'|'talk'|'flat', blink, armL:{...}|null, armR, rim:true}
+  let s='';
+  const blink=o.blink||0, talk=o.talk||0;
+  // ears
+  s+=`<ellipse cx="368" cy="1002" rx="34" ry="48" fill="#fff" ${S}/><path d="M362 980 Q384 1000 366 1026" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>`;
+  s+=`<ellipse cx="712" cy="1002" rx="34" ry="48" fill="${C.skinSh}" ${S}/><path d="M718 980 Q696 1000 714 1026" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>`;
+  // neck
+  s+=`<path d="M480 1130 L480 1260 L600 1260 L600 1130 Z" fill="${C.skinSh}" ${S}/>`;
+  // torso (cel + halftone)
+  s+=`<clipPath id="torsoClip"><path d="${TORSO}"/></clipPath>`;
+  s+=`<path d="${TORSO}" fill="${C.orangeSh}"/><path d="${TORSO}" fill="url(#ht)"/>`;
+  s+=`<g clip-path="url(#torsoClip)"><path d="M150 1940 L170 1420 C180 1310 290 1250 420 1236 L600 1236 C700 1260 720 1420 700 1940 Z" fill="${C.orange}"/></g>`;
+  s+=`<path d="${TORSO}" fill="none" ${S} stroke-width="7"/>`;
+  // pocket + seams
+  s+=`<path d="M380 1650 L700 1650 L740 1900 L340 1900 Z" fill="${C.orange}" ${S}/><path d="M380 1650 L700 1650 L740 1900 L340 1900 Z" fill="url(#ht)" opacity=".5"/>`;
+  s+=`<path d="M300 1440 Q312 1560 300 1700 M780 1440 Q768 1560 780 1700" fill="none" stroke="${C.ink}" stroke-width="4" stroke-linecap="round" opacity=".7"/>`;
+  // hood ring + V opening
+  s+=`<path d="M392 1236 C410 1176 670 1176 688 1236 C700 1306 618 1352 540 1356 C462 1352 380 1306 392 1236 Z" fill="${C.orangeSh}" ${S}/>`;
+  s+=`<path d="M392 1236 C410 1176 670 1176 688 1236 C700 1306 618 1352 540 1356 C462 1352 380 1306 392 1236 Z" fill="url(#ht)" opacity=".7"/>`;
+  s+=`<path d="M462 1228 L540 1336 L618 1228 Q540 1206 462 1228 Z" fill="#fff" ${S}/>`;
+  // drawstrings
+  s+=`<path d="M505 1300 Q500 1400 496 1500 M575 1300 Q580 1400 584 1500" fill="none" stroke="${C.ink}" stroke-width="7" stroke-linecap="round"/>`;
+  s+=`<rect x="488" y="1496" width="16" height="30" rx="6" fill="#fff" ${S} stroke-width="4"/><rect x="576" y="1496" width="16" height="30" rx="6" fill="#fff" ${S} stroke-width="4"/>`;
+  // resting sleeves (drawn before head so raised arms go over)
+  if(!o.armL)s+=sleeve(300,1330,248,1640,240,1990);
+  if(!o.armR)s+=sleeve(780,1330,832,1640,840,1990);
+  // head (cel + halftone)
+  s+=`<clipPath id="headClip"><path d="${HEAD}"/></clipPath>`;
+  s+=`<path d="${HEAD}" fill="${C.skinSh}"/><path d="${HEAD}" fill="url(#ht)" opacity=".8"/>`;
+  s+=`<g clip-path="url(#headClip)"><ellipse cx="508" cy="958" rx="196" ry="214" fill="#fff"/></g>`;
+  // rim lights (cyan left, magenta right)
+  if(o.rim!==false){
+    s+=`<g filter="url(#rim)" opacity=".85"><path d="${HEAD}" fill="none" stroke="${C.cyan}" stroke-width="16" clip-path="url(#leftHalf)"/><path d="${HEAD}" fill="none" stroke="${C.magenta}" stroke-width="16" clip-path="url(#rightHalf)"/>
+      <path d="${TORSO}" fill="none" stroke="${C.cyan}" stroke-width="18" clip-path="url(#leftHalf)"/><path d="${TORSO}" fill="none" stroke="${C.magenta}" stroke-width="18" clip-path="url(#rightHalf)"/></g>`;
+  }
+  s+=`<path d="${HEAD}" fill="none" ${S} stroke-width="7"/>`;
+  // brows (thick tapered ink)
+  const brow=(x,y,lift,tilt,flip)=>{const f=flip?-1:1;
+    return `<path d="M${x-44*f} ${y+10-tilt} Q${x} ${y-14-lift} ${x+44*f} ${y-4+tilt-lift*.4} L${x+42*f} ${y+8+tilt-lift*.4} Q${x} ${y-lift} ${x-44*f} ${y+20-tilt} Z" fill="${C.ink}"/>`;};
+  const BR={neutral:[[0,0],[0,0]],smirk:[[0,4],[16,-6]],raised:[[18,0],[18,0]]}[o.brows||'neutral'];
+  s+=brow(478,930,BR[0][0],BR[0][1],false)+brow(604,930,BR[1][0],BR[1][1],true);
+  // eyes
+  [[480,978],[602,978]].forEach(([x,y])=>{
+    const ry=19*(1-blink);
+    if(blink>.85)s+=`<path d="M${x-16} ${y+2} Q${x} ${y+8} ${x+16} ${y+2}" fill="none" stroke="${C.ink}" stroke-width="6" stroke-linecap="round"/>`;
+    else s+=`<ellipse cx="${x}" cy="${y}" rx="13" ry="${ry}" fill="${C.ink}"/><circle cx="${x-4}" cy="${y-7*(1-blink)}" r="3.5" fill="#fff"/>`;
+  });
+  // nose (bridge + hook)
+  s+=`<path d="M552 992 Q560 1020 562 1036 Q560 1052 536 1050 Q524 1048 522 1040" fill="none" stroke="${C.ink}" stroke-width="6" stroke-linecap="round"/>`;
+  s+=`<path d="M526 1050 Q540 1060 556 1052" fill="none" stroke="${C.skinSh}" stroke-width="6" stroke-linecap="round"/>`;
+  // mouth
+  const m=o.mouth||'smirk';
+  if(m==='smirk')s+=`<path d="M494 1104 Q544 1114 594 1090" fill="none" stroke="${C.ink}" stroke-width="7" stroke-linecap="round"/><path d="M528 1126 Q546 1130 562 1124" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>`;
+  else if(m==='flat')s+=`<path d="M500 1106 Q544 1112 588 1104" fill="none" stroke="${C.ink}" stroke-width="7" stroke-linecap="round"/>`;
+  else { // talk / open: talk 0..1 opens the mouth
+    const op=m==='open'?1:talk;
+    s+=`<path d="M498 1098 Q544 ${1094-4*op} 592 1094 Q588 ${1110+30*op} 544 ${1114+30*op} Q504 ${1112+26*op} 498 1098 Z" fill="${op>.15?'#5A1620':C.ink}" ${S} stroke-width="6"/>`;
+    if(op>.3)s+=`<path d="M506 1100 Q544 1096 586 1096 L584 1108 Q544 1112 508 1110 Z" fill="#fff"/>`;
+  }
+  // raised arms (over head/torso)
+  const arm=(a,side)=>{if(!a)return '';
+    const sx=side==='L'?300:780, sy=1330, r=(a.ang||0)*Math.PI/180;
+    const wx=a.x-Math.cos(r)*46, wy=a.y-Math.sin(r)*46;
+    return sleeve(sx,sy,a.ex,a.ey,wx,wy)+pointHand(a.x,a.y,a.ang,a.flip);};
+  s+=arm(o.armL,'L')+arm(o.armR,'R');
+  return s;
+}
+function hostG(o,tf='',inv=false){return `<g transform="${tf}" ${inv?'filter="url(#inv)"':''}>${host(inv?{...o,rim:false}:o)}</g>`;}
+
+// ---------------- text ----------------
+function header(lines,y0=470,size=112,a=1,sc=1){
+  let s=`<g opacity="${a}" transform="translate(540 ${y0}) scale(${sc}) translate(-540 ${-y0})" font-family="Inter Display, Inter, sans-serif" font-weight="900" font-size="${size}" text-anchor="middle">`;
+  lines.forEach((segs,i)=>{const y=y0+i*size*1.08;
+    const inner=segs.map(([t,c])=>`<tspan fill="${c}">${t}</tspan>`).join('');
+    s+=`<text x="540" y="${y}" filter="url(#glow)">${inner}</text>`;});
+  return s+'</g>';
+}
+function caption(txt,a=1){
+  return `<text x="540" y="1418" opacity="${a}" font-family="Inter, sans-serif" font-weight="800" font-size="50" fill="#fff" text-anchor="middle" filter="url(#shadow)">${txt}</text>`;
+}
+function svg(body){return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${DEFS}${body}</svg>`;}
+
+// ---------------- poses ----------------
+const POSE={
+  rest:{brows:'smirk',mouth:'smirk'},
+  tap:{brows:'smirk',mouth:'smirk',armL:{x:420,y:1060,ang:-6,ex:170,ey:1420,flip:true}},
+  pointDown:{brows:'smirk',mouth:'smirk',armL:{x:372,y:1270,ang:96,ex:150,ey:1440,flip:true},armR:{x:708,y:1270,ang:84,ex:930,ey:1440}},
+  present:{brows:'raised',mouth:'talk',armR:{x:830,y:1080,ang:-128,ex:930,ey:1340,flip:true}},
+};
+
+window.draw=function(t){
+  document.getElementById('stage').innerHTML=svg(BG+hostG(POSE.rest)+header([[['STARE AT ',C.white],['MY NOSE',C.cyan]]]));
+};
+window.still=function(name){
+  const body={
+    normal:()=>BG+hostG(POSE.rest)+header([[['STARE AT',C.white]],[['MY NOSE',C.cyan]]]),
+    tap:()=>BG+hostG(POSE.tap)+header([[['STARE AT',C.white]],[['MY NOSE',C.cyan]]])+`<circle cx="${NOSE.x}" cy="${NOSE.y}" r="10" fill="${C.red}" stroke="#fff" stroke-width="3"/>`+caption('Stare at the dot on my nose.'),
+    inverted:()=>BG+hostG(POSE.rest,'',true)+header([[["DON'T BLINK",C.gold]]])+`<circle cx="${NOSE.x}" cy="${NOSE.y}" r="10" fill="${C.red}" stroke="#fff" stroke-width="3"/>`,
+    poll:()=>BG+hostG(POSE.pointDown)+header([[['DID YOU',C.white]],[['SEE HIM?',C.gold]]]),
+  }[name]();
+  document.getElementById('stage').innerHTML=svg(body);
+};
+window.ready=Promise.all([document.fonts.load("900 100px 'Inter Display'"),document.fonts.load("800 50px 'Inter'")]).then(()=>{draw(0);return true;});
+</script></body></html>
