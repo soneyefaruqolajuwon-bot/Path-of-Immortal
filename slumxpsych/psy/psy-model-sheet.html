@@ -1,0 +1,344 @@
+<title>Psy Model Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an animator's model sheet — paper, blue construction pencil, ink; one big turnaround up top, then reference plates. */
+:root{
+  --paper:#F6F3EC; --panel:#FFFFFF; --ink:#1E1B3A; --muted:#5B5873; --pencil:#3D7BE0; --line:#DAD5C8;
+  --accent:#16A8A2; --warn:#D9452F; --chip:#EEF6F5;
+  --display:'Fredoka',ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'DM Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#14132A; --panel:#1D1C38; --ink:#EDEAF7; --muted:#A6A3C2; --pencil:#7FA8FF; --line:#2E2C52;
+  --accent:#3FD9D1; --warn:#FF7A66; --chip:#1E3436; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#14132A; --panel:#1D1C38; --ink:#EDEAF7; --muted:#A6A3C2; --pencil:#7FA8FF; --line:#2E2C52;
+  --accent:#3FD9D1; --warn:#FF7A66; --chip:#1E3436; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:16px/1.6 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 32px;background-attachment:local}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:clamp(44px,8vw,84px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:clamp(26px,4vw,34px);font-weight:600}
+h3{font-size:20px;font-weight:600}
+p{margin:0;max-width:65ch}
+.label{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--pencil)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:20px}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:32px;align-items:center}
+.hero .fig{position:relative}
+.hero .fig svg{width:100%;height:auto;display:block}
+.stamp{display:inline-flex;gap:10px;align-items:center;font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stamp b{color:var(--warn);border:2px solid var(--warn);padding:3px 8px;border-radius:3px;transform:rotate(-3deg);display:inline-block}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:15px}
+.facts dt{font:500 12px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--pencil)}
+.facts dd{margin:0}
+
+/* grids */
+.expr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.expr figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 14px 16px;display:flex;flex-direction:column;gap:6px}
+.expr svg{width:100%;height:auto}
+.expr figcaption b{font-family:var(--display);font-size:18px;font-weight:600;display:block}
+.expr figcaption span{font-size:14px;color:var(--muted)}
+.palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.sw{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.sw i{display:block;height:72px}
+.sw div{padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.sw b{font-size:14px}.sw code{font:500 13px var(--mono);color:var(--muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+ul.rules{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+ul.rules li{padding-left:28px;position:relative}
+ul.rules li::before{position:absolute;left:0;top:0;font:700 16px var(--mono)}
+.do li::before{content:"✓";color:var(--accent)}
+.dont li::before{content:"✕";color:var(--warn)}
+.construct{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:28px;align-items:center}
+.construct svg{width:100%;height:auto}
+ol.notes{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+
+/* episode */
+.prompt{position:relative;background:var(--chip);border-radius:6px;padding:14px 16px 14px;font:400 14px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word}
+.copy{position:absolute;top:8px;right:8px;font:500 12px var(--mono);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px;padding:5px 10px;cursor:pointer}
+.copy:hover{border-color:var(--accent)}
+.copy:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+.prompt .t{display:block;padding-right:72px}
+.shots{display:flex;flex-direction:column;gap:16px}
+.shot{display:grid;grid-template-columns:120px minmax(0,1fr);gap:20px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px}
+.shot .tc{display:flex;flex-direction:column;gap:6px}
+.shot .tc strong{font:600 26px var(--display)}
+.shot .tc span{font:500 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.shot .body{display:flex;flex-direction:column;gap:12px;min-width:0}
+.kv{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px 14px;font-size:15px}
+.kv dt{font:500 12px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--pencil)}
+.kv dd{margin:0}
+.vo{font-family:var(--display);font-size:19px;font-weight:500}
+table.specs{width:100%;border-collapse:collapse;font-size:15px}
+table.specs td{border-top:1px solid var(--line);padding:10px 8px;vertical-align:top}
+table.specs td:first-child{font:500 13px var(--mono);color:var(--pencil);white-space:nowrap;width:1%}
+.tablewrap{overflow-x:auto}
+footer{font:400 13px var(--mono);color:var(--muted)}
+
+@media (max-width:760px){
+  .hero,.two,.construct{grid-template-columns:minmax(0,1fr)}
+  .expr{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .palette{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shot{grid-template-columns:minmax(0,1fr)}
+  .kv{grid-template-columns:minmax(0,1fr)}
+  .kv dt{line-height:1.2}
+}
+@media (prefers-reduced-motion:no-preference){.bulbglow{animation:glow 2.4s ease-in-out infinite}}
+@keyframes glow{50%{opacity:.15}}
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="fig" id="heroFig"></div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <span class="stamp">SlumxPsych · Model sheet v1 <b>Approved for ep. 01</b></span>
+      <h1>Psy</h1>
+      <p style="font-size:19px">The tiny caretaker who lives inside your head and runs your brain. Every Short, Psy works a different room: the editing suite, the memory library, the spotlight rig, the projector booth.</p>
+      <dl class="facts">
+        <dt>Role</dt><dd>Your brain's overworked staff of one. Finds things out with the viewer, never lectures.</dd>
+        <dt>Personality</dt><dd>Curious, a little clumsy, warm, quietly mischievous.</dd>
+        <dt>Signature</dt><dd>Ends every episode by tapping the bulb on his cap (it lights up), then pointing at the viewer.</dd>
+        <dt>Easter egg</dt><dd>A small red pin with a gold star on his cap, for the dream of studying in China. Long-time subscribers will spot it.</dd>
+      </dl>
+    </div>
+  </header>
+
+  <section>
+    <span class="label">Plate 1 · Construction</span>
+    <h2>How Psy is built</h2>
+    <div class="sheet construct">
+      <div id="constructFig"></div>
+      <ol class="notes">
+        <li><b>One shape.</b> The body is a single soft circle, slightly taller than wide (height ≈ 1.05 × width). No neck. Head and body are the same thing.</li>
+        <li><b>Eye line sits just below the middle.</b> Eyes take up about a third of the body width. Big eyes carry all the acting.</li>
+        <li><b>The cap covers the top third</b> and is always worn the same way: brim turned to Psy's left (screen right).</li>
+        <li><b>Bulb clip</b> on the front-left of the cap. Off by default; on only for ideas and the sign-off.</li>
+        <li><b>Short limbs.</b> Arms reach no higher than the cap brim unless he stretches. Three fingers and a thumb.</li>
+        <li><b>Ink outline</b> is thick and even: about 2% of character height. No sketchy lines.</li>
+        <li><b>Silhouette test:</b> filled solid black, Psy must still read as Psy (round body + cap + brim). Check every new pose this way.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Plate 2 · Colour</span>
+    <h2>Palette</h2>
+    <p class="muted">Psy's colours never change between episodes, whatever room he's in. Backgrounds can shift; Psy can't.</p>
+    <div class="palette" id="palette"></div>
+  </section>
+
+  <section>
+    <span class="label">Plate 3 · Acting</span>
+    <h2>Expressions and poses</h2>
+    <p class="muted">The six states used in episode 01. Each one is a separate artwork layer so it can be swapped on a cut.</p>
+    <div class="expr" id="expr"></div>
+  </section>
+
+  <section>
+    <span class="label">Plate 4 · Rules</span>
+    <h2>Keeping Psy consistent</h2>
+    <div class="two">
+      <div class="sheet"><h3 style="margin-bottom:14px">Always</h3>
+        <ul class="rules do">
+          <li>Show Psy within the first 2 seconds of every Short.</li>
+          <li>Keep his cap, colours and proportions identical to this sheet.</li>
+          <li>Let him react to the science: shock, effort, a smug grin. The reaction is the joke.</li>
+          <li>End with the bulb tap and point.</li>
+          <li>Keep him in the lower two thirds of the frame, clear of the top title area and the right-side buttons.</li>
+          <li>Add all on-screen words in the edit, never inside the artwork.</li>
+        </ul></div>
+      <div class="sheet"><h3 style="margin-bottom:14px">Never</h3>
+        <ul class="rules dont">
+          <li>Give him a lab coat, glasses or a pointer stick. He's a worker, not a professor.</li>
+          <li>Let him talk straight to camera for more than one line. He shows, the captions tell.</li>
+          <li>Draw a nose. Psy has no nose (useful for episode 01).</li>
+          <li>Change the brim direction or drop the cap.</li>
+          <li>Use realistic or 3D renders of him. Flat vector only.</li>
+          <li>Crowd him into every shot. Some shots are just the idea.</li>
+        </ul></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="label">Episode 01</span>
+    <h2>Your Brain Is Hiding Your Nose</h2>
+    <p>Seven shots, about 26 seconds. Psy works in <b>the editing room</b>, where the brain cuts your nose out of your view all day. Use the base style prompt at the start of every image prompt so every shot matches.</p>
+
+    <h3>Base style (start of every prompt)</h3>
+    <div class="prompt"><button class="copy" type="button">Copy</button><span class="t">Flat 2D vector illustration, bold clean shapes, thick even dark-navy outlines (#1E1B3A), soft two-tone cel shading, subtle paper grain texture, warm cinematic lighting with cyan accent glow, limited palette of navy, cyan, peach and warm yellow, vertical 9:16 composition, no text, no letters, no logos.</span></div>
+
+    <h3>Psy reference sheet (make this first, then reuse it)</h3>
+    <div class="prompt"><button class="copy" type="button">Copy</button><span class="t">Character turnaround of a small cute mascot named Psy: a single round soft body slightly taller than wide, peach-pink skin (#F6B3A3) with darker peach shading, very large expressive eyes with navy pupils and white highlights, small simple mouth, rosy cheeks, no nose, short stubby arms with three fingers and a thumb, short stubby legs, wearing a cyan baseball cap (#29C7C0) with the brim turned to the side, a small yellow lightbulb clipped to the front of the cap, a tiny red pin with a gold star on the cap. Front view, three-quarter view, side view and back view, plus six facial expressions. Plain white background, flat vector, thick navy outline.</span></div>
+
+    <div class="shots" id="shots"></div>
+  </section>
+
+  <section>
+    <span class="label">Delivery</span>
+    <h2>Artwork specs for the edit</h2>
+    <div class="sheet tablewrap">
+      <table class="specs"><tbody>
+        <tr><td>Backgrounds</td><td>1080 × 1920 px minimum (2160 × 3840 preferred), PNG. No Psy, no text in them.</td></tr>
+        <tr><td>Psy</td><td>Each pose on its own transparent PNG, at least 1600 px tall. Arms on a separate layer where possible, so they can move.</td></tr>
+        <tr><td>Props</td><td>Eraser, rubber stamp, signal parcels, levers, signs and spotlight: each on its own transparent PNG.</td></tr>
+        <tr><td>Depth</td><td>Split each room into back, middle and front layers. That's what gives the camera moves real depth.</td></tr>
+        <tr><td>Text</td><td>None in the art. Labels, captions and sign wording are added in the edit, so they stay sharp and can be changed.</td></tr>
+        <tr><td>Naming</td><td><code>ep01_s3_bg_back.png</code>, <code>ep01_psy_panic.png</code>, <code>ep01_prop_stamp.png</code></td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <footer>SlumxPsych · Psy model sheet v1 · Character and world original to SlumxPsych.</footer>
+</div>
+
+<script>
+// ---------- Psy, drawn from this sheet's construction ----------
+const P={body:'#F6B3A3',shade:'#E3907F',cap:'#29C7C0',capShade:'#1A9A95',bulb:'#FFD54A',ink:'#1E1B3A',cheek:'#F07F86',pin:'#E63946',star:'#FFC93C',sweat:'#9FE3FF',mouth:'#7A2338'};
+let uid=0;
+function psy(o={}){
+  const id='p'+(uid++);const e=o.eyes||'normal',b=o.brows||'neutral',m=o.mouth||'smile',a=o.arms||'down';
+  const S=`stroke="${P.ink}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"`;
+  let s=`<svg viewBox="-24 4 348 346" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${o.label||'Psy'}">`;
+  s+=`<defs><clipPath id="${id}"><ellipse cx="150" cy="200" rx="108" ry="112"/></clipPath></defs>`;
+  if(o.ground!==false)s+=`<ellipse cx="150" cy="330" rx="92" ry="10" fill="${P.ink}" opacity=".12"/>`;
+  // legs
+  s+=`<rect x="110" y="288" width="28" height="38" rx="13" fill="${P.shade}" ${S}/><rect x="162" y="288" width="28" height="38" rx="13" fill="${P.shade}" ${S}/>`;
+  // arms (behind body when down)
+  const arm=(d,hx,hy)=>`<path d="${d}" fill="none" ${S} stroke-width="16"/><path d="${d}" fill="none" stroke="${P.body}" stroke-width="6" stroke-linecap="round"/><circle cx="${hx}" cy="${hy}" r="13" fill="${P.body}" ${S}/>`;
+  const arms={
+    down:[arm('M54 222 Q36 252 48 276',48,278),arm('M246 222 Q264 252 252 276',252,278)],
+    up:[arm('M56 182 Q26 146 36 108',36,104),arm('M244 182 Q274 146 264 108',264,104)],
+    shrug:[arm('M50 210 Q20 212 12 186',12,182),arm('M250 210 Q280 212 288 186',288,182)],
+    point:[arm('M54 222 Q36 252 48 276',48,278),arm('M248 204 Q284 196 304 176',306,173)],
+    tap:[arm('M54 222 Q36 252 48 276',48,278),arm('M246 196 Q232 116 140 102',132,102)],
+    signs:[arm('M56 200 Q24 180 22 150',22,146),arm('M244 200 Q276 180 278 150',278,146)]
+  }[a];
+  const armsBehind=a==='down';
+  if(armsBehind)s+=arms.join('');
+  // body + cel shade
+  s+=`<ellipse cx="150" cy="200" rx="108" ry="112" fill="${P.shade}"/>`;
+  s+=`<g clip-path="url(#${id})"><ellipse cx="136" cy="184" rx="104" ry="106" fill="${P.body}"/></g>`;
+  s+=`<ellipse cx="150" cy="200" rx="108" ry="112" fill="none" ${S}/>`;
+  // cheeks
+  s+=`<ellipse cx="84" cy="236" rx="15" ry="8" fill="${P.cheek}" opacity=".55"/><ellipse cx="216" cy="236" rx="15" ry="8" fill="${P.cheek}" opacity=".55"/>`;
+  // eyes
+  const eye=(x,y,kind,side)=>{
+    if(kind==='closed')return `<path d="M${x-22} ${y+4} Q${x} ${y-18} ${x+22} ${y+4}" fill="none" ${S}/>`;
+    const wide=kind==='wide';const rx=wide?30:26,ry=wide?37:32;
+    let px=x+4,py=y+4,pr=wide?8:13;
+    if(kind==='up'){px=x+6;py=y-12;}
+    if(kind==='side'){px=x+12;py=y+2;}
+    let t=`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff" ${S} stroke-width="5"/><circle cx="${px}" cy="${py}" r="${pr}" fill="${P.ink}"/><circle cx="${px-4}" cy="${py-5}" r="${wide?3:5}" fill="#fff"/>`;
+    if(kind==='lidded')t+=`<path d="M${x-29} ${y-2} Q${x} ${y-10} ${x+29} ${y-2} L${x+29} ${y-40} L${x-29} ${y-40} Z" fill="${P.body}"/><path d="M${x-27} ${y-2} Q${x} ${y-10} ${x+27} ${y-2}" fill="none" ${S} stroke-width="5"/>`;
+    return t;};
+  const eL=e==='wink'?'normal':e,eR=e==='wink'?'closed':e;
+  s+=eye(112,202,eL,'L')+eye(188,202,eR,'R');
+  // brows
+  const brow={neutral:[[-18,-46,0,-54,18,-46],[-18,-46,0,-54,18,-46]],raised:[[-18,-58,0,-66,18,-58],[-18,-58,0,-66,18,-58]],
+    worried:[[-18,-46,0,-52,16,-58],[-16,-58,0,-52,18,-46]],sly:[[-18,-58,0,-52,16,-46],[-16,-46,0,-52,18,-58]],
+    one:[[-18,-46,0,-54,18,-46],[-18,-62,0,-70,18,-62]]}[b];
+  [[112,brow[0]],[188,brow[1]]].forEach(([x,q])=>{s+=`<path d="M${x+q[0]} ${202+q[1]} Q${x+q[2]} ${202+q[3]} ${x+q[4]} ${202+q[5]}" fill="none" ${S}/>`;});
+  // mouth
+  s+={smile:`<path d="M134 248 Q150 262 166 248" fill="none" ${S}/>`,
+      open:`<ellipse cx="150" cy="258" rx="16" ry="20" fill="${P.mouth}" ${S} stroke-width="5"/><ellipse cx="150" cy="268" rx="9" ry="6" fill="${P.cheek}"/>`,
+      smirk:`<path d="M130 252 Q156 262 174 238" fill="none" ${S}/>`,
+      wobble:`<path d="M130 254 q6 -7 12 0 t12 0 t12 0 t12 0" fill="none" ${S} stroke-width="5"/>`,
+      flat:`<path d="M137 254 L163 254" fill="none" ${S}/>`,
+      grin:`<path d="M128 244 Q150 274 172 244 Z" fill="${P.mouth}" ${S} stroke-width="5"/>`}[m];
+  // cap
+  s+=`<path d="M48 150 C40 46 260 46 252 150 Q150 128 48 150 Z" fill="${P.cap}" ${S}/>`;
+  s+=`<path d="M150 142 Q236 128 296 152 Q258 172 150 156 Z" fill="${P.capShade}" ${S}/>`;
+  s+=`<path d="M150 62 L150 132" stroke="${P.capShade}" stroke-width="5" stroke-linecap="round"/><path d="M200 74 Q214 102 212 136" stroke="${P.capShade}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  s+=`<circle cx="150" cy="58" r="8" fill="${P.capShade}" ${S} stroke-width="4"/>`;
+  // pin
+  s+=`<circle cx="214" cy="110" r="11" fill="${P.pin}" ${S} stroke-width="4"/><path d="M214 102 l2.4 5 5.4.6-4 3.7 1.1 5.3-4.9-2.7-4.9 2.7 1.1-5.3-4-3.7 5.4-.6z" fill="${P.star}"/>`;
+  // bulb
+  if(o.bulb)s+=`<circle class="bulbglow" cx="104" cy="90" r="34" fill="${P.bulb}" opacity=".35"/>`+[0,1,2,3,4].map(i=>{const ang=(-150+i*30)*Math.PI/180;return `<path d="M${104+Math.cos(ang)*30} ${90+Math.sin(ang)*30} L${104+Math.cos(ang)*44} ${90+Math.sin(ang)*44}" stroke="${P.bulb}" stroke-width="5" stroke-linecap="round"/>`}).join('');
+  s+=`<rect x="96" y="102" width="16" height="14" rx="3" fill="#9AA3B5" ${S} stroke-width="4"/><circle cx="104" cy="90" r="15" fill="${o.bulb?P.bulb:'#FFF6D6'}" ${S} stroke-width="4"/>`;
+  // sweat
+  if(o.sweat)s+=`<path d="M232 172 q10 14 0 22 q-10 -8 0 -22z" fill="${P.sweat}" ${S} stroke-width="3"/><path d="M60 176 q8 11 0 17 q-8 -6 0 -17z" fill="${P.sweat}" ${S} stroke-width="3"/>`;
+  if(!armsBehind)s+=arms.join('');
+  if(a==='signs')s+=`<rect x="-14" y="92" width="72" height="54" rx="6" fill="#fff" ${S} stroke-width="5"/><rect x="242" y="92" width="72" height="54" rx="6" fill="#fff" ${S} stroke-width="5"/>`;
+  if(o.guides){const g='stroke="#3D7BE0" stroke-width="2" fill="none"';
+    s+=`<g opacity=".9"><ellipse cx="150" cy="200" rx="108" ry="112" ${g} stroke-dasharray="8 6"/><path d="M30 202 L270 202" ${g}/><path d="M150 50 L150 330" ${g} stroke-dasharray="4 6"/><path d="M30 146 L270 146" ${g}/>
+    <text x="-18" y="196" font-family="DM Mono,monospace" font-size="13" fill="#3D7BE0">eye line</text><text x="-18" y="140" font-family="DM Mono,monospace" font-size="13" fill="#3D7BE0">cap line</text></g>`;}
+  return s+'</svg>';
+}
+document.getElementById('heroFig').innerHTML=psy({eyes:'normal',brows:'one',mouth:'smile',arms:'down',label:'Psy, front view'});
+document.getElementById('constructFig').innerHTML=psy({guides:true,arms:'down',label:'Psy construction lines'});
+
+const EXPR=[
+  ['Curious','Default. Shots 1 and 3.',{eyes:'up',brows:'one',mouth:'smile'}],
+  ['Panic','Shot 1 spin-around. Eyes wide, arms up.',{eyes:'wide',brows:'worried',mouth:'open',arms:'up'}],
+  ['Mischievous','Shots 4 and 6. Half-lidded, smirk.',{eyes:'lidded',brows:'sly',mouth:'smirk'}],
+  ['Sweating','Shot 5, losing to the spotlight.',{eyes:'side',brows:'worried',mouth:'wobble',sweat:true,arms:'up'}],
+  ['Shrug','Reaction beat. "It is what it is."',{eyes:'closed',brows:'raised',mouth:'flat',arms:'shrug'}],
+  ['Sign-off','Every ending. Bulb on, tap, point.',{eyes:'wink',brows:'neutral',mouth:'grin',arms:'tap',bulb:true}],
+];
+document.getElementById('expr').innerHTML=EXPR.map(([n,d,o])=>`<figure>${psy({...o,label:'Psy, '+n})}<figcaption><b>${n}</b><span>${d}</span></figcaption></figure>`).join('');
+
+const PAL=[['Psy peach','#F6B3A3','Body'],['Peach shade','#E3907F','Body shadow, legs'],['Cap cyan','#29C7C0','Cap, brand accent'],['Cap shade','#1A9A95','Brim, seams'],
+  ['Idea yellow','#FFD54A','Bulb, glow'],['Ink navy','#1E1B3A','All outlines, pupils'],['Pin red','#E63946','Star pin'],['Blush','#F07F86','Cheeks, tongue']];
+document.getElementById('palette').innerHTML=PAL.map(([n,h,r])=>`<div class="sw"><i style="background:${h}"></i><div><b>${n}</b><code>${h}</code><span class="muted" style="font-size:13px">${r}</span></div></div>`).join('');
+
+const SHOTS=[
+  ['0–1.5s','Hook','Editing room, wide','Panic',
+   'Interior of a cozy, dim video-editing room inside a human head, curved walls with a soft brain-fold texture, one giant monitor showing a first-person view with a faint blurry pink nose shape at the bottom centre, a desk covered in knobs, sliders and tiny screens, cyan monitor glow, warm yellow desk lamp, an empty swivel chair facing the monitor.',
+   'Psy spins round in the chair to face us. Fast push-in on him. Screen shake on the spin.',
+   'You can see your nose right now.'],
+  ['1.5–4s','Proof','Monitor close-up','Curious → Panic',
+   'Close-up of a large monitor in a dim editing room showing a first-person view of a bedroom, with the soft out-of-focus pink edges of a nose visible at the bottom centre, on both the left and right side, cyan screen glow.',
+   'Psy reaches in from the side with a giant pink eraser (separate prop) and scrubs at the nose. It stays. Small eraser crumbs fly.',
+   'Look down. Both sides. It has always been there.'],
+  ['4–8s','Explain 1','Two eye screens','Curious',
+   'Two monitors side by side on an editing desk, the left monitor shows a first-person room view with a blurry nose edge on its right side, the right monitor shows the same view with the nose edge on its left side, cyan glow, dim room.',
+   'Psy slides the two screens together. In the edit we blend them and the nose turns into a see-through ghost. Labels LEFT EYE / RIGHT EYE added in edit.',
+   'Each eye sees a different side, so your brain blends them into a ghost.'],
+  ['8–14s','Explain 2','Conveyor of signals','Mischievous',
+   'A small factory corner inside the brain, a conveyor belt carrying glowing parcel-shaped signals from left to right, a rubber-stamp station beside the belt, a dark chute at the end of the belt, warm industrial lighting with cyan accents.',
+   'Parcels roll past with icons on them (nose, sock, humming fridge). Psy stamps each one; it drops down the chute. Stamp word IGNORE and chute label BACKGROUND added in edit.',
+   'Anything that never changes, your brain stops reporting. It is called sensory adaptation.'],
+  ['14–18s','Turn','Spotlight hits the nose','Sweating',
+   'The same editing room from shot 1, a huge theatrical spotlight beam swinging down from the ceiling onto the giant monitor, red alarm lights flashing on the walls, dramatic contrast.',
+   'Spotlight swings onto the nose on the monitor. Alarm flashes. Psy throws his arms up trying to block the beam.',
+   'But the moment you think about it, your attention overrides him.'],
+  ['18–22s','Twist','The second lever','Mischievous',
+   'A wall panel in the editing room with two big chunky levers, one already pulled down, the other up, small indicator lights above each, warm lamp light, cyan glow.',
+   'Psy gives a slow smug grin to camera and yanks the second lever. Lever labels NOSE / TONGUE added in edit.',
+   'And your tongue? Where is it resting right now?'],
+  ['22–26s','Comment + sign-off','Two signs','Sign-off',
+   'A small stage inside the brain with a soft yellow spotlight on the floor, dark curtains in the background, cosy warm light, empty centre for a character.',
+   'Psy holds up two blank signs (text added in edit: STILL SEE IT / GONE). Then the signature move: taps the bulb on his cap, it lights up, he points at us. Cut back to shot 1 for the loop.',
+   'Can you stop seeing it? Comment below.'],
+];
+document.getElementById('shots').innerHTML=SHOTS.map(([tc,beat,title,pose,prompt,anim,vo],i)=>`
+<article class="shot">
+  <div class="tc"><span>Shot ${i+1}</span><strong>${tc}</strong><span>${beat}</span></div>
+  <div class="body">
+    <h3>${title}</h3>
+    <p class="vo">“${vo}”</p>
+    <dl class="kv"><dt>Psy pose</dt><dd>${pose}</dd><dt>Animation</dt><dd>${anim}</dd></dl>
+    <div class="prompt"><button class="copy" type="button">Copy</button><span class="t">Background prompt (add base style first): ${prompt}</span></div>
+  </div>
+</article>`).join('');
+
+document.addEventListener('click',ev=>{
+  const btn=ev.target.closest('.copy');if(!btn)return;
+  const text=btn.parentElement.querySelector('.t').textContent;
+  const done=()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1600);};
+  try{navigator.clipboard.writeText(text).then(done).catch(()=>sel(btn));}catch(e){sel(btn);}
+  function sel(b){const r=document.createRange();r.selectNodeContents(b.parentElement.querySelector('.t'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected';}
+});
+</script>
