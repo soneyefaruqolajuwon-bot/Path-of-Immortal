@@ -258,10 +258,10 @@ function sceneColdOpen(ctx, c, t) {        // 0–5.5
   if (t > 6.2) return;
   const ex = popOut(6.0 - t);
   const [rx, ry] = P(c, -16.45, 13.43);
-  sprite(ctx, 'britain_claim', rx, ry - 40 + wob(t, 1.3, 8), 520, { k: pop(t - 0.2) * ex });
-  bubble(ctx, rx, ry - 330, 'OURS!', 70, [0, 90], win(t, 0.5, 2.6));
-  sprite(ctx, 'france_cheerful', 760, 520 + wob(t, 1.3, 8, 1), 460, { k: pop(t - 2.2) * ex });
-  bubble(ctx, 660, 260, '…as far as your cannons reach', 40, [60, 80], win(t, 2.5, 5.6));
+  sprite(ctx, 'british_officer', 300, ry + 130 + wob(t, 1.3, 6), 380, { k: pop(t - 0.2) * ex, ay: 1 });
+  bubble(ctx, 300, ry - 590, 'OURS!', 70, [0, 90], win(t, 0.5, 2.6));
+  sprite(ctx, 'french_officer', 820, 820 + wob(t, 1.3, 6, 1), 340, { k: pop(t - 2.2) * ex, ay: 1 });
+  bubble(ctx, 640, 200, '…as far as your cannons reach', 40, [170, 90], win(t, 2.5, 5.6));
 }
 
 function sceneHook(ctx, c, t) {            // 5.5–17.5
@@ -313,9 +313,9 @@ function sceneTruth(ctx, c, t) {           // 35–52
   const kd = win(t, 36.0, 41.6);
   if (kd > 0) { ctx.save(); ctx.globalAlpha = 0.4 * clamp(kd); ctx.fillStyle = '#071C2A'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
   styledText(ctx, '1889', W / 2, 300, 150, { k: win(t, 35.4, 39.4, 0.4), font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
-  sprite(ctx, 'britain_deal', 290, 620, 470, { k: kd });
-  sprite(ctx, 'france_deal', 790, 620, 470, { k: win(t, 36.3, 41.6) });
-  sprite(ctx, 'treaty_1889', W / 2, 1000, 300, { k: win(t, 37.0, 41.6), rot: wob(t, 0.7, 3) });
+  sprite(ctx, 'british_diplomat', 280, 1000, 340, { k: kd, ay: 1 });
+  sprite(ctx, 'french_diplomat', 800, 1000, 340, { k: win(t, 36.3, 41.6), ay: 1 });
+  sprite(ctx, 'treaty_1889', W / 2, 1110, 250, { k: win(t, 37.0, 41.6), rot: wob(t, 0.7, 3) });
   // 10 km strip on each bank
   const ks = clamp((t - 41.6) / 1.8) * popOut(52.2 - t);
   if (ks > 0) {

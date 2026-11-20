@@ -82,5 +82,48 @@ def main():
     print("\n".join(sorted(os.listdir(OUT))))
 
 
+# ------------------------------------------------------------------ people who represent each country, wrapped in its flag
+
+def caped_person(name, flag_fn, o, hat=None, arms_extra=""):
+    """Chibi person (PR.chibi) wearing a flag as a cape, so viewers can tell which country is speaking."""
+    cx, feet, s = 150, 420, 440 * 0.95
+    hy, hr = feet - s * 0.68, s * 0.23
+    cape = [(cx - 50, feet - s * 0.47), (cx + 50, feet - s * 0.47), (cx + 92, feet - s * 0.36), (cx + 142, feet - s * 0.02), (cx - 142, feet - s * 0.02), (cx - 92, feet - s * 0.36)]
+    pts = " ".join(f"{a:.0f},{b:.0f}" for a, b in cape)
+    x0, y0, x1, y1 = cx - 145, feet - s * 0.5, cx + 145, feet - s * 0.0
+    clip = f'<clipPath id="cape{name}"><polygon points="{pts}"/></clipPath>'
+    back = (f'<polygon points="{pts}" fill="#000" opacity="0.25" transform="translate(6,8)"/>'
+            f'<g clip-path="url(#cape{name})">{flag_fn(x0, y0, x1 - x0, y1 - y0)}</g>'
+            f'<polygon points="{pts}" fill="none" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>')
+    parts, hands = PR.chibi(o)
+    body = "".join(parts)
+    hat_svg = ""
+    if hat == "pith":
+        hat_svg = (f'<ellipse cx="{cx}" cy="{hy - hr*0.55:.0f}" rx="{hr*1.35:.0f}" ry="{hr*0.22:.0f}" fill="#F1EAD6" stroke="{INK}" stroke-width="5"/>'
+                   f'<path d="M{cx - hr*0.95:.0f},{hy - hr*0.55:.0f} Q{cx - hr*0.95:.0f},{hy - hr*1.75:.0f} {cx},{hy - hr*1.75:.0f} Q{cx + hr*0.95:.0f},{hy - hr*1.75:.0f} {cx + hr*0.95:.0f},{hy - hr*0.55:.0f} Z" fill="#F7F1DE" stroke="{INK}" stroke-width="5"/>'
+                   f'<rect x="{cx - hr*0.95:.0f}" y="{hy - hr*0.78:.0f}" width="{hr*1.9:.0f}" height="{hr*0.16:.0f}" fill="#C9B98E"/>'
+                   f'<circle cx="{cx}" cy="{hy - hr*1.78:.0f}" r="{hr*0.1:.0f}" fill="#C9A227" stroke="{INK}" stroke-width="3"/>')
+    elif hat == "kepi":
+        hat_svg = (f'<path d="M{cx - hr*0.75:.0f},{hy - hr*0.55:.0f} L{cx - hr*0.62:.0f},{hy - hr*1.45:.0f} L{cx + hr*0.7:.0f},{hy - hr*1.35:.0f} L{cx + hr*0.8:.0f},{hy - hr*0.55:.0f} Z" fill="#C8102E" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>'
+                   f'<rect x="{cx - hr*0.78:.0f}" y="{hy - hr*0.85:.0f}" width="{hr*1.6:.0f}" height="{hr*0.3:.0f}" fill="#22306E"/>'
+                   f'<ellipse cx="{cx + hr*0.45:.0f}" cy="{hy - hr*0.5:.0f}" rx="{hr*0.6:.0f}" ry="{hr*0.12:.0f}" fill="{INK}"/>')
+    belt = ""
+    if o.get("crossbelt"):
+        belt = f'<path d="M{cx - s*0.1:.0f},{feet - s*0.45:.0f} L{cx + s*0.15:.0f},{feet - s*0.16:.0f}" stroke="#F4F1E6" stroke-width="10"/>'
+    # insert the crossbelt right after the coat (before the head group)
+    i = body.find('<g id="head">')
+    body = body[:i] + belt + body[i:]
+    knot = f'<circle cx="{cx}" cy="{feet - s*0.46:.0f}" r="13" fill="#C9A227" stroke="{INK}" stroke-width="5"/>'
+    save(f"{name}.svg", svg(300, 520, f'<g transform="translate(0,80)">{back + body + knot + hat_svg + arms_extra}</g>', clip))
+
+
+def build_people():
+    caped_person("british_officer", PR.flag_uk, dict(coat="#B22234", pants="#2B2B33", rarm=-50, larm=120, face="smile", brow=0, crossbelt=True, beard="chops", beard_c="#8A5A3A"), hat="pith")
+    caped_person("french_officer", flag_fra, dict(coat="#2B3A8C", pants="#C8102E", rarm=60, larm=-140, face="smile", cheeks=True), hat="kepi")
+    caped_person("british_diplomat", PR.flag_uk, dict(coat="#2A2A30", hat="top", band="#C8102E", tie="#C8102E", rarm=10, larm=120, beard="chops", beard_c="#9A9A9A", face="smile"))
+    caped_person("french_diplomat", flag_fra, dict(coat="#22306E", hat="top", band="#002395", tie="#ED2939", rarm=60, larm=170, face="smile", beard="chin", beard_c="#3A2614"))
+
+
 if __name__ == "__main__":
     main()
+    build_people()
