@@ -260,7 +260,7 @@ function sceneColdOpen(ctx, c, t) {        // 0–5.5
   const [rx, ry] = P(c, -16.45, 13.43);
   sprite(ctx, 'british_officer', 300, ry + 130 + wob(t, 1.3, 6), 380, { k: pop(t - 0.2) * ex, ay: 1 });
   bubble(ctx, 300, ry - 590, 'OURS!', 70, [0, 90], win(t, 0.5, 2.6));
-  sprite(ctx, 'french_officer', 820, 820 + wob(t, 1.3, 6, 1), 340, { k: pop(t - 2.2) * ex, ay: 1 });
+  sprite(ctx, 'french_woman', 820, 820 + wob(t, 1.3, 6, 1), 340, { k: pop(t - 2.2) * ex, ay: 1 });
   bubble(ctx, 640, 200, '…as far as your cannons reach', 40, [170, 90], win(t, 2.5, 5.6));
 }
 
