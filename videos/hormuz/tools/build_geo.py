@@ -13,7 +13,7 @@ from build_geo import land, rings  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "..", ".cache")
-BOX = box(40.0, 18.0, 66.0, 35.0)
+BOX = box(33.0, 16.0, 66.0, 35.0)
 ISO = ["IRN", "SAU", "IRQ", "KWT", "QAT", "ARE", "OMN", "BHR"]
 
 

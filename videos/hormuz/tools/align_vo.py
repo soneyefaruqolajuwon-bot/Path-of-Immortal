@@ -30,8 +30,17 @@ LINES_P2 = [   # Part 2 / Chapter 2 (paragraphs 10-15)
     "Then in April nineteen eighty eight a US frigate the USS Samuel B Roberts struck an Iranian sea mine and nearly sank Four days later America launched Operation Praying Mantis In a single day US forces destroyed two Iranian oil platforms and sank a frigate a missile boat and several speedboats the largest American surface naval battle since World War Two",
     "The Strait of Hormuz had officially become a permanent geopolitical tripwire",
 ]
-PARTS = {1: (LINES_P1, 1), 2: (LINES_P2, 10)}
-EXTRA = {"hormuz": "HH AO R M UW Z", "musandam": "M UW S AH N D AA M", "exclave": "EH K S K L EY V", "cul": "K AH L", "uae": "Y UW EY IY", "tripwire": "T R IH P W AY ER", "reflagged": "R IY F L AE G D", "speedboats": "S P IY D B OW T S"}
+LINES_P3 = [   # Part 3 / Chapter 3 (paragraphs 16-22)
+    "So if Iran has the geographic advantage to shut down the strait tomorrow why hasn't it",
+    "Because geography is a double edged sword",
+    "First closing the Strait of Hormuz would trigger an immediate military response from a global coalition not just the US but European and Asian powers whose economies depend on that oil arriving on time",
+    "Second and even more importantly Iran needs that exact same exit door to sell its own oil and import food and goods Blocking the strait would be like setting fire to the only bridge leading out of your own house",
+    "Even Saudi Arabia and the UAE have spent billions building overland pipelines across the desert just to bypass Hormuz if things ever go sideways though those pipes can still only carry a fraction of the oil that moves by sea",
+    "And that's the paradox of the Strait of Hormuz It's too narrow to easily defend too important for the world to ignore and too vital for anyone even its neighbors to actually destroy",
+    "Every border has a story and sometimes a single two mile stretch of water holds the entire world hostage",
+]
+PARTS = {1: (LINES_P1, 1), 2: (LINES_P2, 10), 3: (LINES_P3, 16)}
+EXTRA = {"hormuz": "HH AO R M UW Z", "musandam": "M UW S AH N D AA M", "exclave": "EH K S K L EY V", "cul": "K AH L", "uae": "Y UW EY IY", "tripwire": "T R IH P W AY ER", "reflagged": "R IY F L AE G D", "speedboats": "S P IY D B OW T S", "hasnt": "HH AE Z AH N T", "thats": "DH AE T S"}
 
 
 def main():

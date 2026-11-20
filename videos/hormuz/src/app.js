@@ -3,7 +3,7 @@
  * Assets: window.ASSETS {name: dataURI}, geometry: GEO (geo_data.js).
  */
 'use strict';
-const W = 1920, H = 1080, DURATION = 205;
+const W = 1920, H = 1080, DURATION = 279;
 const C = {
   ocean: '#0A3652', land: '#8A855C', coast: '#5E5A3B', halo: '#2C6A78', ink: '#141416',
   gold: '#F4D03F', goldDark: '#3A2A08', yellow: '#FFD43B', cyan: '#25E3FF', white: '#FFFFFF',
@@ -40,6 +40,9 @@ const V = {
   convoy: [55.6, 26.35, 420],
   hero: [53.5, 26.6, 260],
   mantis: [54.4, 26.2, 300],
+  wideRegion: [50.5, 25.8, 62],
+  pipes: [46.5, 25.2, 92],
+  iranRoute: [53.6, 27.4, 128],
 };
 const KEYS = [  // [t, view, zoomMul, rot, tilt]
   [0, 'strait', 0.8], [6, 'strait', 1], [10.5, 'tight', 1], [17.0, 'tight', 1.04], [18.8, 'strait', 0.72], [32.0, 'strait', 0.76],
@@ -47,6 +50,8 @@ const KEYS = [  // [t, view, zoomMul, rot, tilt]
   [77.2, 'mid', 1], [88, 'mid', 1.08], [90, 'arcs', 1], [115, 'arcs', 1.1],
   [117.5, 'strait', 0.9], [123, 'strait', 0.95], [125, 'northGulf', 1], [136.5, 'northGulf', 1.06], [138.5, 'gulfWide', 1], [155, 'gulfWide', 1.05],
   [157, 'convoy', 1], [166, 'convoy', 1.06], [168, 'hero', 1], [181, 'hero', 1.04], [183, 'mantis', 1], [198, 'mantis', 1.06], [200.5, 'strait', 0.85], [205, 'strait', 0.9],
+  [209, 'strait', 0.82], [216, 'strait', 0.86], [219.5, 'wideRegion', 1], [229, 'wideRegion', 1.05], [231, 'iranRoute', 1], [241, 'iranRoute', 1.04],
+  [243, 'pipes', 1], [253, 'pipes', 1.05], [255, 'strait', 0.8], [266, 'strait', 0.85], [279, 'strait', 0.62],
 ];
 function camAt(t) {
   let i = 0;
@@ -604,6 +609,128 @@ const CAPTIONS2 = [
   [198.6, 205, 'A permanent tripwire'],
 ];
 
+// ------------------------------------------------------------------ Part 3 — Chapter 3: The Hormuz Paradox (205–279)
+const COALITION = [  // [iso, screen x, y, t]  markers enter from the edges
+  ['usa', 1700, 260, 220.6], ['gbr', 180, 260, 222.4], ['fra', 140, 520, 222.9], ['deu', 260, 760, 223.4],
+  ['chn', 1780, 520, 225.2], ['jpn', 1740, 780, 225.7], ['ind', 1500, 900, 226.2], ['kor', 1820, 930, 226.7],
+];
+function panel(ctx, x, y, w, h, k, a = 0.82) {
+  ctx.save(); ctx.globalAlpha = clamp(k) * a; ctx.fillStyle = '#071C2A'; ctx.strokeStyle = C.gold; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, 22); ctx.fill(); ctx.globalAlpha = clamp(k); ctx.stroke(); ctx.restore();
+}
+function sceneChapter3(ctx, c, t) {
+  if (t < 205 || t > 280) return;
+  drawBorders(ctx, c, 0.7);
+  chapterCard(ctx, t, 205.2, 209.4, 3, 'The Hormuz Paradox');
+  const [sx, sy] = P(c, 56.37, 26.62);
+  // why hasn't Iran closed it?
+  if (t > 209 && t < 219.6) {
+    tintCountry(ctx, c, 'IRN', '#239F40', 0.2 * clamp((t - 209.2) / 0.6) * popOut(219.4 - t));
+    const kb = clamp((t - 210.4) / 0.8) * popOut(214.6 - t);
+    if (kb > 0) { const a = P(c, 56.40, 26.41), b = P(c, 56.36, 26.85);
+      ctx.save(); ctx.globalAlpha = kb; ctx.strokeStyle = '#FF4D57'; ctx.lineWidth = 18; ctx.setLineDash([26, 14]);
+      ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(lerp(a[0], b[0], easeOut(kb)), lerp(a[1], b[1], easeOut(kb))); ctx.stroke(); ctx.restore();
+      styledText(ctx, 'CLOSED?', sx + 260, sy - 40, 70, { k: win(t, 211.0, 214.6), fill: '#FF6B6B', stroke: C.ink, rot: -6 }); }
+    sprite(ctx, 'iran_stern', 330, 300, 400, { k: win(t, 209.6, 216.0) });
+    styledText(ctx, '?', W / 2, 190, 220, { k: win(t, 213.2, 216.0), fill: C.gold, stroke: C.goldDark });
+    // double-edged sword: it cuts both ways
+    const ks = win(t, 216.0, 219.4);
+    if (ks > 0) {
+      ctx.save(); ctx.translate(W / 2, 480); ctx.rotate(Math.sin((t - 216) * 2.2) * 0.25); ctx.scale(ks, ks);
+      const im = IMG.sword; if (im) ctx.drawImage(im, -420, -100, 840, 203); ctx.restore();
+      styledText(ctx, '← cuts both ways →', W / 2, 640, 50, { k: win(t, 216.6, 219.4), fill: C.white, stroke: C.ink });
+    }
+  }
+  // reason 1: the world would respond
+  if (t > 219 && t < 230) {
+    const ex = popOut(229.6 - t);
+    panel(ctx, W / 2, 120, 620, 120, win(t, 219.6, 229.6));
+    styledText(ctx, 'REASON 1', W / 2, 120, 72, { k: win(t, 219.6, 229.6), fill: C.gold, stroke: C.goldDark });
+    for (const [iso, x, y, t0] of COALITION) {
+      const [tx, ty] = P(c, 56.4, 26.5);
+      const u = easeIO((t - t0 - 1.4) / 2.2);
+      const k = pop(t - t0) * ex;
+      sprite(ctx, 'marker_' + iso, x, y, 120, { k, ay: 0.95 });
+      if (t > t0 + 1.4) {   // warships converge on the strait
+        const wx = lerp(x, tx, u * 0.8), wy = lerp(y, ty, u * 0.8);
+        const ang = Math.atan2(ty - y, tx - x) * 180 / Math.PI;
+        sprite(ctx, 'warship_top', wx, wy + 40, 150, { k: ex, rot: ang });
+      }
+    }
+  }
+  // reason 2: Iran needs the door too
+  if (t > 230 && t < 242) {
+    const ex = popOut(241.6 - t);
+    panel(ctx, W / 2, 120, 620, 120, win(t, 230.6, 241.6));
+    styledText(ctx, 'REASON 2', W / 2, 120, 72, { k: win(t, 230.6, 241.6), fill: C.gold, stroke: C.goldDark });
+    tintCountry(ctx, c, 'IRN', '#239F40', 0.22 * ex);
+    const out = [[50.32, 29.24], [51.2, 28.1], [53.5, 26.9], [55.6, 26.3], [56.3, 26.58], [57.4, 25.5], [59.0, 24.6]];
+    geoLine(ctx, c, out, clamp((t - 231.2) / 1.6) * ex, '#4ADE80', 6, [16, 10], true);
+    const sp = smooth(out.map(p => P(c, p[0], p[1])));
+    for (let i = 0; i < 3; i++) {   // Iranian oil out, food and goods in
+      const u = ((t - 231.6) * 0.07 + i / 3) % 1, [x, y] = pointAlong(sp, u), [x2, y2] = pointAlong(sp, clamp(u + 0.01));
+      sprite(ctx, 'tanker_top', x, y, 170, { rot: Math.atan2(y2 - y, x2 - x) * 180 / Math.PI, k: pop(t - 231.6 - i * 0.3) * ex });
+      const v = 1 - ((t - 233.4) * 0.07 + i / 3 + 0.15) % 1, [cx2, cy2] = pointAlong(offsetLine(sp, 26), v), [cx3, cy3] = pointAlong(offsetLine(sp, 26), clamp(v - 0.01));
+      sprite(ctx, 'cargo_ship_top', cx2, cy2, 170, { rot: Math.atan2(cy3 - cy2, cx3 - cx2) * 180 / Math.PI, k: pop(t - 233.4 - i * 0.3) * ex });
+    }
+    const [kx, ky] = P(c, 50.32, 29.24);
+    sprite(ctx, 'marker_irn', kx, ky, 110, { k: win(t, 231.0, 241.6), ay: 0.95 });
+    styledText(ctx, 'Iran’s oil out →   ← food & goods in', W / 2, 880, 40, { k: win(t, 233.4, 237.4), fill: C.white, stroke: C.ink });
+    const kf = win(t, 237.4, 241.6);
+    if (kf > 0) { ctx.save(); ctx.globalAlpha = 0.45 * clamp(kf); ctx.fillStyle = '#071C2A'; ctx.fillRect(0, 0, W, H); ctx.restore();
+      sprite(ctx, 'bridge_fire', W / 2, 560, 900, { k: kf, rot: wob(t, 0.5, 1) }); }
+  }
+  // the bypass pipelines (only a fraction)
+  if (t > 242 && t < 254) {
+    const ex = popOut(253.6 - t);
+    const ew = [[49.67, 25.93], [47.8, 25.3], [45.5, 24.6], [42.0, 24.2], [38.1, 24.1]];
+    const ad = [[53.73, 23.8], [54.6, 24.0], [55.5, 24.6], [56.33, 25.12]];
+    geoLine(ctx, c, ew, clamp((t - 243.4) / 1.8) * ex, C.gold, 7, [18, 10], true);
+    geoLine(ctx, c, ad, clamp((t - 244.4) / 1.4) * ex, C.gold, 7, [18, 10], true);
+    mapLabel(ctx, c, 40.5, 23.5, 'East–West Pipeline → Red Sea', 34, win(t, 244.4, 253.6));
+    mapLabel(ctx, c, 55.0, 23.2, 'Habshan–Fujairah', 30, win(t, 245.4, 253.6));
+    sprite(ctx, 'marker_sau', ...P(c, 45.5, 25.6), 100, { k: win(t, 243.2, 253.6), ay: 0.95 });
+    sprite(ctx, 'marker_are', ...P(c, 54.6, 24.9), 100, { k: win(t, 244.2, 253.6), ay: 0.95 });
+    // capacity comparison bars
+    const kb = win(t, 247.6, 253.6);
+    if (kb > 0) {
+      const PX = 480, PY = 720;
+      panel(ctx, PX, PY, 560, 330, kb);
+      const grow = easeOut((t - 247.8) / 1.2);
+      ctx.save(); ctx.globalAlpha = clamp(kb);
+      ctx.fillStyle = C.gold; ctx.fillRect(PX - 230, PY - 30, 420 * 0.33 * grow, 50);
+      ctx.fillStyle = '#7FE7FF'; ctx.fillRect(PX - 230, PY + 80, 420 * grow, 50); ctx.restore();
+      styledText(ctx, 'Pipelines', PX - 140, PY - 60, 30, { k: kb }); styledText(ctx, 'By sea through Hormuz', PX - 60, PY + 52, 30, { k: kb });
+      styledText(ctx, 'only a FRACTION', PX, PY - 115, 40, { k: kb, fill: C.gold, stroke: C.goldDark });
+    }
+  }
+  // the paradox: three "too"s
+  if (t > 254 && t < 267) {
+    const ex = popOut(266.6 - t);
+    drawLanes(ctx, c, ex, 110);
+    [['Too NARROW to defend', 255.4], ['Too IMPORTANT to ignore', 258.6], ['Too VITAL to destroy', 261.8]].forEach(([txt, t0], i) => {
+      const k = pop(t - t0, 0.4) * ex;
+      panel(ctx, W / 2, 230 + i * 150, 900, 120, k);
+      styledText(ctx, txt, W / 2, 230 + i * 150, 62, { k, fill: i === 2 ? C.gold : C.white, stroke: C.ink });
+    });
+  }
+  // ending: two miles hold the world hostage
+  if (t > 266) {
+    drawLanes(ctx, c, clamp((t - 266.2) / 0.8), 100);
+    const k = win(t, 271.0, 279.5, 0.6, 0.3);
+    styledText(ctx, 'THE IMPOSSIBLE STRAIT', W / 2, 200, 104, { k, font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
+    const fade = clamp((t - 277.4) / 1.6);
+    if (fade > 0) { ctx.save(); ctx.globalAlpha = fade; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+  }
+}
+const CAPTIONS3 = [
+  [209.4, 213.0, 'Why hasn’t Iran closed it?'], [213.1, 215.9, 'It could, tomorrow'], [216.1, 219.4, 'A double-edged sword'],
+  [219.7, 224.4, 'The world would respond'], [224.5, 229.4, 'US, Europe and Asia'],
+  [230.7, 234.0, 'Iran needs it too'], [234.1, 237.3, 'Its own oil and food'], [237.4, 241.4, 'Burning its only bridge'],
+  [242.4, 247.4, 'Billions in pipelines'], [247.5, 253.4, 'Still only a fraction'],
+  [266.4, 271.0, 'Every border has a story'], [271.1, 277.5, 'Two miles. The whole world.'],
+];
+
 const CAPTIONS = [
   [0.3, 4.3, 'This tiny curve of water'], [4.4, 7.4, '21 nautical miles wide'], [7.5, 11.0, 'Lanes just 2 miles across'],
   [11.2, 17.4, "One-fifth of the world's oil"], [17.6, 22.0, 'The Strait of Hormuz'], [22.1, 27.8, 'A global flashpoint'],
@@ -615,7 +742,7 @@ const CAPTIONS = [
 ];
 
 function drawText(ctx, t) {
-  for (const [t0, t1, txt] of CAPTIONS.concat(CAPTIONS2)) { const k = win(t, t0, t1, .26, .18); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1400 }); }
+  for (const [t0, t1, txt] of CAPTIONS.concat(CAPTIONS2, CAPTIONS3)) { const k = win(t, t0, t1, .26, .18); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1400 }); }
 }
 
 function vignette(ctx) {
@@ -629,7 +756,7 @@ function renderAt(t, ctx) {
   const c = camAt(t);
   drawMap(ctx, c);
   vignette(ctx);
-  sceneHook(ctx, c, t); if (t < 115.2) sceneChapter1(ctx, c, t); sceneChapterCard(ctx, t); sceneChapter2(ctx, c, t);
+  sceneHook(ctx, c, t); if (t < 115.2) sceneChapter1(ctx, c, t); sceneChapterCard(ctx, t); if (t < 205.2) sceneChapter2(ctx, c, t); sceneChapter3(ctx, c, t);
   drawText(ctx, t);
   ctx.save(); ctx.globalAlpha = 0.4; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
 }

@@ -25,7 +25,7 @@ canvas{{max-height:calc(100% - 56px);width:100%;aspect-ratio:16/9;object-fit:con
 body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1920px;border-radius:0;box-shadow:none}}
 </style></head><body>
 <div id="wrap"><canvas id="cv" width="1920" height="1080"></canvas>
-<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="205" step="0.01" value="0"></div></div>
+<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="279" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
 window.ASSETS={json.dumps(assets)};</script>

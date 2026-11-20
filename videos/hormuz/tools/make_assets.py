@@ -290,9 +290,88 @@ def build_part2():
                                        f'<polygon points="{" ".join(pts2)}" fill="#FFD43B"/><circle cx="160" cy="160" r="30" fill="#FFF6C8"/>'))
 
 
+# ------------------------------------------------------------------ Part 3 props (The Hormuz Paradox)
+
+def flag_fra(x, y, w, h):
+    return "".join(f'<rect x="{x + i*w/3:.1f}" y="{y}" width="{w/3 + 0.5:.1f}" height="{h}" fill="{c}"/>' for i, c in enumerate(("#002395", "#FFFFFF", "#ED2939")))
+
+
+def flag_deu(x, y, w, h):
+    return stripes(x, y, w, h, ["#000000", "#DD0000", "#FFCE00"])
+
+
+def flag_jpn(x, y, w, h):
+    return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="#FFFFFF"/><circle cx="{x + w/2}" cy="{y + h/2}" r="{h*0.3:.1f}" fill="#BC002D"/>'
+
+
+def flag_ind(x, y, w, h):
+    s = stripes(x, y, w, h, ["#FF9933", "#FFFFFF", "#138808"])
+    cx, cy, r = x + w / 2, y + h / 2, h * 0.13
+    s += f'<circle cx="{cx}" cy="{cy}" r="{r:.1f}" fill="none" stroke="#000080" stroke-width="{h*0.02:.1f}"/>'
+    return s + "".join(f'<line x1="{cx}" y1="{cy}" x2="{cx + r*math.cos(a):.1f}" y2="{cy + r*math.sin(a):.1f}" stroke="#000080" stroke-width="{h*0.01:.1f}"/>'
+                       for a in [i * math.pi / 12 for i in range(24)])
+
+
+def flag_kor(x, y, w, h):
+    cx, cy, r = x + w / 2, y + h / 2, h * 0.25
+    s = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="#FFFFFF"/>'
+    s += (f'<path d="M{cx - r},{cy} A{r},{r} 0 0 1 {cx + r},{cy} Z" fill="#CD2E3A"/>'
+          f'<path d="M{cx - r},{cy} A{r},{r} 0 0 0 {cx + r},{cy} Z" fill="#0047A0"/>'
+          f'<circle cx="{cx - r/2}" cy="{cy}" r="{r/2}" fill="#CD2E3A"/><circle cx="{cx + r/2}" cy="{cy}" r="{r/2}" fill="#0047A0"/>')
+    for (dx, dy, ang) in ((-1, -1, -33), (1, 1, -33), (1, -1, 33), (-1, 1, 33)):
+        bx, by = cx + dx * w * 0.3, cy + dy * h * 0.3
+        s += f'<g transform="translate({bx:.1f},{by:.1f}) rotate({ang})">' + "".join(
+            f'<rect x="{-h*0.09:.1f}" y="{-h*0.07 + k*h*0.05:.1f}" width="{h*0.18:.1f}" height="{h*0.03:.1f}" fill="#000"/>' for k in range(3)) + "</g>"
+    return s
+
+
+def flag_chn(x, y, w, h):
+    s = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="#DE2910"/>'
+    u = h / 20
+    s += f'<polygon points="{star_pts(x + 5*u, y + 5*u, 3*u)}" fill="#FFDE00"/>'
+    for cx, cy in ((10, 2), (12, 4), (12, 7), (10, 9)):
+        s += f'<polygon points="{star_pts(x + cx*u, y + cy*u, u)}" fill="#FFDE00"/>'
+    return s
+
+
+def build_part3():
+    extra = {"gbr": PR.flag_uk, "fra": flag_fra, "deu": flag_deu, "jpn": flag_jpn, "ind": flag_ind, "kor": flag_kor, "chn": flag_chn}
+    FLAGS.update(extra)
+    for iso in extra:
+        save(f"marker_{iso}.svg", flag_marker(iso))
+    # double-edged sword
+    sword = (f'<path d="M40,60 L470,60 L520,75 L470,90 L40,90 Z" fill="#D9DEE2" stroke="{INK}" stroke-width="7" stroke-linejoin="round"/>'
+             f'<line x1="60" y1="75" x2="480" y2="75" stroke="#9AA3AB" stroke-width="5"/>'
+             f'<rect x="20" y="30" width="26" height="90" rx="8" fill="#C9A227" stroke="{INK}" stroke-width="6"/>'
+             f'<rect x="-60" y="62" width="82" height="26" rx="10" fill="#6B4423" stroke="{INK}" stroke-width="6"/>'
+             f'<circle cx="-66" cy="75" r="16" fill="#C9A227" stroke="{INK}" stroke-width="6"/>')
+    save("sword.svg", svg(620, 150, f'<g transform="translate(90,0)">{sword}</g>'))
+    # cargo ship (top-down) with containers
+    cols = ["#D6453D", "#2D5DA8", "#E8B33A", "#2E9B4F", "#7A4FA0"]
+    cont = "".join(f'<rect x="{80 + i*34}" y="{26 + (j*15)}" width="30" height="13" fill="{cols[(i + j*2) % 5]}" stroke="{INK}" stroke-width="2"/>' for i in range(7) for j in range(2))
+    save("cargo_ship_top.svg", svg(380, 80, f'<path d="M20,22 H300 Q352,22 368,40 Q352,58 300,58 H20 Q10,58 10,48 V32 Q10,22 20,22 Z" fill="#2F363D" stroke="{INK}" stroke-width="4"/>'
+                                              f'{cont}<rect x="22" y="27" width="48" height="26" rx="4" fill="#F1F3F5" stroke="{INK}" stroke-width="3"/>'))
+    # house + the only bridge out, on fire
+    flames = "".join(f'<path d="M{x - 34},228 C{x - 40},{190 - h} {x - 6},{170 - h} {x},{120 - h} C{x + 8},{165 - h} {x + 42},{185 - h} {x + 34},228 Z" fill="{c}" stroke="{INK}" stroke-width="4"/>'
+                       f'<path d="M{x - 14},226 C{x - 16},{205 - h/2} {x - 2},{195 - h/2} {x},{175 - h/2} C{x + 4},{195 - h/2} {x + 18},{205 - h/2} {x + 14},226 Z" fill="#FFE066"/>'
+                     for x, h, c in ((320, 10, "#E85D04"), (395, 40, "#FF7A00"), (470, 25, "#E85D04"), (545, 45, "#FF7A00"), (615, 15, "#E85D04")))
+    bridge = (f'<rect x="0" y="0" width="760" height="320" fill="none"/>'
+              f'<path d="M0,280 Q40,250 80,280 T160,280 T240,280 T320,280 T400,280 T480,280 T560,280 T640,280 T720,280" stroke="#7FD3FF" stroke-width="6" fill="none"/>'
+              f'<rect x="20" y="140" width="180" height="130" fill="#C9B79A" stroke="{INK}" stroke-width="7"/>'
+              f'<path d="M0,150 L110,60 L220,150 Z" fill="#8B3A2B" stroke="{INK}" stroke-width="7" stroke-linejoin="round"/>'
+              f'<rect x="90" y="200" width="40" height="70" fill="#6B4423" stroke="{INK}" stroke-width="5"/>'
+              f'<rect x="40" y="170" width="36" height="30" fill="#BFE6F5" stroke="{INK}" stroke-width="4"/>'
+              f'<path d="M200,232 Q440,170 700,232" fill="none" stroke="{INK}" stroke-width="14"/>'
+              f'<path d="M200,232 Q440,170 700,232" fill="none" stroke="#8B5A2B" stroke-width="8"/>'
+              + "".join(f'<line x1="{x}" y1="{232 - 62*(1 - ((x - 450)/250)**2):.0f}" x2="{x}" y2="275" stroke="{INK}" stroke-width="6"/>' for x in (260, 330, 400, 470, 540, 610))
+              + flames)
+    save("bridge_fire.svg", svg(760, 320, bridge))
+
+
 if __name__ == "__main__":
     build_flags()
     build_props()
     build_map()
     build_part2()
+    build_part3()
     print("\n".join(sorted(f for f in os.listdir(OUT) if f.endswith(".svg"))))

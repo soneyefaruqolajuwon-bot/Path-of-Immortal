@@ -18,8 +18,12 @@ FPS = 30
 BEATS_BY_PART = {
     1: [(1, 0, 11), (2, 11, 17.5), (3, 17.5, 32), (4, 32, 42.4), (5, 45, 52), (6, 52, 65), (7, 65, 75), (8, 75, 88), (9, 88, 115)],
     2: [(10, 115, 119), (11, 123, 137), (12, 137, 155), (13, 155, 166), (14, 166, 198), (15, 198, 205)],
+    3: [(16, 209, 216), (17, 216, 219.4), (18, 219.4, 230.4), (19, 230.4, 242), (20, 242, 254), (21, 254, 266), (22, 266, 279)],
 }
+BEATS_BY_PART[0] = BEATS_BY_PART[1] + BEATS_BY_PART[2] + BEATS_BY_PART[3]   # the full video in one pass
+PART_START = {0: 0.0, 1: 0.0, 2: 115.0, 3: 205.0}
 BEATS = BEATS_BY_PART[1]
+PART = 1
 # gaps between beats (e.g. 42.4–45, 119–123) are silent chapter cards and keep their storyboard length
 ANCHORS = [
     (1, "twenty", 0, 4.4), (1, "shipping", 0, 7.5),
@@ -38,6 +42,13 @@ ANCHORS = [
     (14, "april", 0, 168.6), (14, "mine", 0, 172.6), (14, "four", 0, 177.4), (14, "praying", 0, 181.6),
     (14, "platforms", 0, 186.4), (14, "largest", 0, 192.2),
     (15, "tripwire", 0, 200.6),
+    # Part 3
+    (16, "why", 0, 213.2), (17, "sword", 0, 216.6),
+    (18, "first", 0, 219.7), (18, "european", 0, 222.4), (18, "asian", 0, 225.2),
+    (19, "second", 0, 230.7), (19, "food", 0, 233.4), (19, "fire", 0, 237.4),
+    (20, "pipelines", 0, 243.4), (20, "fraction", 0, 247.6),
+    (21, "narrow", 0, 255.4), (21, "important", 0, 258.6), (21, "vital", 0, 261.8),
+    (22, "story", 0, 267.4), (22, "hostage", 0, 273.0),
 ]
 VO_DELAY, VO_TAIL = 0.06, 0.3
 
@@ -58,6 +69,14 @@ SFX_CUES = [
     (177.4, "whoosh", 0), (181.6, "ding", 0), (186.4, "bang", -0.4), (187.0, "bang", -0.1), (188.0, "gunshot", 0.3), (188.6, "bang", 0.1),
     (189.2, "gunshot", 0.3), (189.5, "gunshot", 0.4), (192.2, "ding", 0),
     (200.6, "zap", 0),
+    # Part 3
+    (205.2, "whoosh", 0), (205.5, "ding", 0), (210.4, "thud", 0), (213.2, "boing", 0), (216.0, "whoosh", 0), (216.4, "clink", 0),
+    (219.7, "ding", 0), (220.6, "pop", 0.4), (222.4, "pop", -0.4), (222.9, "pop", -0.4), (223.4, "pop", -0.4), (225.2, "pop", 0.4),
+    (225.7, "pop", 0.4), (226.2, "pop", 0.3), (226.7, "pop", 0.4), (222.0, "horn", 0),
+    (230.7, "ding", 0), (231.2, "whoosh", 0), (237.4, "thud", 0),
+    (243.4, "whoosh", -0.3), (244.4, "whoosh", 0.3), (247.6, "pop", 0),
+    (255.4, "thud", 0), (258.6, "thud", 0), (261.8, "thud", 0),
+    (271.0, "harp", 0),
 ]
 
 
@@ -70,6 +89,10 @@ def music_env(T):
         return 1.0
     if 168.4 <= T < 181.4:        # the mine strike: let it breathe
         return 0.45
+    if 205.2 <= T < 209.4:        # chapter 3 card
+        return 1.0
+    if T >= 266:                  # quiet ending
+        return 0.6
     return 0.8
 
 
@@ -112,9 +135,10 @@ class Timeline:
             tj = os.path.join(VO_DIR, "timing.json")
             if self.vo and os.path.exists(tj):
                 self.words = {int(k): v for k, v in json.load(open(tj)).items()}
-        knots, t = [(0.0, BEATS[0][1])], 0.0
+        start = PART_START.get(PART, BEATS[0][1])
+        knots, t = [(0.0, start)], 0.0
         self.real = []
-        prev_e = BEATS[0][1]
+        prev_e = start
         for bid, s, e in BEATS:
             if s > prev_e + 1e-6:          # silent chapter card between beats
                 t += s - prev_e
@@ -148,9 +172,10 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--part", type=int, default=1)
     a = ap.parse_args()
-    global BEATS
+    global BEATS, PART
+    PART = a.part
     BEATS = BEATS_BY_PART[a.part]
-    lo_t, hi_t = BEATS[0][1], BEATS[-1][2]
+    lo_t, hi_t = PART_START[a.part], BEATS[-1][2]
     subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")], check=True)
     _register_sfx()
     tl = Timeline(not a.no_vo)
@@ -170,7 +195,8 @@ def main():
     wav = os.path.join(seg, "mix.wav")
     AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES if lo_t <= t < hi_t], tl.vo_events(),
            lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18)
-    name = f"hormuz_part{a.part}.mp4" if tl.vo else f"hormuz_part{a.part}_draft_no_voice.mp4"
+    stem = "hormuz_full" if a.part == 0 else f"hormuz_part{a.part}"
+    name = f"{stem}.mp4" if tl.vo else f"{stem}_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)
