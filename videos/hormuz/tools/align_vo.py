@@ -31,7 +31,7 @@ LINES_P2 = [   # Part 2 / Chapter 2 (paragraphs 10-15)
     "The Strait of Hormuz had officially become a permanent geopolitical tripwire",
 ]
 PARTS = {1: (LINES_P1, 1), 2: (LINES_P2, 10)}
-EXTRA = {"hormuz": "HH AO R M UW Z", "musandam": "M UW S AH N D AA M", "exclave": "EH K S K L EY V", "cul": "K AH L", "uae": "Y UW EY IY"}
+EXTRA = {"hormuz": "HH AO R M UW Z", "musandam": "M UW S AH N D AA M", "exclave": "EH K S K L EY V", "cul": "K AH L", "uae": "Y UW EY IY", "tripwire": "T R IH P W AY ER", "reflagged": "R IY F L AE G D", "speedboats": "S P IY D B OW T S"}
 
 
 def main():
