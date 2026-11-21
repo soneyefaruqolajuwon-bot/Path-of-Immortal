@@ -1,0 +1,14 @@
+{
+  "name": "mapheld-france-brazil",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "geo": "node scripts/build-geo.mjs",
+    "render": "node scripts/render.mjs"
+  },
+  "devDependencies": {
+    "d3-geo": "3.1.1",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2"
+  }
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320">
+  <rect width="960" height="320" rx="36" fill="#0F2F3A" fill-opacity="0.92"/>
+  <text x="48" y="72" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="700" font-size="34" fill="#FFFFFF" fill-opacity="0.75" letter-spacing="2">FRANCE'S LAND BORDERS</text>
+  <text x="48" y="140" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="600" font-size="36" fill="#FFFFFF">Spain</text>
+  <rect x="250" y="108" width="478.4" height="44" rx="22" fill="#C9C39A"/>
+  <text x="912" y="142" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="40" fill="#FFFFFF" text-anchor="end">387 mi</text>
+  <text x="48" y="234" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="600" font-size="36" fill="#FFFFFF">Brazil</text>
+  <rect x="250" y="202" width="560" height="44" rx="22" fill="#F5C542"/>
+  <text x="912" y="236" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="40" fill="#F5C542" text-anchor="end">453 mi</text>
+</svg>

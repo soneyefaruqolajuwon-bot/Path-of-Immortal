@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+      <defs><clipPath id="flagClip"><circle cx="50" cy="50" r="42"/></clipPath></defs>
+      <circle cx="50" cy="50" r="46" fill="#FFFFFF"/>
+      <g clip-path="url(#flagClip)">
+        <rect x="0" y="0" width="36" height="100" fill="#0055A4"/>
+        <rect x="36" y="0" width="28" height="100" fill="#FFFFFF"/>
+        <rect x="64" y="0" width="36" height="100" fill="#EF4135"/>
+      </g>
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#F5C542" stroke-width="4"/></svg>

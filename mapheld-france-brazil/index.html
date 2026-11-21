@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapheld Border Explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B1E24; --panel: #12303A; --text: #EAF2F4; --muted: #8FB0B8; --gold: #F5C542; --track: #24505C;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0B1E24; } }
+  :root[data-theme="dark"] { --bg: #0B1E24; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; padding: 16px; min-height: 100dvh; overflow-x: hidden;
+  }
+  .frame {
+    height: min(calc(100dvh - 150px), calc((100vw - 32px) * 16 / 9));
+    aspect-ratio: 9 / 16; max-width: 100%;
+    border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    position: relative; background: #1E4D5C; cursor: pointer;
+  }
+  #stage { width: 100%; height: 100%; display: block; }
+  .controls {
+    width: min(100%, calc((100dvh - 150px) * 9 / 16)); min-width: min(100%, 320px);
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  }
+  button {
+    font: inherit; font-weight: 700; color: var(--bg); background: var(--gold); border: 0;
+    border-radius: 999px; width: 44px; height: 44px; cursor: pointer; display: grid; place-items: center;
+  }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+  input[type=range] { width: 100%; accent-color: var(--gold); }
+  .time { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted); min-width: 92px; text-align: right; }
+  .meta { font-size: 13px; color: var(--muted); text-align: center; }
+  .meta b { color: var(--text); font-weight: 700; }
+  .loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text); font-weight: 700; }
+  body.render { padding: 0; gap: 0; display: block; background: #000; }
+  body.render .frame { width: 1080px; height: 1920px; border-radius: 0; box-shadow: none; }
+  body.render .controls, body.render .meta { display: none; }
+</style>
+</head>
+<body>
+  <div class="frame" id="frame">
+    <svg id="stage" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Animated map: France's longest land border is with Brazil, via French Guiana"></svg>
+    <div class="loading" id="loading">Loading…</div>
+  </div>
+  <div class="controls">
+    <button id="play" aria-label="Play">▶</button>
+    <input id="scrub" type="range" min="0" max="70" step="0.01" value="0" aria-label="Seek">
+    <span class="time" id="time">0:00.0 / 1:10</span>
+  </div>
+  <div class="meta"><b id="chapter">Hook</b> · Mapheld · 9:16 · 1080×1920 · 70s</div>
+
+  <script src="src/geo.js"></script>
+  <script src="src/icons.js"></script>
+  <script src="src/timeline.js"></script>
+  <script src="src/app.js"></script>
+  <script>
+  (async function () {
+    const RENDER = new URLSearchParams(location.search).has('render');
+    if (RENDER) document.body.classList.add('render');
+    try {
+      await Promise.all(['500', '600', '700', '800', '900'].map(w => document.fonts.load(`${w} 40px Inter`)));
+      await document.fonts.load('italic 600 40px Inter');
+    } catch (e) { /* fall back to system fonts */ }
+    window.MAPHELD_INIT();
+    document.getElementById('loading').remove();
+    const M = window.MAPHELD;
+    let t = 0, playing = false, last = 0;
+    const $ = id => document.getElementById(id);
+    const fmt = s => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, '0')}`;
+    function draw() {
+      M.render(t);
+      $('scrub').value = t;
+      $('time').textContent = `${fmt(t)} / 1:10`;
+      const seg = [...M.segments].reverse().find(s => t >= s.start - 0.3);
+      $('chapter').textContent = t >= 68.4 ? 'End card' : (seg ? seg.label : 'Hook');
+    }
+    function setPlaying(p) {
+      playing = p; $('play').textContent = p ? '❚❚' : '▶'; $('play').setAttribute('aria-label', p ? 'Pause' : 'Play');
+      if (p) { if (t >= M.duration - 0.01) t = 0; last = performance.now(); requestAnimationFrame(tick); }
+    }
+    function tick(now) {
+      if (!playing) return;
+      t = Math.min(M.duration, t + (now - last) / 1000); last = now;
+      draw();
+      if (t >= M.duration) return setPlaying(false);
+      requestAnimationFrame(tick);
+    }
+    $('play').onclick = () => setPlaying(!playing);
+    $('frame').onclick = () => setPlaying(!playing);
+    $('scrub').oninput = e => { t = +e.target.value; draw(); };
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+      if (e.code === 'ArrowRight') { t = Math.min(M.duration, t + 1); draw(); }
+      if (e.code === 'ArrowLeft') { t = Math.max(0, t - 1); draw(); }
+    });
+    window.renderAt = s => { t = s; M.render(s); return true; };
+    draw();
+    window.MAPHELD_READY = true;
+  })();
+  </script>
+</body>
+</html>
