@@ -368,7 +368,7 @@ function sceneNavigation(ctx, c, t) {     // P5–P8 (37.8–88)
     const track = rhumbFromChart(LISBON, BARBADOS), sp = track.map(q => c.proj(...q)), u = clamp((t - 62.0) / 3.6);
     ctx.save(); ctx.globalAlpha = kk; ctx.strokeStyle = '#FF4D57'; ctx.lineWidth = 6; ctx.stroke(partial(sp, u)); ctx.restore();
     const [x, y] = pointAlong(sp, u); sprite(ctx, 'caravel', x, y - 30, 120, { k: kk * pop(t - 62.0), flip: true });
-    sprite(ctx, 'warn_badge', W / 2, 140, 560, { k: win(t, 65.8, 72.4) });
+    sprite(ctx, 'warn_badge', W / 2, 140, 560, { k: win(t, 65.8, 68.6) });
     sprite(ctx, 'compass_rose', 240, 760, 200, { k: win(t, 61.0, 72.4), rot: Math.sin(t * 2) * 6 });
   }
   // Mercator himself + right angles as the grid stretches vertically

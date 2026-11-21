@@ -29,7 +29,7 @@ LINES = [
     'Still the side effect is that billions of people grow up carrying a distorted mental picture of the planet subconsciously assuming countries near the poles are vast superpowers while nations along the equator are small',
     'The next time you open a map on your phone try dragging a northern country down toward the equator in your head and watch how quickly the real world snaps back into proportion',
 ]
-EXTRA = {"mercator": "M ER K EY T ER", "mercators": "M ER K EY T ER Z", "gerardus": "JH EH R AA R D AH S", "flemish": "F L EH M IH SH", "theyre": "DH EH R", "cartographer": "K AA R T AA G R AH F ER", "compasses": "K AH M P AH S AH Z", "mapmakers": "M AE P M EY K ER Z", "ovals": "OW V AH L Z", "roundabouts": "R AW N D AH B AW T S", "squished": "S K W IH SH T"}
+EXTRA = {"mercator": "M ER K EY T ER", "mercators": "M ER K EY T ER Z", "gerardus": "JH EH R AA R D AH S", "flemish": "F L EH M IH SH", "theyre": "DH EH R", "cartographer": "K AA R T AA G R AH F ER", "compasses": "K AH M P AH S AH Z", "mapmakers": "M AE P M EY K ER Z", "ovals": "OW V AH L Z", "roundabouts": "R AW N D AH B AW T S", "squished": "S K W IH SH T", "dont": "D OW N T", "isnt": "IH Z AH N T", "wouldnt": "W UH D AH N T"}
 
 
 def main():
