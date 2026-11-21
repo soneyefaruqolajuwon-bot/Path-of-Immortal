@@ -9,5 +9,9 @@
 - When pasting a script for ElevenLabs, do NOT number the lines: plain paragraphs only, so it copies and pastes cleanly.
 - **Characters:** when a country speaks or acts, show a person who represents it (an officer, diplomat, leader type…)
   wearing that country's flag as a cape, instead of a plain flag-with-eyes. Flag markers are still fine on maps.
+- **No generic pins for places with meaning:** when a map marker stands for something (an empire, a colonial capital,
+  a fort, a spaceport, a port, an oil field…), draw what it represents instead of a pin: e.g. a castle flying the ruling
+  country's flag (and flip the flag when control changes), a launch pad, a lighthouse, an oil rig. Round flag pins are only
+  for simply naming a country.
 - Style blueprint: Map Warden-like 9:16 map explainers (teal ocean #1E4D5C, olive land #8A855C, flag characters
   with stick arms and eyes, white 2–4 word captions, gold title cards, yellow kinetic numbers).
