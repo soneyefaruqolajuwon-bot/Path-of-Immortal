@@ -58,8 +58,8 @@ const V = {
 };
 const KEYS = [  // [t, view, zoomMul]
   [0, 'asia', 1.6], [4.5, 'sea', 1], [12.0, 'sea', 1.03], [27.0, 'sea', 1.06], [29.0, 'south', 1], [39.0, 'south', 1.05],
-  [41.0, 'strait', 1], [55.5, 'strait', 1.06], [62.0, 'strait', 1.06], [63.4, 'island', 1], [70.0, 'island', 1.05], [76.5, 'island', 1.1],
-  [79.5, 'asia', 1], [85, 'asia', 1.05],
+  [41.0, 'strait', 1], [55.5, 'strait', 1.06], [62.0, 'strait', 1.06], [63.4, 'island', 1], [70.0, 'island', 1.05], [79.4, 'island', 1.12],
+  [81.4, 'asia', 1], [85, 'asia', 1.05],
 ];
 function camAt(t) {
   let i = 0;
@@ -398,25 +398,25 @@ function sceneRise(ctx, c, t) {           // 70–85: doubt -> skyline, cranes, 
   if (t < 70) return;
   const [sx, sy] = P(c, ...PL.singapore);
   chip(ctx, 'MANY DOUBTED IT COULD SURVIVE', W / 2, 360, win(t, 70.2, 73.6), { size: 30, stroke: '#FF4D57' });
-  const ks = clamp((t - 73.4) / 1.6) * popOut(80.2 - t, 0.6);
+  const ks = clamp((t - 73.4) / 1.6) * popOut(79.6 - t, 0.4);
   if (ks > 0) {
     const im = IMG.skyline; if (im) { ctx.save(); const w = 620, h = w * im.height / im.width;
       ctx.beginPath(); ctx.rect(sx - w / 2, sy - h - 10, w, h + 20); ctx.clip(); ctx.drawImage(im, sx - w / 2, sy - h + (1 - easeOut(ks)) * h, w, h); ctx.restore(); }
-    sprite(ctx, 'crane', sx + 340, sy + 40, 230, { k: pop(t - 74.4) * popOut(80.2 - t), ay: 1 });
-    sprite(ctx, 'crane', sx - 340, sy + 40, 200, { k: pop(t - 74.8) * popOut(80.2 - t), ay: 1, flip: true });
+    sprite(ctx, 'crane', sx + 340, sy + 40, 230, { k: pop(t - 74.4) * popOut(79.6 - t), ay: 1 });
+    sprite(ctx, 'crane', sx - 340, sy + 40, 200, { k: pop(t - 74.8) * popOut(79.6 - t), ay: 1, flip: true });
   }
   // trade arcs across Asia
-  if (t > 79.0) {
+  if (t > 79.6) {
     tint(ctx, c, 'SGP', '#EF3340', 1, '#FF8A92');
     const a = [sx, sy];
     Object.entries(GEO.hubs).forEach(([name, ll], i) => {
-      const b = P(c, ...ll), ctrl = [(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - 160], k = clamp((t - 79.4 - i * 0.25) / 1.0);
+      const b = P(c, ...ll), ctrl = [(a[0] + b[0]) / 2, Math.min(a[1], b[1]) - 160], k = clamp((t - 80.4 - i * 0.25) / 1.0);
       if (k <= 0) return;
       ctx.save(); ctx.strokeStyle = C.gold; ctx.lineWidth = 4; ctx.shadowColor = C.gold; ctx.shadowBlur = 10; ctx.beginPath(); ctx.moveTo(...a);
       for (let j = 1; j <= 24; j++) ctx.lineTo(...qpoint(a, b, ctrl, j / 24 * k)); ctx.stroke(); ctx.restore();
       if (k >= 1) { ctx.save(); ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(b[0], b[1], 8, 0, 7); ctx.fill(); ctx.restore(); styledText(ctx, name, b[0], b[1] - 28, 24, { shadow: 2 }); }
     });
-    const r = ((t - 79.0) * 0.8) % 1; ctx.save(); ctx.strokeStyle = `rgba(244,208,63,${1 - r})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(sx, sy, 10 + r * 70, 0, 7); ctx.stroke(); ctx.restore();
+    const r = ((t - 79.6) * 0.8) % 1; ctx.save(); ctx.strokeStyle = `rgba(244,208,63,${1 - r})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(sx, sy, 10 + r * 70, 0, 7); ctx.stroke(); ctx.restore();
     styledText(ctx, 'ONE OF THE RICHEST\nHUBS ON EARTH', W / 2, 330, 84, { k: win(t, 81.2, 85.5), fill: C.yellow, stroke: C.goldDark, rot: -3 });
   }
 }

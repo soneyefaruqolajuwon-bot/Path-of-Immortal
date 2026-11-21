@@ -22,7 +22,7 @@ ANCHORS = [
     (3, "tensions", 0, 31.0), (3, "economic", 0, 34.6), (3, "representation", 0, 35.8), (3, "power", 0, 37.2),
     (4, "riots", 0, 41.0), (4, "trust", 0, 45.0), (4, "parliament", 0, 48.6), (4, "unanimous", 0, 50.4), (4, "expelling", 0, 52.3),
     (5, "hours", 0, 56.0), (5, "tears", 0, 60.1), (5, "water", 0, 64.4), (5, "resources", 0, 65.8), (5, "army", 0, 67.2),
-    (6, "doubted", 0, 70.4), (6, "strategy", 0, 74.0), (6, "transformed", 0, 79.2), (6, "richest", 0, 81.2),
+    (6, "doubted", 0, 70.4), (6, "strategy", 0, 74.0), (6, "transformed", 0, 79.4), (6, "richest", 0, 81.2),
 ]
 VO_DELAY, VO_TAIL = 0.06, 0.25
 END_HOLD = 2.0
