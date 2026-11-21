@@ -110,7 +110,80 @@ def main():
                                     f'<path d="M60,0 C110,-56 210,-50 260,0 C210,30 110,30 60,0 Z" fill="#F7F3E8" stroke="{INK}" stroke-width="4"/>'
                                     f'<path d="M-8,0 L10,-6 L10,6 Z" fill="{INK}"/></g>'))
     build_map()
+    build_army()
     print("\n".join(sorted(f for f in os.listdir(OUT) if f.endswith(".svg"))))
+
+
+# ------------------------------------------------------------------ the liberation army (people, not arrows)
+
+def flag_patriot(x, y, w, h):   # yellow-blue-red tricolour of the independence armies (Gran Colombia)
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h/2:.1f}" fill="#FCD116"/>'
+            f'<rect x="{x}" y="{y + h/2:.1f}" width="{w}" height="{h/4 + 0.5:.1f}" fill="#003893"/>'
+            f'<rect x="{x}" y="{y + 3*h/4:.1f}" width="{w}" height="{h/4:.1f}" fill="#CE1126"/>')
+
+
+CX, FEET, S = 150, 420, 440 * 0.95
+HY, HR = FEET - S * 0.68, S * 0.23
+
+
+def hand(angle, side):
+    a = math.radians(angle)
+    sx, sy = CX + side * S * 0.13, FEET - S * 0.36
+    return sx + S * 0.22 * math.cos(a), sy + S * 0.22 * math.sin(a)
+
+
+def bicorne():
+    return (f'<path d="M{CX - HR*1.45:.0f},{HY - HR*0.62:.0f} Q{CX:.0f},{HY - HR*1.9:.0f} {CX + HR*1.45:.0f},{HY - HR*0.62:.0f} '
+            f'Q{CX:.0f},{HY - HR*0.95:.0f} {CX - HR*1.45:.0f},{HY - HR*0.62:.0f} Z" fill="#1C1C20" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>'
+            f'<path d="M{CX - HR*1.2:.0f},{HY - HR*0.78:.0f} Q{CX:.0f},{HY - HR*1.6:.0f} {CX + HR*1.2:.0f},{HY - HR*0.78:.0f}" stroke="{GOLD}" stroke-width="7" fill="none"/>'
+            f'<circle cx="{CX + HR*0.15:.0f}" cy="{HY - HR*1.25:.0f}" r="{HR*0.18:.0f}" fill="#CE1126" stroke="{INK}" stroke-width="4"/>')
+
+
+def shako():
+    return (f'<path d="M{CX - HR*0.7:.0f},{HY - HR*0.6:.0f} L{CX - HR*0.8:.0f},{HY - HR*1.75:.0f} L{CX + HR*0.8:.0f},{HY - HR*1.75:.0f} L{CX + HR*0.7:.0f},{HY - HR*0.6:.0f} Z" '
+            f'fill="#1C1C20" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>'
+            f'<rect x="{CX - HR*0.82:.0f}" y="{HY - HR*1.85:.0f}" width="{HR*1.64:.0f}" height="{HR*0.18:.0f}" fill="{GOLD}" stroke="{INK}" stroke-width="3"/>'
+            f'<ellipse cx="{CX + HR*0.2:.0f}" cy="{HY - HR*0.72:.0f}" rx="{HR*0.65:.0f}" ry="{HR*0.12:.0f}" fill="{INK}"/>'
+            f'<circle cx="{CX:.0f}" cy="{HY - HR*1.2:.0f}" r="{HR*0.17:.0f}" fill="#FCD116" stroke="{INK}" stroke-width="3"/>')
+
+
+def musket(hx, hy):
+    return (f'<g transform="translate({hx:.0f},{hy:.0f}) rotate(-70)"><rect x="-70" y="-7" width="290" height="14" rx="5" fill="#6B4423" stroke="{INK}" stroke-width="4"/>'
+            f'<rect x="120" y="-5" width="120" height="10" fill="#8D96A0" stroke="{INK}" stroke-width="3"/>'
+            f'<path d="M240,0 L275,-3 L275,3 Z" fill="#C9CFD5" stroke="{INK}" stroke-width="2"/></g>')
+
+
+def sabre(hx, hy):
+    return (f'<g transform="translate({hx:.0f},{hy:.0f}) rotate(-80)"><path d="M0,0 Q120,-18 210,-6" stroke="{INK}" stroke-width="14" fill="none" stroke-linecap="round"/>'
+            f'<path d="M0,0 Q120,-18 210,-6" stroke="#E1E6EA" stroke-width="8" fill="none" stroke-linecap="round"/>'
+            f'<rect x="-14" y="-12" width="14" height="24" rx="4" fill="{GOLD}" stroke="{INK}" stroke-width="3"/></g>')
+
+
+def banner(hx, hy):
+    top = hy - 330
+    return (f'<line x1="{hx:.0f}" y1="{hy + 60:.0f}" x2="{hx:.0f}" y2="{top:.0f}" stroke="#5C3B1E" stroke-width="10" stroke-linecap="round"/>'
+            f'<path d="M{hx:.0f},{top + 10:.0f} Q{hx + 90:.0f},{top - 10:.0f} {hx + 180:.0f},{top + 14:.0f} L{hx + 180:.0f},{top + 124:.0f} '
+            f'Q{hx + 90:.0f},{top + 100:.0f} {hx:.0f},{top + 120:.0f} Z" fill="url(#pat)" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>'
+            f'<circle cx="{hx:.0f}" cy="{top:.0f}" r="9" fill="{GOLD}" stroke="{INK}" stroke-width="3"/>')
+
+
+def build_army():
+    pat = ('<linearGradient id="pat" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FCD116"/><stop offset="0.5" stop-color="#FCD116"/>'
+           '<stop offset="0.5" stop-color="#003893"/><stop offset="0.75" stop-color="#003893"/><stop offset="0.75" stop-color="#CE1126"/><stop offset="1" stop-color="#CE1126"/></linearGradient>')
+    # Bolívar as the general leading the march: patriot-tricolour cape, bicorne, raised sabre
+    GM.caped_person("bolivar_general", flag_patriot,
+                    dict(coat="#1F3A68", pants="#F1EAD6", rarm=-75, larm=120, face="smile", brow=1, hair="short", hair_c="#2A1C14", crossbelt=True,
+                         beard="chops", beard_c="#2A1C14"),
+                    arms_extra=bicorne() + sabre(*hand(-75, 1)))
+    # patriot infantryman: blue coat, white crossbelt, shako, musket on the shoulder
+    p, _ = PR.chibi(dict(coat="#22306E", pants="#F1EAD6", rarm=-70, larm=120, face="smile"))
+    belt = f'<path d="M{CX - S*0.1:.0f},{FEET - S*0.45:.0f} L{CX + S*0.15:.0f},{FEET - S*0.16:.0f}" stroke="#F4F1E6" stroke-width="10"/>'
+    body = "".join(p); i = body.find('<g id="head">'); body = body[:i] + belt + body[i:]
+    save("patriot_soldier.svg", svg(400, 520, f'<g transform="translate(0,80)">{musket(*hand(-70, 1))}{body}{shako()}</g>'))
+    # flag bearer
+    p, _ = PR.chibi(dict(coat="#22306E", pants="#F1EAD6", rarm=-80, larm=120, face="smile"))
+    body = "".join(p); i = body.find('<g id="head">'); body = body[:i] + belt + body[i:]
+    save("patriot_flagbearer.svg", svg(500, 600, f'<g transform="translate(0,160)">{body}{shako()}{banner(*hand(-80, 1))}</g>', pat))
 
 
 if __name__ == "__main__":

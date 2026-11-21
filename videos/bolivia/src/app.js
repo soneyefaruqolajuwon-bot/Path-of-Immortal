@@ -239,12 +239,8 @@ function drawRoute(ctx, c, k, alpha = 1) {
   ctx.save(); ctx.globalAlpha = alpha; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.strokeStyle = 'rgba(244,208,63,0.25)'; ctx.lineWidth = 30; ctx.stroke(path);
   ctx.strokeStyle = C.gold; ctx.lineWidth = 9; ctx.setLineDash([24, 14]); ctx.lineDashOffset = -performance_t * 40; ctx.stroke(path); ctx.setLineDash([]);
-  // arrowhead at the moving tip
-  const [x, y] = pointAlong(sp, clamp(k)), [x0, y0] = pointAlong(sp, clamp(k - 0.01));
-  const a = Math.atan2(y - y0, x - x0);
-  ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = C.gold; ctx.strokeStyle = C.ink; ctx.lineWidth = 5;
-  ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-20, -26); ctx.lineTo(-10, 0); ctx.lineTo(-20, 26); ctx.closePath(); ctx.fill(); ctx.stroke();
   ctx.restore();
+  const [x, y] = pointAlong(sp, clamp(k));
   return [x, y];
 }
 let performance_t = 0;
@@ -286,19 +282,36 @@ function sceneLiberation(ctx, c, t) {   // 16–29.5: liberation sweeps south, s
   const k = easeIO((t - 16.4) / 7.0);
   const lateFade = t > 41.5 ? 1 - clamp((t - 41.5) / 1.0) * 0.6 : 1;
   for (const [iso, t0] of SIX) tint(ctx, c, iso, C.gold, 0.42 * clamp((t - t0) / 0.5) * lateFade, t < 29.5 ? C.gold : null);
-  const tip = drawRoute(ctx, c, k, t < 29.5 ? 1 : 0.35 * lateFade);
-  if (tip && t < 25.2) sprite(ctx, 'bolivar_badge', tip[0] + 10, tip[1] - 150, 170, { k: pop(t - 16.4) * popOut(25.0 - t) });
+  drawRoute(ctx, c, k, t < 29.5 ? 1 : 0.35 * lateFade);
+  drawArmy(ctx, c, t, k, pop(t - 16.4) * popOut(29.6 - t));
   const n = SIX.filter(s => t >= s[1]).length;
   const kn = win(t, 19.6, 26.4);
   if (kn > 0) styledText(ctx, `${n} COUNTR${n === 1 ? 'Y' : 'IES'}`, W / 2, 300, 120, { k: kn * (1 + 0.1 * Math.max(0, 1 - (t - (SIX[n - 1] || [0, 0])[1]) * 4)), fill: C.yellow, stroke: C.goldDark, rot: -3 });
   // Upper Peru
   const [ux, uy] = P(c, -64.6, -16.8);
-  chip(ctx, 'UPPER PERU', ux, uy - 40, win(t, 26.4, 30.0), { size: 40, fill: C.gold });
+  chip(ctx, 'UPPER PERU', ux + 60, uy - 230, win(t, 26.4, 30.0), { size: 40, fill: C.gold });
   styledText(ctx, '1825', W / 2, 300, 140, { k: win(t, 27.0, 31.0, .4), font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
   if (t > 27.6 && t < 29.6) for (let i = 0; i < 10; i++) {   // freedom sparks
     const a = i / 10 * 6.28, r = 80 + (t - 27.6) * 260;
     ctx.save(); ctx.globalAlpha = 1 - (t - 27.6) / 2; ctx.fillStyle = C.gold;
     star(ctx, ux + Math.cos(a) * r, uy + Math.sin(a) * r * 0.7, 16); ctx.fill(); ctx.restore();
+  }
+}
+// the liberation army marching along the route: Bolívar in front, flag bearer, then a column of soldiers
+function drawArmy(ctx, c, t, k, vis) {
+  if (vis <= 0.001 || k <= 0) return;
+  const sp = routeScreen(c);
+  let total = 0; for (let i = 1; i < sp.length; i++) total += Math.hypot(sp[i][0] - sp[i - 1][0], sp[i][1] - sp[i - 1][1]);
+  const marching = t < 23.6;
+  const troop = [['bolivar_general', 150, 0], ['patriot_flagbearer', 150, 1]];
+  for (let i = 0; i < 6; i++) troop.push(['patriot_soldier', 112, 2 + i]);
+  for (let n = troop.length - 1; n >= 0; n--) {          // draw back-to-front
+    const [name, w, slot] = troop[n];
+    const u = k - slot * 62 / total;
+    if (u < 0) continue;
+    const [x, y] = pointAlong(sp, clamp(u)), [x2] = pointAlong(sp, clamp(u + 0.01));
+    const bob = marching ? Math.abs(Math.sin(t * 9 + slot * 0.9)) * 10 : 0;
+    sprite(ctx, name, x, y - bob, w, { k: vis * pop(t - 16.4 - slot * 0.08), ay: 0.92, flip: x2 < x - 0.5 });
   }
 }
 function star(ctx, x, y, r) { ctx.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * 0.45 : r, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a)); } ctx.closePath(); }
