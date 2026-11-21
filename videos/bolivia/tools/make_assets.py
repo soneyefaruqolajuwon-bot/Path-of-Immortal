@@ -111,6 +111,7 @@ def main():
                                     f'<path d="M-8,0 L10,-6 L10,6 Z" fill="{INK}"/></g>'))
     build_map()
     build_army()
+    build_castles()
     print("\n".join(sorted(f for f in os.listdir(OUT) if f.endswith(".svg"))))
 
 
@@ -184,6 +185,36 @@ def build_army():
     p, _ = PR.chibi(dict(coat="#22306E", pants="#F1EAD6", rarm=-80, larm=120, face="smile"))
     body = "".join(p); i = body.find('<g id="head">'); body = body[:i] + belt + body[i:]
     save("patriot_flagbearer.svg", svg(500, 600, f'<g transform="translate(0,160)">{body}{shako()}{banner(*hand(-80, 1))}</g>', pat))
+
+
+# ------------------------------------------------------------------ castles (Spanish rule -> liberated)
+
+def castle(flag_svg):
+    stone, dark = "#B9AE96", "#8C826C"
+    def tower(x, y, w, h):
+        merl = "".join(f'<rect x="{x + i*w/5:.0f}" y="{y - 22}" width="{w/5*0.62:.0f}" height="24" fill="{stone}" stroke="{INK}" stroke-width="5"/>' for i in range(5))
+        return (merl + f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{stone}" stroke="{INK}" stroke-width="6"/>'
+                f'<rect x="{x + w*0.36:.0f}" y="{y + 30}" width="{w*0.28:.0f}" height="44" rx="14" fill="#2B2B30" stroke="{INK}" stroke-width="4"/>')
+    bricks = "".join(f'<path d="M{60 + (j % 2)*22 + i*44},{230 + j*26} h30" stroke="{dark}" stroke-width="4"/>' for i in range(7) for j in range(5))
+    body = (f'<ellipse cx="210" cy="372" rx="200" ry="16" fill="#000" opacity="0.25"/>'
+            f'<line x1="210" y1="30" x2="210" y2="122" stroke="#5C3B1E" stroke-width="8" stroke-linecap="round"/>'
+            f'<g transform="translate(214,32)"><path d="M0,0 Q50,-12 100,4 L100,66 Q50,52 0,64 Z" fill="url(#fl)" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/></g>'
+            f'<circle cx="210" cy="28" r="8" fill="{GOLD}" stroke="{INK}" stroke-width="3"/>'
+            f'<rect x="50" y="210" width="320" height="150" fill="{stone}" stroke="{INK}" stroke-width="6"/>{bricks}'
+            + "".join(f'<rect x="{50 + i*40}" y="190" width="24" height="22" fill="{stone}" stroke="{INK}" stroke-width="5"/>' for i in range(8))
+            + tower(20, 160, 90, 200) + tower(310, 160, 90, 200) + tower(160, 120, 100, 240)
+            + f'<path d="M180,360 V300 Q210,268 240,300 V360 Z" fill="#4A3524" stroke="{INK}" stroke-width="6"/>'
+            + "".join(f'<line x1="{x}" y1="296" x2="{x}" y2="360" stroke="{INK}" stroke-width="3"/>' for x in (195, 210, 225)))
+    return svg(420, 390, body, flag_svg)
+
+
+def build_castles():
+    spain = ('<linearGradient id="fl" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#AA151B"/><stop offset="0.25" stop-color="#AA151B"/>'
+             '<stop offset="0.25" stop-color="#F1BF00"/><stop offset="0.75" stop-color="#F1BF00"/><stop offset="0.75" stop-color="#AA151B"/><stop offset="1" stop-color="#AA151B"/></linearGradient>')
+    patriot = ('<linearGradient id="fl" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#FCD116"/><stop offset="0.5" stop-color="#FCD116"/>'
+               '<stop offset="0.5" stop-color="#003893"/><stop offset="0.75" stop-color="#003893"/><stop offset="0.75" stop-color="#CE1126"/><stop offset="1" stop-color="#CE1126"/></linearGradient>')
+    save("castle_spain.svg", castle(spain))
+    save("castle_liberated.svg", castle(patriot))
 
 
 if __name__ == "__main__":

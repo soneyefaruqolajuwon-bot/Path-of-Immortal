@@ -266,8 +266,9 @@ function sceneEmpire(ctx, c, t) {       // 9–19: Spanish Empire, Bolívar rise
     tint(ctx, c, iso, '#AA151B', 0.32 * ks * fade);
   }
   styledText(ctx, 'EARLY 1800s', W / 2, 300, 110, { k: win(t, 9.4, 13.6, .4), font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark });
-  sprite(ctx, 'marker_esp', W / 2 - 60, 1000, 120, { k: win(t, 10.2, 15.0), ay: 0.95 });
-  chip(ctx, 'SPANISH EMPIRE', W / 2 - 60, 1060, win(t, 10.0, 15.0), { size: 30, stroke: '#F1BF00' });
+  sprite(ctx, 'castle_spain', W / 2 - 60, 1010, 330, { k: win(t, 10.2, 14.4), ay: 0.95 });
+  chip(ctx, 'SPANISH EMPIRE', W / 2 - 60, 1060, win(t, 10.0, 14.4), { size: 30, stroke: '#F1BF00' });
+  drawCastles(ctx, c, t);
   // Bolívar appears at Caracas
   const [cx, cy] = P(c, ...CITY.caracas);
   const kb = win(t, 14.2, 16.4);
@@ -313,6 +314,24 @@ function drawArmy(ctx, c, t, k, vis) {
     const bob = marching ? Math.abs(Math.sin(t * 9 + slot * 0.9)) * 10 : 0;
     sprite(ctx, name, x, y - bob, w, { k: vis * pop(t - 16.4 - slot * 0.08), ay: 0.92, flip: x2 < x - 0.5 });
   }
+}
+// colonial capitals: Spanish castles whose flags flip as the army reaches them
+const CASTLES = ['caracas', 'bogota', 'quito', 'lima', 'lapaz'];
+function routeFrac(c, idx) {
+  const sp = routeScreen(c); let tot = 0, at = 0;
+  for (let i = 1; i < sp.length; i++) { const d = Math.hypot(sp[i][0] - sp[i - 1][0], sp[i][1] - sp[i - 1][1]); tot += d; if (i <= idx) at += d; }
+  return at / tot;
+}
+function drawCastles(ctx, c, t) {
+  if (t < 12.4 || t > 30.2) return;
+  const k = easeIO((t - 16.4) / 7.0), out = popOut(30.0 - t);
+  CASTLES.forEach((name, i) => {
+    const [x, y] = P(c, ...CITY[name]);
+    const freed = t > 16.4 && k >= routeFrac(c, i) - 0.005;
+    const tFree = freed ? 16.4 + 7.0 * routeFrac(c, i) : 1e9;   // approximate moment of liberation (for the pop)
+    const bump = freed ? 1 + 0.25 * Math.max(0, 1 - (t - tFree) * 3) : 1;
+    sprite(ctx, freed ? 'castle_liberated' : 'castle_spain', x + 95, y + 20, 190, { k: pop(t - 12.4 - i * 0.15) * out * bump, ay: 0.95 });
+  });
 }
 function star(ctx, x, y, r) { ctx.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * 0.45 : r, a = -Math.PI / 2 + i * Math.PI / 5; ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a)); } ctx.closePath(); }
 
