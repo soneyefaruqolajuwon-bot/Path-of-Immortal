@@ -19,7 +19,7 @@ BEATS = [(1, 0, 6.2), (2, 6.2, 13.0), (3, 13.0, 20.0), (4, 20.0, 26.0), (5, 26.0
 ANCHORS = [
     (1, "what", 0, 2.5), (1, "cold", 0, 3.6), (1, "kept", 0, 4.4),
     (2, "brand", 0, 7.0),
-    (3, "vertical", 0, 14.4), (3, "cinematic", 0, 16.8), (3, "youtube", 0, 19.4),
+    (3, "vertical", 0, 14.4), (3, "cinematic", 0, 16.8),
     (4, "complex", 0, 21.5), (4, "storytelling", 0, 23.4),
     (5, "script", 0, 28.2), (5, "life", 0, 29.2),
 ]
@@ -138,6 +138,9 @@ def main():
     wav = os.path.join(seg, "mix.wav")
     AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES], tl.vo_events(),
            lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18, sfx_duck=0.6)
+    loud = os.path.join(seg, "mix_loud.wav")   # streaming loudness: -14 LUFS, peaks under -1.5 dBTP
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", loud], check=True)
+    wav = loud
     dist = os.path.join(R, "dist")
     keys = [[round(float(r), 3), round(float(n), 3)] for r, n in zip(tl.kr, tl.kn)]
     json.dump({"dur": round(tl.duration, 3), "keys": keys}, open(os.path.join(dist, "sync.json"), "w"))
