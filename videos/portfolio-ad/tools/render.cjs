@@ -3,8 +3,8 @@
 //   node render.cjs video frames.json out_dir N     -> N mp4 segments (1920x1080), one per worker
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
-const VERT = process.env.VERTICAL === '1';
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', VERT ? 'portfolio_ad_vertical.html' : 'portfolio_ad.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
+const VERT = process.env.VERTICAL === '1' || process.env.VERTICAL === 'full';
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', VERT ? (process.env.VERTICAL === 'full' ? 'portfolio_ad_full.html' : 'portfolio_ad_vertical.html') : 'portfolio_ad.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
 
 async function openPage(browser) {
   const pg = await browser.newPage({ viewport: VERT ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });

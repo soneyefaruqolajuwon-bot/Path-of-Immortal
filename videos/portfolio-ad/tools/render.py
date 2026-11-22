@@ -117,9 +117,9 @@ class Timeline:
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4); ap.add_argument("--vertical", action="store_true")
+    ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4); ap.add_argument("--vertical", action="store_true"); ap.add_argument("--full", action="store_true", help="9:16 with the whole 16:9 scene visible")
     a = ap.parse_args()
-    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")] + (["vertical"] if a.vertical else []), check=True)
+    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")] + (["full"] if a.full else ["vertical"] if a.vertical else []), check=True)
     _register_sfx()
     tl = Timeline(not a.no_vo)
     print(f"duration {tl.duration:.2f}s, VO lines: {len(tl.vo)}/{len(BEATS)}")
@@ -128,7 +128,7 @@ def main():
     seg = os.path.join(OUT, "segments"); shutil.rmtree(seg, ignore_errors=True); os.makedirs(seg)
     fj = os.path.join(seg, "frames.json"); json.dump(frames, open(fj, "w"))
     t0 = time.time()
-    env = dict(os.environ, VERTICAL="1" if a.vertical else "0", NODE_PATH=subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip())
+    env = dict(os.environ, VERTICAL="full" if a.full else "1" if a.vertical else "0", NODE_PATH=subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip())
     subprocess.run(["node", os.path.join(HERE, "render.cjs"), "video", fj, seg, str(a.workers)], check=True, env=env)
     segs = sorted(glob.glob(os.path.join(seg, "seg*.mp4")))
     with open(os.path.join(seg, "list.txt"), "w") as f:
@@ -145,8 +145,8 @@ def main():
     keys = [[round(float(r), 3), round(float(n), 3)] for r, n in zip(tl.kr, tl.kn)]
     json.dump({"dur": round(tl.duration, 3), "keys": keys}, open(os.path.join(dist, "sync.json"), "w"))
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-c:a", "libmp3lame", "-b:a", "128k", os.path.join(dist, "mix.mp3")], check=True)
-    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")] + (["vertical"] if a.vertical else []), check=True)
-    name = ("portfolio_ad_tiktok.mp4" if a.vertical else "portfolio_ad.mp4") if tl.vo else "portfolio_ad_draft_no_voice.mp4"
+    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")] + (["full"] if a.full else ["vertical"] if a.vertical else []), check=True)
+    name = ("portfolio_ad_tiktok_full.mp4" if a.full else "portfolio_ad_tiktok.mp4" if a.vertical else "portfolio_ad.mp4") if tl.vo else "portfolio_ad_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)

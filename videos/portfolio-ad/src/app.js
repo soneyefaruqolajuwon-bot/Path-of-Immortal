@@ -4,7 +4,7 @@
  */
 'use strict';
 const W = 1920, H = 1080, DURATION = 30, GROUND = 905;
-const VERT = !!window.VERTICAL;          // 9:16 TikTok/Reels cut: scene in a tall band, camera follows the action, text re-laid out
+const VERT = !!window.VERTICAL, FULL = window.VERTICAL === 'full';   // FULL: the whole 16:9 scene in the middle of a 9:16 frame          // 9:16 TikTok/Reels cut: scene in a tall band, camera follows the action, text re-laid out
 const OVER = { badges: [] };
 const C = {
   ink: '#0B0D12', rim: '#F5B041', rim2: '#E59866', coral: '#D9534F', orange: '#D98850', violet: '#4A3B5C', navy: '#181C2E',
@@ -311,8 +311,8 @@ function sceneBrand(ctx, t, camX) {
   dotted(ctx, tl, clamp((t - 9.0) / 0.8), { step: 2, r: 4 });
   if (t > 9.8) { const [ax, ay] = tl[40]; ctx.save(); ctx.globalAlpha = clamp((t - 9.8) / 0.3); ctx.fillStyle = C.white; ctx.beginPath(); ctx.moveTo(ax + 22, ay - 16); ctx.lineTo(ax - 8, ay - 14); ctx.lineTo(ax + 8, ay + 12); ctx.closePath(); ctx.fill(); ctx.restore(); }
   text(ctx, '+ REVENUE', bx + 180, base + 46, 30, { k: pop(t - 9.6), fill: C.gold, spacing: 2 });
-  if (!VERT) callout(ctx, PHONE.x - 150, 330 + bob, 600, 270, 'CUSTOM UI', clamp((t - 9.4) / 0.5) * popOut(12.8 - t), { size: 30 });
-  if (!VERT) callout(ctx, PHONE.x + 150, 420 + bob, 1250, 300, 'SMOOTH MOTION', clamp((t - 9.8) / 0.5) * popOut(12.8 - t), { size: 30 });
+  if (!VERT || FULL) callout(ctx, PHONE.x - 150, 330 + bob, 600, 270, 'CUSTOM UI', clamp((t - 9.4) / 0.5) * popOut(12.8 - t), { size: 30 });
+  if (!VERT || FULL) callout(ctx, PHONE.x + 150, 420 + bob, 1250, 300, 'SMOOTH MOTION', clamp((t - 9.8) / 0.5) * popOut(12.8 - t), { size: 30 });
   // cursor taps BUY NOW
   const kc = fade(t, 10.0, 12.6);
   if (kc > 0) {
@@ -548,8 +548,8 @@ function renderVertical(t, ctx) {
   OVER.badges = [];
   renderScene(t, OFF.getContext('2d'));
   const outro = t >= 26.0;
-  const s = outro ? 1.0 : 1.4, bandH = H * s, yb = outro ? 640 : (VH - bandH) / 2;
-  const vis = VW / s, fx = outro ? W / 2 : clamp(focusAt(t), vis / 2, W - vis / 2), sx = fx - vis / 2;
+  const s = FULL ? 0.74 : outro ? 1.0 : 1.4, bandH = H * s, yb = FULL ? 560 : outro ? 640 : (VH - bandH) / 2;
+  const vis = VW / s, fx = FULL ? W / 2 + clamp(focusAt(t) - W / 2, -60, 60) : outro ? W / 2 : clamp(focusAt(t), vis / 2, W - vis / 2), sx = fx - vis / 2;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
   ctx.imageSmoothingQuality = 'high';
   ctx.save(); ctx.filter = 'blur(14px)';
@@ -559,11 +559,11 @@ function renderVertical(t, ctx) {
   ctx.drawImage(OFF, sx, 0, vis, H, 0, yb, VW, bandH);
   const tg = ctx.createLinearGradient(0, 0, 0, yb + 80); tg.addColorStop(0, 'rgba(0,0,0,0.55)'); tg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = tg; ctx.fillRect(0, 0, VW, yb + 80);
   // overlays, laid out for a phone (clear of TikTok's top tabs and bottom caption area)
-  for (const [label, k] of OVER.badges) badge(ctx, label, VW / 2, 300, k, true);
+  for (const [label, k] of OVER.badges) badge(ctx, label, VW / 2, FULL ? 420 : 300, k, true);
   const ka = win(t, 0.4, 3.2);
   if (ka > 0) {
     const left = clamp(1 - (t - 0.6) / 2.0);
-    ctx.save(); ctx.translate(VW / 2, 300); ctx.scale(ka, ka);
+    ctx.save(); ctx.translate(VW / 2, FULL ? 360 : 300); ctx.scale(ka, ka);
     text(ctx, 'ATTENTION', 0, -40, 34, { spacing: 4 });
     ctx.fillStyle = 'rgba(11,13,18,0.7)'; ctx.beginPath(); ctx.roundRect(-260, 0, 520, 26, 13); ctx.fill();
     ctx.fillStyle = left > 0.3 ? C.rim : C.coral; ctx.beginPath(); ctx.roundRect(-260, 0, Math.max(26, 520 * left), 26, 13); ctx.fill();
@@ -572,18 +572,20 @@ function renderVertical(t, ctx) {
   }
   if (outro) {
     const k1 = pop(t - 26.6, 0.4), k2 = pop(t - 27.3, 0.4), kc = pop(t - 28.2, 0.4);
-    text(ctx, 'ANY NICHE.', VW / 2, 300, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
-    text(ctx, 'ANY FORMAT.', VW / 2, 420, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
-    text(ctx, "LET'S CREATE", VW / 2, 570, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
-    text(ctx, 'YOUR VIDEO.', VW / 2, 662, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
+    const oy = FULL ? -20 : 0;
+    text(ctx, 'ANY NICHE.', VW / 2, 300 + oy, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
+    text(ctx, 'ANY FORMAT.', VW / 2, 420 + oy, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
+    if (FULL) { text(ctx, "LET'S CREATE YOUR VIDEO.", VW / 2, 520, 62, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 5, spacing: 1 }); }
+    else text(ctx, "LET'S CREATE", VW / 2, 570, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
+    if (!FULL) text(ctx, 'YOUR VIDEO.', VW / 2, 662, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
     ripple(ctx, VW / 2, 480, t, 27.3, { r: 600, n: 3, squash: 0.45, w: 3 });
-    if (kc > 0) { ctx.save(); ctx.translate(VW / 2, 800); ctx.scale(kc, kc); setFont(ctx, 40); ctx.letterSpacing = '3px';
+    if (kc > 0) { ctx.save(); ctx.translate(VW / 2, FULL ? 1640 : 800); ctx.scale(kc, kc); setFont(ctx, 40); ctx.letterSpacing = '3px';
       const w = ctx.measureText('SEND ME YOUR SCRIPT').width + 96; ctx.fillStyle = C.coral; ctx.beginPath(); ctx.roundRect(-w / 2, -44, w, 88, 44); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('SEND ME YOUR SCRIPT', 0, 2); ctx.restore(); }
   }
   // subtitles: big, two lines max, sitting on the ground above TikTok's caption area
   if (SUBS_ON) for (const [t0, t1, str] of SUBS) { const a = fade(t, t0, t1, 0.15); if (a <= 0) continue;
-    ctx.save(); ctx.globalAlpha = a; setFont(ctx, 50); const lines = wrapLines(ctx, str, 900), lh = 64, y0 = (outro ? 1640 : 1560) - (lines.length - 1) * lh / 2;
+    ctx.save(); ctx.globalAlpha = a; setFont(ctx, FULL ? 56 : 50); const lh = FULL ? 72 : 64, lines = wrapLines(ctx, str, 900), y0 = (FULL ? 1470 : outro ? 1640 : 1560) - (lines.length - 1) * lh / 2;
     const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 56;
     ctx.fillStyle = 'rgba(11,13,18,0.66)'; ctx.beginPath(); ctx.roundRect(VW / 2 - w / 2, y0 - lh / 2 - 12, w, lines.length * lh + 24, 18); ctx.fill();
     ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; lines.forEach((l, i) => ctx.fillText(l, VW / 2, y0 + i * lh + 2)); ctx.restore(); }

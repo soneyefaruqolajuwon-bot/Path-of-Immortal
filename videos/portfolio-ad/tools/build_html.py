@@ -1,6 +1,7 @@
 """Bundle app.js + SVG assets + fonts (+ voiced timeline and audio when present) into dist/portfolio_ad.html."""
 import base64, glob, json, os, sys
-VERT = "vertical" in sys.argv[1:]
+VERT = "vertical" in sys.argv[1:] or "full" in sys.argv[1:]
+FULLV = "full" in sys.argv[1:]
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = os.path.join(HERE, "..")
 
@@ -35,10 +36,10 @@ body.render #wrap{{padding:0}} body.render canvas{{width:{1080 if VERT else 1920
 <div id="ctl"><button id="play" aria-label="Play or pause">▶</button><input id="bar" type="range" min="0" max="30" step="0.01" value="0" aria-label="Timeline"><span id="time"></span><button id="subs">CC on</button></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
-window.ASSETS={json.dumps(assets)};{sync_js}{'window.VERTICAL=true;' if VERT else ''}</script>
+window.ASSETS={json.dumps(assets)};{sync_js}{("window.VERTICAL='full';" if FULLV else 'window.VERTICAL=true;') if VERT else ''}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""
-out = os.path.join(R, "dist", "portfolio_ad_vertical.html" if VERT else "portfolio_ad.html")
+out = os.path.join(R, "dist", ("portfolio_ad_full.html" if FULLV else "portfolio_ad_vertical.html") if VERT else "portfolio_ad.html")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 open(out, "w").write(html)
 print(out, os.path.getsize(out) // 1024, "KB", "(with audio)" if sync_js else "")
