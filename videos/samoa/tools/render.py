@@ -61,7 +61,7 @@ def _register_sfx():
         return AU.norm(AU.chirp_sine(f, d) * AU.env_exp(d, 30), 0.35)
 
     AU.SFX.update(jet=jet, rumble=rumble, drip=drip)
-    AU.GAIN.update(jet=0.8, rumble=0.8, drip=0.5)
+    AU.GAIN.update(jet=0.22, rumble=0.8, drip=0.5)   # the plane is a background swish, never louder than the voice
 
 
 def probe(path):
@@ -128,7 +128,7 @@ def main():
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(seg, "list.txt"), "-c", "copy", silent], check=True)
     wav = os.path.join(seg, "mix.wav")
     AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES], tl.vo_events(),
-           lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18)
+           lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18, sfx_duck=0.6)
     name = "samoa.mp4" if tl.vo else "samoa_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",

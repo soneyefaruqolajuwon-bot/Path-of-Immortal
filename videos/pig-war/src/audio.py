@@ -411,7 +411,7 @@ def place(buf, x, t, gain=1.0, pan=0.0):
     buf[1, st:st + len(x)] += x * gain * rg * 1.414
 
 
-def mix(duration, sfx_events, vo_events, music_env, out_path, music_gain=0.2):
+def mix(duration, sfx_events, vo_events, music_env, out_path, music_gain=0.2, sfx_duck=0.0):
     n = int(duration * SR)
     buf = np.zeros((2, n))
     cache = {}
@@ -419,17 +419,21 @@ def mix(duration, sfx_events, vo_events, music_env, out_path, music_gain=0.2):
         if name not in cache:
             cache[name] = SFX[name]()
         place(buf, cache[name], t, 0.55 * GAIN.get(name, 1.0), pan)
+    vbuf = np.zeros((2, n))
     m = music_bed(duration + 1)[:n]
     tt = np.arange(n) / SR
     m = m * np.array([music_env(x) for x in tt[::480]]).repeat(480)[:n]
     vo_mask = np.zeros(n)
     for t, path in vo_events:
         x = load_audio(path)
-        place(buf, x, t, 1.0, 0.0)
+        place(vbuf, x, t, 1.0, 0.0)
         st = int(t * SR)
         vo_mask[st:st + len(x)] = 1
     # duck music under VO
     duck = 1 - 0.45 * lp(vo_mask, 3, 1)
+    if sfx_duck:                      # optional: sound effects also step back under the voice
+        buf *= 1 - sfx_duck * np.clip(lp(vo_mask, 6, 1), 0, 1)
+    buf += vbuf
     buf[0] += m * music_gain * duck
     buf[1] += m * music_gain * duck
     buf = np.tanh(buf * 1.1) * 0.95
