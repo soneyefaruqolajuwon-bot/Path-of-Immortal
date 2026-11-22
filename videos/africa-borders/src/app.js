@@ -510,17 +510,61 @@ function vignette(ctx) {
   g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.5)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
 }
 function renderAt(t, ctx) {
-  ctx = ctx || document.getElementById('cv').getContext('2d');
+  if (VERT) return renderVertical(t, ctx);
+  renderScene(t, ctx || document.getElementById('cv').getContext('2d'));
+}
+function renderScene(t, ctx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
   const c = camAt(t);
   drawMap(ctx, c);
   sceneMap(ctx, c, t);
   sceneCards(ctx, t);
+  if (VERT) return;
   vignette(ctx);
   drawText(ctx, t);
   ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
   const fi = 1 - clamp(t / 0.4), fo = clamp((t - 175.1) / 0.7);
   if (fi > 0 || fo > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.max(fi, fo)})`; ctx.fillRect(0, 0, W, H); }
+}
+
+// ---------------------------------------------------------------- 9:16 teaser: scene band + title above + big captions below
+const VW = 1080, VH = 1920;
+const VKEYS = [[0, 960, 0.9], [56.4, 960, 0.9], [57.3, 840, 0.9], [62.6, 840, 0.9], [63.0, 960, 0.9], [63.6, 960, 0.58], [75.5, 960, 0.58]];     // [t, focus x, scale] — cards are shown whole
+let OFF = null;
+function vcam(t) { const k = VKEYS; if (t <= k[0][0]) return k[0]; for (let i = 0; i < k.length - 1; i++) if (t <= k[i + 1][0]) { const u = easeIO((t - k[i][0]) / (k[i + 1][0] - k[i][0])); return [t, lerp(k[i][1], k[i + 1][1], u), lerp(k[i][2], k[i + 1][2], u)]; } return k[k.length - 1]; }
+function renderVertical(t, ctx) {
+  ctx = ctx || document.getElementById('cv').getContext('2d');
+  if (!OFF) { OFF = document.createElement('canvas'); OFF.width = W; OFF.height = H; }
+  const ts = SHORT_END ? Math.min(t, SHORT_END) : t;
+  renderScene(ts, OFF.getContext('2d'));
+  const [, fxk, s] = vcam(ts), bandH = H * s, yb = 520 - (bandH - 929) / 2, vis = VW / s, fx = clamp(fxk, vis / 2, W - vis / 2), sx = fx - vis / 2;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+  ctx.save(); ctx.filter = 'blur(16px)';
+  ctx.drawImage(OFF, sx, 0, vis, 1, -30, -30, VW + 60, yb + 32);
+  ctx.drawImage(OFF, sx, H - 1, vis, 1, -30, yb + bandH - 2, VW + 60, VH - yb - bandH + 32);
+  ctx.restore();
+  ctx.fillStyle = 'rgba(6,16,22,0.55)'; ctx.fillRect(0, 0, VW, yb); ctx.fillRect(0, yb + bandH, VW, VH - yb - bandH);
+  ctx.drawImage(OFF, sx, 0, vis, H, 0, yb, VW, bandH);
+  ctx.fillStyle = C.gold; ctx.fillRect(0, yb - 3, VW, 3); ctx.fillRect(0, yb + bandH, VW, 3);
+  styledText(ctx, "WHY AFRICA'S BORDERS", VW / 2, 250, 84, { font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: 1000 });
+  styledText(ctx, 'ARE STRAIGHT', VW / 2, 360, 104, { font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: 1000 });
+  for (const [t0, t1, txt] of CAPTIONS) { if (SHORT_END && t0 > SHORT_END - 0.3) continue; const k = win(ts, t0, t1, .26, .18); if (k > 0 && !(SHORT_END && t > SHORT_END + 0.2)) styledText(ctx, txt, VW / 2, 1580, 70, { k, shadow: 5, maxW: 1000 }); }
+  const g = ctx.createRadialGradient(VW / 2, VH * .5, VH * .35, VW / 2, VH * .5, VH * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.4)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+  if (SHORT_END && t > SHORT_END) {                      // cliffhanger end card
+    const e = t - SHORT_END, k = clamp(e / 0.35);
+    ctx.fillStyle = `rgba(4,10,14,${0.74 * k})`; ctx.fillRect(0, 0, VW, VH);
+    styledText(ctx, 'NOT A RULER', VW / 2, 560, 104, { k: pop(e - 0.1, 0.35), fill: C.white, stroke: C.ink });
+    styledText(ctx, 'AT A TABLE…', VW / 2, 680, 104, { k: pop(e - 0.25, 0.35), fill: C.white, stroke: C.ink });
+    styledText(ctx, 'SO HOW?', VW / 2, 840, 140, { k: pop(e - 0.5, 0.35), fill: C.yellow, stroke: C.goldDark, rot: -3 });
+    const kc = pop(e - 0.9, 0.35);
+    if (kc > 0) { ctx.save(); ctx.translate(VW / 2, 1060); ctx.scale(kc, kc); setFont(ctx, 'Montserrat', 48);
+      const w = ctx.measureText('FULL VIDEO ON YOUTUBE').width + 150; ctx.fillStyle = '#E62117'; ctx.beginPath(); ctx.roundRect(-w / 2, -58, w, 116, 58); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(-w / 2 + 50, -22); ctx.lineTo(-w / 2 + 50, 22); ctx.lineTo(-w / 2 + 86, 0); ctx.closePath(); ctx.fill();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('FULL VIDEO ON YOUTUBE', 30, 3); ctx.restore(); }
+    styledText(ctx, 'Mapheld', VW / 2, 1190, 64, { k: pop(e - 1.2, 0.35), fill: C.gold, stroke: C.goldDark });
+  }
+  ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, VW, VH); ctx.restore();
+  const fi = 1 - clamp(t / 0.3); if (fi > 0) { ctx.fillStyle = `rgba(0,0,0,${fi})`; ctx.fillRect(0, 0, VW, VH); }
 }
 
 window.renderAt = renderAt;

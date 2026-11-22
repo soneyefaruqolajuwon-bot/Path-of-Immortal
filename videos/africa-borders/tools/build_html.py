@@ -31,7 +31,7 @@ body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:{1080 if SH
 <div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="175.8" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
-window.ASSETS={json.dumps(assets)};{'window.VERTICAL=true;window.SHORT_END=60.0;' if SHORT else audio_js}</script>
+window.ASSETS={json.dumps(assets)};{'window.VERTICAL=true;window.SHORT_END=74.6;' if SHORT else audio_js}</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""
