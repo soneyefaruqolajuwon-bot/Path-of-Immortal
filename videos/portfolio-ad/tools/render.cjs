@@ -3,10 +3,11 @@
 //   node render.cjs video frames.json out_dir N     -> N mp4 segments (1920x1080), one per worker
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'portfolio_ad.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
+const VERT = process.env.VERTICAL === '1';
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', VERT ? 'portfolio_ad_vertical.html' : 'portfolio_ad.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
 
 async function openPage(browser) {
-  const pg = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  const pg = await browser.newPage({ viewport: VERT ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
   pg.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
   pg.on('pageerror', e => console.log('[pageerror]', e.message));
   await pg.goto(HTML); await pg.waitForFunction(() => window.READY === true, null, { timeout: 60000 });
@@ -17,7 +18,7 @@ async function grab(pg, t, type = 'jpeg', scale = 1) {
     renderAt(t);
     const src = document.getElementById('cv');
     if (scale === 1) return src.toDataURL('image/' + type, 0.93);
-    const c = document.createElement('canvas'); c.width = 1920 * scale; c.height = 1080 * scale;
+    const c = document.createElement('canvas'); c.width = src.width * scale; c.height = src.height * scale;
     c.getContext('2d').drawImage(src, 0, 0, c.width, c.height); return c.toDataURL('image/' + type, 0.93);
   }, [t, type, scale]);
   return Buffer.from(data.split(',')[1], 'base64');

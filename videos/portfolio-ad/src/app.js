@@ -4,6 +4,8 @@
  */
 'use strict';
 const W = 1920, H = 1080, DURATION = 30, GROUND = 905;
+const VERT = !!window.VERTICAL;          // 9:16 TikTok/Reels cut: scene in a tall band, camera follows the action, text re-laid out
+const OVER = { badges: [] };
 const C = {
   ink: '#0B0D12', rim: '#F5B041', rim2: '#E59866', coral: '#D9534F', orange: '#D98850', violet: '#4A3B5C', navy: '#181C2E',
   gold: '#F4D03F', white: '#FFFFFF', window: '#F7C46C', teal: '#1E4D5C', olive: '#8A855C', yellow: '#FFD43B',
@@ -97,8 +99,9 @@ function text(ctx, s, x, y, size, o = {}) {
   else ctx.fillStyle = o.fill || C.white;
   ctx.fillText(s, 0, 0); ctx.restore();
 }
-function badge(ctx, label, x, y, k) {
+function badge(ctx, label, x, y, k, native) {
   if (k <= 0.001) return;
+  if (VERT && !native) { OVER.badges.push([label, k]); return; }
   ctx.save(); ctx.translate(x, y); ctx.scale(k, k); setFont(ctx, 34); ctx.letterSpacing = '3px';
   const w = ctx.measureText(label).width + 110, h = 78;
   ctx.fillStyle = 'rgba(11,13,18,0.86)'; ctx.strokeStyle = C.rim; ctx.lineWidth = 4;
@@ -217,10 +220,10 @@ function sceneStreet(ctx, t, camX) {
   }
   speedLines(ctx, ...CATCH, win(t, T_CATCH - 0.05, T_CATCH + 0.35, 0.05, 0.25), 4);
   ripple(ctx, ...CATCH, t, T_CATCH, { r: 320, n: 4 });
-  callout(ctx, CATCH[0] + 60, CATCH[1] - 30, 1420, 300, '0.025 s', fade(t, 3.8, 6.0) * clamp((t - 3.8) / 0.5), { size: 52, color: C.gold });
+  callout(ctx, CATCH[0] + 60, CATCH[1] - 30, VERT ? 1290 : 1420, VERT ? 230 : 300, '0.025 s', fade(t, 3.8, 6.0) * clamp((t - 3.8) / 0.5), { size: 52, color: C.gold });
   // attention meter draining (most videos get scrolled past)
   const ka = win(t, 0.4, 3.2);
-  if (ka > 0) {
+  if (ka > 0 && !VERT) {
     const left = clamp(1 - (t - 0.6) / 2.0);
     ctx.save(); ctx.translate(760, 70); ctx.scale(ka, ka);
     text(ctx, 'ATTENTION', 0, 0, 30, { align: 'left', spacing: 3, fill: C.white });
@@ -308,8 +311,8 @@ function sceneBrand(ctx, t, camX) {
   dotted(ctx, tl, clamp((t - 9.0) / 0.8), { step: 2, r: 4 });
   if (t > 9.8) { const [ax, ay] = tl[40]; ctx.save(); ctx.globalAlpha = clamp((t - 9.8) / 0.3); ctx.fillStyle = C.white; ctx.beginPath(); ctx.moveTo(ax + 22, ay - 16); ctx.lineTo(ax - 8, ay - 14); ctx.lineTo(ax + 8, ay + 12); ctx.closePath(); ctx.fill(); ctx.restore(); }
   text(ctx, '+ REVENUE', bx + 180, base + 46, 30, { k: pop(t - 9.6), fill: C.gold, spacing: 2 });
-  callout(ctx, PHONE.x - 150, 330 + bob, 600, 270, 'CUSTOM UI', clamp((t - 9.4) / 0.5) * popOut(12.8 - t), { size: 30 });
-  callout(ctx, PHONE.x + 150, 420 + bob, 1250, 300, 'SMOOTH MOTION', clamp((t - 9.8) / 0.5) * popOut(12.8 - t), { size: 30 });
+  if (!VERT) callout(ctx, PHONE.x - 150, 330 + bob, 600, 270, 'CUSTOM UI', clamp((t - 9.4) / 0.5) * popOut(12.8 - t), { size: 30 });
+  if (!VERT) callout(ctx, PHONE.x + 150, 420 + bob, 1250, 300, 'SMOOTH MOTION', clamp((t - 9.8) / 0.5) * popOut(12.8 - t), { size: 30 });
   // cursor taps BUY NOW
   const kc = fade(t, 10.0, 12.6);
   if (kc > 0) {
@@ -318,7 +321,7 @@ function sceneBrand(ctx, t, camX) {
     ctx.save(); ctx.globalAlpha = kc; ctx.translate(cx, cy); ctx.fillStyle = C.white; ctx.strokeStyle = C.ink; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 46); ctx.lineTo(12, 36); ctx.lineTo(22, 58); ctx.lineTo(30, 54); ctx.lineTo(20, 32); ctx.lineTo(36, 32); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
     ripple(ctx, tx, ty, t, 10.85, { r: 120, n: 2, d: 0.6 });
-    text(ctx, '+1 ORDER', tx - 300, ty - 30, 36, { k: win(t, 11.0, 12.6), fill: C.gold });
+    text(ctx, '+1 ORDER', VERT ? tx - 190 : tx - 300, VERT ? ty - 110 : ty - 30, 36, { k: win(t, 11.0, 12.6), fill: C.gold });
   }
   actor(ctx, 'host', 'point', 260, GROUND, { k: pop(t - 7.2) });
   badge(ctx, 'BRAND & PRODUCT ADS', W / 2, 90, win(t, 7.0, 12.9));
@@ -369,7 +372,7 @@ function sceneShorts(ctx, t, frame) {
   // retention meter
   const km = win(t, 14.4, 19.7);
   if (km > 0) {
-    const v = lerp(35, 92, easeOut((t - 15.0) / 3.2)), mx = 1500, my = 260, mh = 520;
+    const v = lerp(35, 92, easeOut((t - 15.0) / 3.2)), mx = VERT ? 1320 : 1500, my = 260, mh = 520;
     ctx.save(); ctx.translate(mx, my + mh / 2); ctx.scale(km, km); ctx.translate(-mx, -(my + mh / 2));
     text(ctx, 'RETENTION', mx, my - 40, 32, { spacing: 3 });
     ctx.fillStyle = 'rgba(11,13,18,0.8)'; ctx.beginPath(); ctx.roundRect(mx - 34, my, 68, mh, 34); ctx.fill();
@@ -381,8 +384,8 @@ function sceneShorts(ctx, t, frame) {
   }
   // likes floating up
   for (let i = 0; i < 7; i++) { const u = ((t - 15.6) * 0.45 + i / 7) % 1; if (t < 15.6 || t > 19.6) break;
-    text(ctx, '♥', frame.x0 + frame.w + 60 + Math.sin(i * 2 + t * 2) * 24, 860 - u * 520, 40 + (i % 3) * 10, { fill: i % 2 ? C.coral : '#FF8A80', alpha: (1 - u) * 0.9, shadow: false }); }
-  actor(ctx, 'capper', t > 17.6 ? 'cheer' : 'point', 420, GROUND, { k: pop(t - 13.8) });
+    text(ctx, '♥', (VERT ? frame.x0 - 60 : frame.x0 + frame.w + 60) + Math.sin(i * 2 + t * 2) * 24, 860 - u * 520, 40 + (i % 3) * 10, { fill: i % 2 ? C.coral : '#FF8A80', alpha: (1 - u) * 0.9, shadow: false }); }
+  actor(ctx, 'capper', t > 17.6 ? 'cheer' : 'point', VERT ? 560 : 420, GROUND, { k: pop(t - 13.8) });
   badge(ctx, 'VIRAL SHORTS & REELS', 420, 120, win(t, 13.6, 19.7));
   // the vertical frame
   const { x0, y0, w, h, r } = frame;
@@ -430,16 +433,16 @@ function stadium(ctx, t) {
   // target ring + HUD
   ctx.save(); ctx.globalAlpha = fade(t, 21.0, 25.8); ctx.strokeStyle = C.white; ctx.lineWidth = 3; ctx.setLineDash([10, 10]);
   ctx.beginPath(); ctx.arc(...B, 54, 0, 7); ctx.stroke(); ctx.restore();
-  text(ctx, 'x10', B[0] + 130, B[1] - 90, 96, { k: win(t, 22.7, 25.8), fill: C.yellow, stroke: '#3A2A08', rot: -6 });
+  text(ctx, 'x10', VERT ? B[0] - 10 : B[0] + 130, VERT ? B[1] - 130 : B[1] - 90, 96, { k: win(t, 22.7, 25.8), fill: C.yellow, stroke: '#3A2A08', rot: -6 });
   ctx.restore();
 }
 function sceneLong(ctx, t) {
   stadium(ctx, t);
   // cinematic letterbox + chapter HUD
-  const lb = easeIO((t - 20.6) / 0.6) * (1 - easeIO((t - 25.6) / 0.4)) * 80;
+  const lb = VERT ? 0 : easeIO((t - 20.6) / 0.6) * (1 - easeIO((t - 25.6) / 0.4)) * 80;
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, lb); ctx.fillRect(0, H - lb, W, lb);
   badge(ctx, 'YOUTUBE EXPLAINERS & STORIES', W / 2, 160, win(t, 21.0, 25.7));
-  const kh = win(t, 21.4, 25.6);
+  const kh = VERT ? 0 : win(t, 21.4, 25.6);
   if (kh > 0) { ctx.save(); ctx.globalAlpha = clamp(kh); text(ctx, 'CHAPTER 2 · THE BIG MOMENT', 120, H - 150, 26, { align: 'left', spacing: 3, fill: '#E8E2D6' });
     ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.fillRect(120, H - 120, 520, 6); ctx.fillStyle = C.rim; ctx.fillRect(120, H - 120, 520 * lerp(0.25, 0.6, clamp((t - 21.4) / 4)), 6); ctx.restore(); }
 }
@@ -453,6 +456,7 @@ function sceneOutro(ctx, t) {
   ground(ctx);
   const cast = [['scientist', 570, 26.5], ['host', 830, 26.3], ['capper', 1090, 26.7], ['coach', 1350, 26.9]];
   for (const [who, x, t0] of cast) actor(ctx, who, t > t0 + 0.9 ? 'cheer' : 'stand', x, GROUND, { k: pop(t - t0, 0.4) });
+  if (VERT) return;                        // the vertical cut lays its own end-card type out
   const k1 = pop(t - 26.6, 0.4), k2 = pop(t - 27.3, 0.4);
   text(ctx, 'ANY NICHE. ANY FORMAT.', W / 2, 170, 100, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
   text(ctx, "LET'S CREATE YOUR VIDEO.", W / 2, 292, 76, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
@@ -483,7 +487,10 @@ function drawSubs(ctx, t) {
 
 // ------------------------------------------------------------------ compositor
 function renderAt(t, ctx) {
-  ctx = ctx || document.getElementById('cv').getContext('2d');
+  if (VERT) return renderVertical(t, ctx);
+  renderScene(t, ctx || document.getElementById('cv').getContext('2d'));
+}
+function renderScene(t, ctx) {
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
   const camX = t * 18;                                   // gentle parallax drift
   if (t < 6.2) sceneStreet(ctx, t, camX);
@@ -507,6 +514,7 @@ function renderAt(t, ctx) {
     ctx.save(); ctx.beginPath(); ctx.roundRect(f.x0, f.y0, f.w, f.h, f.r); ctx.clip(); sceneLong(ctx, 20.0); ctx.restore();
   }
   // cut-to-black beat before the reveal
+  if (VERT) return;
   const bl = fade(t, 25.75, 26.2, 0.12);
   if (bl > 0) { ctx.fillStyle = `rgba(0,0,0,${bl})`; ctx.fillRect(0, 0, W, H); }
   // global vignette + grain
@@ -517,6 +525,74 @@ function renderAt(t, ctx) {
   // fade in / out
   const fi = 1 - clamp(t / 0.35), fo = clamp((t - 29.6) / 0.4);
   if (fi > 0 || fo > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.max(fi, fo)})`; ctx.fillRect(0, 0, W, H); }
+}
+// ------------------------------------------------------------------ vertical (9:16) cut
+const VW = 1080, VH = 1920;
+const FOCUS = [[0, 560], [1.0, 560], [3.3, 1000], [3.6, 1083], [4.2, 1150], [6.0, 1150], [6.4, 980], [7.2, 880], [8.4, 900], [9.2, 1250], [9.9, 1250],
+  [10.4, 1000], [12.6, 1000], [13.0, 960], [14.6, 960], [15.3, 1060], [17.3, 1060], [17.8, 840], [19.3, 840], [19.6, 960], [20.4, 700], [21.6, 720],
+  [22.5, 1290], [23.1, 1290], [23.7, 820], [26.0, 820]];
+let OFF = null;
+function focusAt(t) {
+  const k = FOCUS; if (t <= k[0][0]) return k[0][1];
+  for (let i = 0; i < k.length - 1; i++) if (t <= k[i + 1][0]) return lerp(k[i][1], k[i + 1][1], easeIO((t - k[i][0]) / (k[i + 1][0] - k[i][0])));
+  return k[k.length - 1][1];
+}
+function wrapLines(ctx, s, maxW) {
+  const words = s.split(' '), lines = []; let cur = '';
+  for (const w of words) { const tryS = cur ? cur + ' ' + w : w; if (ctx.measureText(tryS).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tryS; }
+  if (cur) lines.push(cur); return lines;
+}
+function renderVertical(t, ctx) {
+  ctx = ctx || document.getElementById('cv').getContext('2d');
+  if (!OFF) { OFF = document.createElement('canvas'); OFF.width = W; OFF.height = H; }
+  OVER.badges = [];
+  renderScene(t, OFF.getContext('2d'));
+  const outro = t >= 26.0;
+  const s = outro ? 1.0 : 1.4, bandH = H * s, yb = outro ? 640 : (VH - bandH) / 2;
+  const vis = VW / s, fx = outro ? W / 2 : clamp(focusAt(t), vis / 2, W - vis / 2), sx = fx - vis / 2;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
+  ctx.imageSmoothingQuality = 'high';
+  ctx.save(); ctx.filter = 'blur(14px)';
+  ctx.drawImage(OFF, sx, 0, vis, 1, -30, -30, VW + 60, yb + 32);                     // extend the band's top row upward (sky)
+  ctx.drawImage(OFF, sx, H - 1, vis, 1, -30, yb + bandH - 2, VW + 60, VH - yb - bandH + 32);  // and its bottom row downward (ground)
+  ctx.restore();
+  ctx.drawImage(OFF, sx, 0, vis, H, 0, yb, VW, bandH);
+  const tg = ctx.createLinearGradient(0, 0, 0, yb + 80); tg.addColorStop(0, 'rgba(0,0,0,0.55)'); tg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = tg; ctx.fillRect(0, 0, VW, yb + 80);
+  // overlays, laid out for a phone (clear of TikTok's top tabs and bottom caption area)
+  for (const [label, k] of OVER.badges) badge(ctx, label, VW / 2, 300, k, true);
+  const ka = win(t, 0.4, 3.2);
+  if (ka > 0) {
+    const left = clamp(1 - (t - 0.6) / 2.0);
+    ctx.save(); ctx.translate(VW / 2, 300); ctx.scale(ka, ka);
+    text(ctx, 'ATTENTION', 0, -40, 34, { spacing: 4 });
+    ctx.fillStyle = 'rgba(11,13,18,0.7)'; ctx.beginPath(); ctx.roundRect(-260, 0, 520, 26, 13); ctx.fill();
+    ctx.fillStyle = left > 0.3 ? C.rim : C.coral; ctx.beginPath(); ctx.roundRect(-260, 0, Math.max(26, 520 * left), 26, 13); ctx.fill();
+    text(ctx, `${(left * 2).toFixed(1)} s`, 0, 70, 40, { fill: left > 0.3 ? C.white : C.coral });
+    ctx.restore();
+  }
+  if (outro) {
+    const k1 = pop(t - 26.6, 0.4), k2 = pop(t - 27.3, 0.4), kc = pop(t - 28.2, 0.4);
+    text(ctx, 'ANY NICHE.', VW / 2, 300, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
+    text(ctx, 'ANY FORMAT.', VW / 2, 420, 108, { k: k1, stroke: C.rim, strokeW: 7, spacing: 2 });
+    text(ctx, "LET'S CREATE", VW / 2, 570, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
+    text(ctx, 'YOUR VIDEO.', VW / 2, 662, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
+    ripple(ctx, VW / 2, 480, t, 27.3, { r: 600, n: 3, squash: 0.45, w: 3 });
+    if (kc > 0) { ctx.save(); ctx.translate(VW / 2, 800); ctx.scale(kc, kc); setFont(ctx, 40); ctx.letterSpacing = '3px';
+      const w = ctx.measureText('SEND ME YOUR SCRIPT').width + 96; ctx.fillStyle = C.coral; ctx.beginPath(); ctx.roundRect(-w / 2, -44, w, 88, 44); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('SEND ME YOUR SCRIPT', 0, 2); ctx.restore(); }
+  }
+  // subtitles: big, two lines max, sitting on the ground above TikTok's caption area
+  if (SUBS_ON) for (const [t0, t1, str] of SUBS) { const a = fade(t, t0, t1, 0.15); if (a <= 0) continue;
+    ctx.save(); ctx.globalAlpha = a; setFont(ctx, 50); const lines = wrapLines(ctx, str, 900), lh = 64, y0 = (outro ? 1640 : 1560) - (lines.length - 1) * lh / 2;
+    const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 56;
+    ctx.fillStyle = 'rgba(11,13,18,0.66)'; ctx.beginPath(); ctx.roundRect(VW / 2 - w / 2, y0 - lh / 2 - 12, w, lines.length * lh + 24, 18); ctx.fill();
+    ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; lines.forEach((l, i) => ctx.fillText(l, VW / 2, y0 + i * lh + 2)); ctx.restore(); }
+  // vignette, grain, black beat, fades
+  const g = ctx.createRadialGradient(VW / 2, VH * 0.5, VH * 0.35, VW / 2, VH * 0.5, VH * 0.75);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.45)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
+  ctx.fillStyle = ctx.createPattern(GRAIN, 'repeat'); ctx.fillRect(0, 0, VW, VH);
+  const bl = fade(t, 25.75, 26.2, 0.12), fi = 1 - clamp(t / 0.35), fo = clamp((t - 29.6) / 0.4);
+  const dark = Math.max(bl, fi, fo); if (dark > 0) { ctx.fillStyle = `rgba(0,0,0,${dark})`; ctx.fillRect(0, 0, VW, VH); }
 }
 function shortsFrame(t) {
   const grow = easeIO((t - 19.4) / 0.6);
