@@ -19,15 +19,15 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
     ctx.save(); ctx.strokeStyle = '#FF4D4D'; ctx.lineWidth = 10; ctx.shadowColor = '#FF4D4D'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.ellipse(px, py, 360, 190, -0.08, 0, 7); ctx.stroke(); ctx.restore();
     // darken the left for the headline
     const g = ctx.createLinearGradient(0, 0, W * 0.55, 0); g.addColorStop(0, 'rgba(6,14,20,0.85)'); g.addColorStop(1, 'rgba(6,14,20,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    styledText(ctx, 'PLANES', 400, 300, 190, { fill: '#FFFFFF', stroke: '#141416', shadow: 10, maxW: 760 });
-    styledText(ctx, 'AVOID', 400, 500, 190, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 10, maxW: 760 });
-    styledText(ctx, 'THIS', 400, 700, 190, { fill: '#FFFFFF', stroke: '#141416', shadow: 10, maxW: 760 });
+    styledText(ctx, 'WHY PLANES', 410, 290, 170, { fill: '#FFFFFF', stroke: '#141416', shadow: 10, maxW: 780 });
+    styledText(ctx, 'AVOID', 410, 490, 200, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 10, maxW: 780 });
+    styledText(ctx, 'THIS?', 410, 700, 200, { fill: '#FFFFFF', stroke: '#141416', shadow: 10, maxW: 780 });
     // arrow to the plateau
     ctx.save(); ctx.strokeStyle = '#FFD43B'; ctx.fillStyle = '#FFD43B'; ctx.lineWidth = 22; ctx.lineCap = 'round'; ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 16;
-    ctx.beginPath(); ctx.moveTo(700, 640); ctx.quadraticCurveTo(820, 560, px - 380, py + 40); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(730, 660); ctx.quadraticCurveTo(820, 560, px - 380, py + 40); ctx.stroke();
     const ang = Math.atan2(py + 40 - 560, px - 380 - 820); ctx.translate(px - 380, py + 40); ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-30, -34); ctx.lineTo(-30, 34); ctx.closePath(); ctx.fill(); ctx.restore();
     sprite(ctx, 'plane_top', 1580, 210, 230, { rot: 18 });
-    styledText(ctx, '?', px + 10, py + 6, 220, { fill: '#FFFFFF', stroke: '#141416', shadow: 10 });
+    styledText(ctx, '', px + 10, py + 6, 220, { fill: '#FFFFFF', stroke: '#141416', shadow: 10 });
     const c2 = document.createElement('canvas'); c2.width = 1280; c2.height = 720; c2.getContext('2d').drawImage(cv, 0, 0, 1280, 720);
     return c2.toDataURL('image/jpeg', 0.92);
   });
