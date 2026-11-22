@@ -6,6 +6,7 @@
 const W = 1920, H = 1080, DURATION = 30, GROUND = 905;
 const VERT = !!window.VERTICAL, FULL = window.VERTICAL === 'full';   // FULL: the whole 16:9 scene in the middle of a 9:16 frame          // 9:16 TikTok/Reels cut: scene in a tall band, camera follows the action, text re-laid out
 const OVER = { badges: [] };
+const BIO = window.CTA === 'bio';        // end on 'Hire me on Freelancer — link in bio'
 const C = {
   ink: '#0B0D12', rim: '#F5B041', rim2: '#E59866', coral: '#D9534F', orange: '#D98850', violet: '#4A3B5C', navy: '#181C2E',
   gold: '#F4D03F', white: '#FFFFFF', window: '#F7C46C', teal: '#1E4D5C', olive: '#8A855C', yellow: '#FFD43B',
@@ -579,13 +580,28 @@ function renderVertical(t, ctx) {
     else text(ctx, "LET'S CREATE", VW / 2, 570, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
     if (!FULL) text(ctx, 'YOUR VIDEO.', VW / 2, 662, 80, { k: k2, grad: ['#FBE29A', C.rim], stroke: '#3A2408', strokeW: 6, spacing: 2 });
     ripple(ctx, VW / 2, 480, t, 27.3, { r: 600, n: 3, squash: 0.45, w: 3 });
-    if (kc > 0) { ctx.save(); ctx.translate(VW / 2, FULL ? 1640 : 800); ctx.scale(kc, kc); setFont(ctx, 40); ctx.letterSpacing = '3px';
+    if (BIO && kc > 0) {
+      text(ctx, 'HIRE ME ON FREELANCER', VW / 2, 1575, 50, { k: kc, spacing: 2 });
+      const bob = Math.sin((t - 28.2) * 7) * 8;
+      ctx.save(); ctx.translate(VW / 2, 1680 + bob); ctx.scale(kc, kc); setFont(ctx, 46); ctx.letterSpacing = '3px';
+      const w = ctx.measureText('LINK IN BIO').width + 150; ctx.shadowColor = 'rgba(217,83,79,0.6)'; ctx.shadowBlur = 30;
+      ctx.fillStyle = C.coral; ctx.beginPath(); ctx.roundRect(-w / 2, -50, w, 100, 50); ctx.fill(); ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('LINK IN BIO', 24, 3);
+      ctx.beginPath(); ctx.moveTo(-w / 2 + 50, 18); ctx.lineTo(-w / 2 + 50, -18); ctx.moveTo(-w / 2 + 36, -4); ctx.lineTo(-w / 2 + 50, -20); ctx.lineTo(-w / 2 + 64, -4);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(); ctx.restore();
+      ripple(ctx, VW / 2, 1680, t, 28.3, { r: 300, n: 2, squash: 0.35, w: 3 });
+    }
+    if (!BIO && kc > 0) { ctx.save(); ctx.translate(VW / 2, FULL ? 1640 : 800); ctx.scale(kc, kc); setFont(ctx, 40); ctx.letterSpacing = '3px';
       const w = ctx.measureText('SEND ME YOUR SCRIPT').width + 96; ctx.fillStyle = C.coral; ctx.beginPath(); ctx.roundRect(-w / 2, -44, w, 88, 44); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('SEND ME YOUR SCRIPT', 0, 2); ctx.restore(); }
   }
+  if (BIO) { const kr = win(t, 21.2, 25.6);
+    if (kr > 0) { ctx.save(); ctx.translate(VW / 2, FULL ? 505 : 385); ctx.scale(kr, kr); setFont(ctx, 30); ctx.letterSpacing = '2px';
+      const w = ctx.measureText('HIRE ME · LINK IN BIO').width + 60; ctx.fillStyle = 'rgba(217,83,79,0.92)'; ctx.beginPath(); ctx.roundRect(-w / 2, -28, w, 56, 28); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('HIRE ME · LINK IN BIO', 0, 2); ctx.restore(); } }
   // subtitles: big, two lines max, sitting on the ground above TikTok's caption area
   if (SUBS_ON) for (const [t0, t1, str] of SUBS) { const a = fade(t, t0, t1, 0.15); if (a <= 0) continue;
-    ctx.save(); ctx.globalAlpha = a; setFont(ctx, FULL ? 56 : 50); const lh = FULL ? 72 : 64, lines = wrapLines(ctx, str, 900), y0 = (FULL ? 1470 : outro ? 1640 : 1560) - (lines.length - 1) * lh / 2;
+    ctx.save(); ctx.globalAlpha = a; setFont(ctx, FULL ? 56 : 50); const lh = FULL ? 72 : 64, lines = wrapLines(ctx, str, 900), y0 = (FULL ? (BIO && outro ? 1430 : 1470) : outro ? 1640 : 1560) - (lines.length - 1) * lh / 2;
     const w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 56;
     ctx.fillStyle = 'rgba(11,13,18,0.66)'; ctx.beginPath(); ctx.roundRect(VW / 2 - w / 2, y0 - lh / 2 - 12, w, lines.length * lh + 24, 18); ctx.fill();
     ctx.fillStyle = C.white; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; lines.forEach((l, i) => ctx.fillText(l, VW / 2, y0 + i * lh + 2)); ctx.restore(); }
@@ -593,7 +609,7 @@ function renderVertical(t, ctx) {
   const g = ctx.createRadialGradient(VW / 2, VH * 0.5, VH * 0.35, VW / 2, VH * 0.5, VH * 0.75);
   g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.45)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
   ctx.fillStyle = ctx.createPattern(GRAIN, 'repeat'); ctx.fillRect(0, 0, VW, VH);
-  const bl = fade(t, 25.75, 26.2, 0.12), fi = 1 - clamp(t / 0.35), fo = clamp((t - 29.6) / 0.4);
+  const bl = fade(t, 25.75, 26.2, 0.12), fi = 1 - clamp(t / 0.35), fo = BIO ? clamp((t - 29.88) / 0.12) : clamp((t - 29.6) / 0.4);
   const dark = Math.max(bl, fi, fo); if (dark > 0) { ctx.fillStyle = `rgba(0,0,0,${dark})`; ctx.fillRect(0, 0, VW, VH); }
 }
 function shortsFrame(t) {
