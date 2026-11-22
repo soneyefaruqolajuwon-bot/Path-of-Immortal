@@ -462,7 +462,9 @@ function sceneSame(ctx, t) {
 
 // ---------------------------------------------------------------- B5 (14.4–19): your script could be next → link in bio
 const T_NEXT = 14.55, T_LINK = 16.0;
-const CTA_LABEL = window.CTA === 'channel' ? 'LINK ON MY CHANNEL' : 'LINK IN BIO';   // YouTube has no bio link
+const SEARCH = window.CTA === 'channel';  // YouTube: no clickable link yet, so viewers search the Freelancer username
+const CTA_LABEL = SEARCH ? '@Slumboyx' : 'LINK IN BIO';
+const CTA_TOP = SEARCH ? 'FIND ME ON FREELANCER' : 'HIRE ME ON FREELANCER';
 function sceneEnd(ctx, t) {
   if (t < 14.4) return;
   world(ctx, t, 0);
@@ -473,13 +475,15 @@ function sceneEnd(ctx, t) {
   ripple(ctx, W / 2, 360, t, T_NEXT + 0.2, { r: 560, n: 3, squash: 0.45, w: 3 });
   const kl = pop(t - T_LINK + 0.2, 0.35);
   if (kl > 0) {
-    text(ctx, 'HIRE ME ON FREELANCER', W / 2, 1560, 52, { k: kl, spacing: 2 });
+    text(ctx, CTA_TOP, W / 2, 1560, 52, { k: kl, spacing: 2 });
     const bob = Math.sin((t - T_LINK) * 7) * 8;
-    ctx.save(); ctx.translate(W / 2, 1672 + bob); ctx.scale(kl, kl); setFont(ctx, CTA_LABEL.length > 12 ? 44 : 50); ctx.letterSpacing = '3px';
+    ctx.save(); ctx.translate(W / 2, 1672 + bob); ctx.scale(kl, kl); setFont(ctx, 50); ctx.letterSpacing = SEARCH ? '1px' : '3px';
     const w = ctx.measureText(CTA_LABEL).width + 160; ctx.shadowColor = 'rgba(217,83,79,0.6)'; ctx.shadowBlur = 30;
     ctx.fillStyle = C.coral; ctx.beginPath(); ctx.roundRect(-w / 2, -54, w, 108, 54); ctx.fill(); ctx.shadowBlur = 0;
     ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(CTA_LABEL, 26, 3);
-    ctx.beginPath(); ctx.moveTo(-w / 2 + 54, 20); ctx.lineTo(-w / 2 + 54, -20); ctx.moveTo(-w / 2 + 38, -4); ctx.lineTo(-w / 2 + 54, -22); ctx.lineTo(-w / 2 + 70, -4);
+    ctx.beginPath();
+    if (SEARCH) { ctx.arc(-w / 2 + 50, -6, 15, 0, 7); ctx.moveTo(-w / 2 + 61, 5); ctx.lineTo(-w / 2 + 74, 18); }      // magnifier
+    else { ctx.moveTo(-w / 2 + 54, 20); ctx.lineTo(-w / 2 + 54, -20); ctx.moveTo(-w / 2 + 38, -4); ctx.lineTo(-w / 2 + 54, -22); ctx.lineTo(-w / 2 + 70, -4); }
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke(); ctx.restore();
     ripple(ctx, W / 2, 1672, t, T_LINK, { r: 320, n: 2, squash: 0.35, w: 3 });
   }
