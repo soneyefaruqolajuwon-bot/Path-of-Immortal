@@ -4,10 +4,10 @@
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
 const VERT = false;
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'tibet.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', (process.env.SHORT === '1' ? 'tibet_short.html' : 'tibet.html')) + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
 
 async function openPage(browser) {
-  const pg = await browser.newPage({ viewport: VERT ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
+  const pg = await browser.newPage({ viewport: process.env.SHORT === '1' ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
   pg.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
   pg.on('pageerror', e => console.log('[pageerror]', e.message));
   await pg.goto(HTML); await pg.waitForFunction(() => window.READY === true, null, { timeout: 60000 });

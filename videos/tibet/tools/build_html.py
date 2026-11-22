@@ -1,5 +1,6 @@
 """Bundle app.js + geometry + SVG assets + fonts into one self-contained dist/tibet.html."""
-import base64, glob, json, os
+import base64, glob, json, os, sys
+SHORT = "short" in sys.argv[1:]
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = os.path.join(HERE, "..")
 
@@ -20,21 +21,21 @@ html = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 :root{{--bg:#0b1a20;--fg:#e8eef0}}
 html,body{{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:Montserrat,system-ui,sans-serif;overflow:hidden}}
 #wrap{{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px 16px;box-sizing:border-box}}
-canvas{{width:min(100%,calc((100vh - 70px) * 16 / 9));aspect-ratio:16/9;object-fit:contain;border-radius:10px;box-shadow:0 6px 30px #0008}}
+canvas{{{"height:calc(100% - 64px);max-width:100%;aspect-ratio:9/16;" if SHORT else "width:min(100%,calc((100vh - 70px) * 16 / 9));aspect-ratio:16/9;"}object-fit:contain;border-radius:10px;box-shadow:0 6px 30px #0008}}
 #ctl{{display:none;gap:10px;align-items:center;width:min(100%,420px)}}
 #ctl button{{font:inherit;font-size:18px;width:44px;height:40px;border-radius:10px;border:0;background:#F4D03F;color:#141416}}
 #ctl input{{flex:1}}
-body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1920px;border-radius:0;box-shadow:none}}
+body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:{1080 if SHORT else 1920}px;border-radius:0;box-shadow:none}}
 </style></head><body>
-<div id="wrap"><canvas id="cv" width="1920" height="1080"></canvas>
+<div id="wrap"><canvas id="cv" width="{1080 if SHORT else 1920}" height="{1920 if SHORT else 1080}"></canvas>
 <div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="162.5" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
-window.ASSETS={json.dumps(assets)};{audio_js}</script>
+window.ASSETS={json.dumps(assets)};{'window.VERTICAL=true;window.SHORT_END=65.2;' if SHORT else audio_js}</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""
-out = os.path.join(R, "dist", "tibet.html")
+out = os.path.join(R, "dist", "tibet_short.html" if SHORT else "tibet.html")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 open(out, "w").write(html)
 print(out, os.path.getsize(out) // 1024, "KB")

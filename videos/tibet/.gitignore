@@ -1,3 +1,5 @@
 .cache/
 out/segments/
 out/stills/
+out/segments_short/
+out/stills_s/
