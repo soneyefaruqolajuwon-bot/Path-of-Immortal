@@ -122,9 +122,10 @@ class Timeline:
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4)
+    ap = argparse.ArgumentParser(); ap.add_argument("--no-vo", action="store_true"); ap.add_argument("--workers", type=int, default=4); ap.add_argument("--vertical", action="store_true")
     a = ap.parse_args()
-    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")], check=True)
+    subprocess.run([sys.executable, os.path.join(HERE, "build_html.py")] + (["vertical"] if a.vertical else []), check=True)
+    os.environ["VERTICAL"] = "1" if a.vertical else "0"
     _register_sfx()
     tl = Timeline(not a.no_vo)
     print(f"duration {tl.duration:.2f}s, VO lines: {len(tl.vo)}/{len(BEATS)}")
@@ -133,7 +134,7 @@ def main():
     seg = os.path.join(OUT, "segments"); shutil.rmtree(seg, ignore_errors=True); os.makedirs(seg)
     fj = os.path.join(seg, "frames.json"); json.dump(frames, open(fj, "w"))
     t0 = time.time()
-    env = dict(os.environ, NODE_PATH=subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip())
+    env = dict(os.environ, VERTICAL="1" if a.vertical else "0", NODE_PATH=subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip())
     subprocess.run(["node", os.path.join(HERE, "render.cjs"), "video", fj, seg, str(a.workers)], check=True, env=env)
     segs = sorted(glob.glob(os.path.join(seg, "seg*.mp4")))
     with open(os.path.join(seg, "list.txt"), "w") as f:
@@ -143,7 +144,7 @@ def main():
     wav = os.path.join(seg, "mix.wav")
     AU.mix(tl.duration, [(tl.to_real(t), nm, pan) for t, nm, pan in SFX_CUES], tl.vo_events(),
            lambda tr: music_env(tl.nominal(tr)), wav, music_gain=0.14 if tl.vo else 0.18)
-    name = "mercator.mp4" if tl.vo else "mercator_draft_no_voice.mp4"
+    name = ("mercator_vertical.mp4" if a.vertical else "mercator.mp4") if tl.vo else "mercator_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)

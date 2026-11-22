@@ -3,10 +3,11 @@
 //   node render.cjs video frames.json out_dir N     -> N mp4 segments (1080x1920), one per worker
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'mercator.html') + '?render=1';
+const VERT = process.env.VERTICAL === '1';
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', VERT ? 'mercator_vertical.html' : 'mercator.html') + '?render=1';
 
 async function openPage(browser) {
-  const pg = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  const pg = await browser.newPage({ viewport: VERT ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
   pg.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
   pg.on('pageerror', e => console.log('[pageerror]', e.message));
   await pg.goto(HTML); await pg.waitForFunction(() => window.READY === true, null, { timeout: 60000 });

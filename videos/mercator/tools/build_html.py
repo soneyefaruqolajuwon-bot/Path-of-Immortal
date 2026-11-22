@@ -1,5 +1,6 @@
 """Bundle app.js + geometry + SVG assets + fonts into one self-contained dist/point_roberts.html."""
-import base64, glob, json, os
+import base64, glob, json, os, sys
+VERTICAL = len(sys.argv) > 1 and sys.argv[1] == "vertical"
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = os.path.join(HERE, "..")
 
@@ -11,7 +12,7 @@ assets = {os.path.splitext(os.path.basename(f))[0]: "data:image/svg+xml;base64,"
 fonts = "".join(
     f'@font-face{{font-family:"{fam}";font-weight:800;src:url(data:font/woff2;base64,{b64(os.path.join(R, "assets", "fonts", fn))}) format("woff2")}}'
     for fam, fn in (("Montserrat", "montserrat-latin-800-normal.woff2"), ("Playfair Display", "playfair-display-latin-800-normal.woff2")))
-html = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
+html0 = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mercator Long-form</title>
 <style>{fonts}
@@ -30,9 +31,10 @@ body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1920px;bord
 <script>if(location.search.includes('render'))document.body.classList.add('render');
 window.ASSETS={json.dumps(assets)};</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
-<script>{open(os.path.join(R, "src", "app.js")).read()}</script>
+<script>{open(os.path.join(R, "src", "app_v.js" if VERTICAL else "app.js")).read()}</script>
 </body></html>"""
-out = os.path.join(R, "dist", "mercator.html")
+html = html0.replace("aspect-ratio:16/9", "aspect-ratio:9/16").replace('width="1920" height="1080"', 'width="1080" height="1920"').replace("width:1920px", "width:1080px") if VERTICAL else html0
+out = os.path.join(R, "dist", "mercator_vertical.html" if VERTICAL else "mercator.html")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 open(out, "w").write(html)
 print(out, os.path.getsize(out) // 1024, "KB")
