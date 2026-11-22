@@ -219,6 +219,7 @@ function flash(ctx, k, color = '#fff') { if (k <= 0 || k >= 1) return; ctx.save(
 function countryPath(c, iso) { const p = new Path2D(); for (const q of PATHS['c_' + iso] || []) p.addPath(q, camMatrix(c)); return p; }
 function chip(ctx, text, x, y, k, o = {}) {
   if (k <= 0.001) return;
+  if (VERT && (y === 150 || y === 220)) x = 960 + (x - 960) * 0.42;
   ctx.save(); ctx.translate(x, y); ctx.scale(k, k); setFont(ctx, 'Montserrat', o.size || 30);
   const w = ctx.measureText(text).width + 46, h = (o.size || 30) * 1.75;
   ctx.fillStyle = o.bg || 'rgba(10,24,32,0.92)'; ctx.strokeStyle = o.stroke || C.gold; ctx.lineWidth = 4;
@@ -226,8 +227,8 @@ function chip(ctx, text, x, y, k, o = {}) {
   ctx.fillStyle = o.fill || '#FFFFFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, 0, 2); ctx.restore();
 }
 function goldLabel(ctx, text, x, y, size, k) { styledText(ctx, text, x, y, size, { k, fill: C.gold, stroke: C.goldDark, shadow: 5 }); }
-function title(ctx, text, y, k, size = 104) { styledText(ctx, text, W / 2, y, size, { k, font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark }); }
-function kinetic(ctx, text, x, y, k, size = 96, rot = -3) { styledText(ctx, text, x, y, size, { k, fill: C.yellow, stroke: C.goldDark, rot }); }
+function title(ctx, text, y, k, size = 104) { styledText(ctx, text, W / 2, y, size, { k, font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: VERT ? 760 : 980 }); }
+function kinetic(ctx, text, x, y, k, size = 96, rot = -3) { if (VERT) x = 960 + (x - 960) * 0.3; styledText(ctx, text, x, y, size, { k, fill: C.yellow, stroke: C.goldDark, rot, maxW: VERT ? 760 : 980 }); }
 function person(ctx, name, x, y, w, o = {}) { sprite(ctx, name, x, y, w, { ay: 0.96, ...o }); }   // feet anchor
 // rubber stamp that slams in (big → normal), slightly tilted, with a worn texture
 function stamp(ctx, text, x, y, t, t0, o = {}) {
@@ -529,7 +530,7 @@ function renderScene(t, ctx) {
 
 // ---------------------------------------------------------------- 9:16 teaser: scene band + title above + big captions below
 const VW = 1080, VH = 1920;
-const VKEYS = [[0, 960, 0.9], [56.4, 960, 0.9], [57.3, 840, 0.9], [62.6, 840, 0.9], [63.0, 960, 0.9], [63.6, 960, 0.58], [75.5, 960, 0.58]];     // [t, focus x, scale] — cards are shown whole
+const VKEYS = [[0, 960, 1.32], [56.6, 960, 1.32], [57.4, 630, 1.32], [59.3, 630, 1.32], [60.0, 1000, 1.32], [62.8, 1000, 1.32], [63.4, 800, 1.15], [65.9, 800, 1.15], [66.4, 1400, 1.15], [67.4, 1400, 1.15], [68.0, 860, 1.15], [75.5, 860, 1.15]];     // [t, focus x, scale]
 let OFF = null;
 function vcam(t) { const k = VKEYS; if (t <= k[0][0]) return k[0]; for (let i = 0; i < k.length - 1; i++) if (t <= k[i + 1][0]) { const u = easeIO((t - k[i][0]) / (k[i + 1][0] - k[i][0])); return [t, lerp(k[i][1], k[i + 1][1], u), lerp(k[i][2], k[i + 1][2], u)]; } return k[k.length - 1]; }
 function renderVertical(t, ctx) {
@@ -537,7 +538,7 @@ function renderVertical(t, ctx) {
   if (!OFF) { OFF = document.createElement('canvas'); OFF.width = W; OFF.height = H; }
   const ts = SHORT_END ? Math.min(t, SHORT_END) : t;
   renderScene(ts, OFF.getContext('2d'));
-  const [, fxk, s] = vcam(ts), bandH = H * s, yb = 520 - (bandH - 929) / 2, vis = VW / s, fx = clamp(fxk, vis / 2, W - vis / 2), sx = fx - vis / 2;
+  const [, fxk, s] = vcam(ts), bandH = H * s, yb = (VH - bandH) / 2 + 40, vis = VW / s, fx = clamp(fxk, vis / 2, W - vis / 2), sx = fx - vis / 2;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
   ctx.save(); ctx.filter = 'blur(16px)';
   ctx.drawImage(OFF, sx, 0, vis, 1, -30, -30, VW + 60, yb + 32);
@@ -546,9 +547,8 @@ function renderVertical(t, ctx) {
   ctx.fillStyle = 'rgba(6,16,22,0.55)'; ctx.fillRect(0, 0, VW, yb); ctx.fillRect(0, yb + bandH, VW, VH - yb - bandH);
   ctx.drawImage(OFF, sx, 0, vis, H, 0, yb, VW, bandH);
   ctx.fillStyle = C.gold; ctx.fillRect(0, yb - 3, VW, 3); ctx.fillRect(0, yb + bandH, VW, 3);
-  styledText(ctx, "WHY AFRICA'S BORDERS", VW / 2, 250, 84, { font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: 1000 });
-  styledText(ctx, 'ARE STRAIGHT', VW / 2, 360, 104, { font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: 1000 });
-  for (const [t0, t1, txt] of CAPTIONS) { if (SHORT_END && t0 > SHORT_END - 0.3) continue; const k = win(ts, t0, t1, .26, .18); if (k > 0 && !(SHORT_END && t > SHORT_END + 0.2)) styledText(ctx, txt, VW / 2, 1580, 70, { k, shadow: 5, maxW: 1000 }); }
+  styledText(ctx, "WHY AFRICA'S BORDERS ARE STRAIGHT", VW / 2, Math.max(150, yb / 2 + 10), 58, { font: 'Playfair Display', grad: ['#F9E27D', '#F4D03F'], stroke: C.goldDark, maxW: 1010 });
+  for (const [t0, t1, txt] of CAPTIONS) { if (SHORT_END && t0 > SHORT_END - 0.3) continue; const k = win(ts, t0, t1, .26, .18); if (k > 0 && !(SHORT_END && t > SHORT_END + 0.2)) styledText(ctx, txt, VW / 2, 1600, 72, { k, shadow: 6, maxW: 1000 }); }
   const g = ctx.createRadialGradient(VW / 2, VH * .5, VH * .35, VW / 2, VH * .5, VH * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.4)'); ctx.fillStyle = g; ctx.fillRect(0, 0, VW, VH);
   if (SHORT_END && t > SHORT_END) {                      // cliffhanger end card
     const e = t - SHORT_END, k = clamp(e / 0.35);
