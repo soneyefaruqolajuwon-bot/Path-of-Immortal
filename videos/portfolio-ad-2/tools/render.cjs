@@ -4,7 +4,7 @@
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
 const VERT = true;
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'dont_scroll_ad.html') + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', (process.env.YT === '1' ? 'dont_scroll_ad_youtube.html' : 'dont_scroll_ad.html')) + '?render=1' + (process.env.NOSUBS === '1' ? '&nosubs=1' : '');
 
 async function openPage(browser) {
   const pg = await browser.newPage({ viewport: VERT ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
