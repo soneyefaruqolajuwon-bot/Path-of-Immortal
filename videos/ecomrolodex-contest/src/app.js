@@ -36,7 +36,7 @@ function screenFrame(t) {
   let f;
   if (clip === 'cart') {                   // hold, then the real slide-in (frames 6..33), then the settled drawer (34)
     if (t < T_CART) f = 0; else f = Math.min(33, 6 + Math.floor((t - T_CART) * 30)); if (t > T_CART + 1.2) f = 34;
-  } else f = Math.min(b, a + Math.floor((t - t0) * 30));
+  } else f = Math.max(a, Math.min(b, a + Math.floor((t - t0) * 30)));
   return `frames/${clip}/${String(f).padStart(3, '0')}.jpg`;
 }
 const CACHE = new Map();

@@ -14,7 +14,7 @@ BPM = 120; BEAT = 60 / BPM
 
 BEATS = [(1, 0, 1.7), (2, 1.7, 2.95), (3, 2.95, 4.55), (4, 4.55, 6.85), (5, 6.85, 9.6), (6, 9.6, 15.0)]
 CUTS = [1.7, 4.55, 6.85, 9.6]                       # visual cuts (storyboard time) that get an impact
-ANCHORS = [(1, "look", 0, 0.5), (3, "built", 0, 3.25), (6, "comment", 0, 10.95)]
+ANCHORS = [(1, "look", 0, 0.5), (1, "same", 0, 1.15), (3, "built", 0, 3.25), (6, "comment", 0, 10.95)]
 VO_DELAY, VO_TAIL, END_HOLD, MIN_FRAC = 0.04, 0.12, 1.6, 0.75
 
 
@@ -134,8 +134,21 @@ def main():
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", os.path.join(seg, "list.txt"), "-c", "copy", silent], check=True)
     wav = os.path.join(seg, "mix.wav"); mix(tl, wav)
     name = "ecomrolodex_blaqcards.mp4" if tl.vo else "ecomrolodex_blaqcards_draft_no_voice.mp4"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:v", "libx264", "-crf", "19", "-preset", "slow",
+    # two-pass loudness normalisation to -14 LUFS / -1.5 dBTP
+    meas = subprocess.run(["ffmpeg", "-hide_banner", "-i", wav, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"], capture_output=True, text=True).stderr
+    m = json.loads(meas[meas.rindex("{"):meas.rindex("}") + 1])
+    ln = (f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}"
+          f":measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-af", ln, "-c:v", "libx264", "-crf", "19", "-preset", "slow",
                     "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-shortest", "-movflags", "+faststart", os.path.join(OUT, name)], check=True)
+    # loudnorm can land a little low on short clips: measure the result and top it up to -14 LUFS
+    fin = os.path.join(OUT, name)
+    r = subprocess.run(["ffmpeg", "-i", fin, "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    il = float(r[r.rindex("I:"):].split()[1])
+    if il < -14.3:
+        tmp = fin + ".tmp.mp4"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", fin, "-c:v", "copy", "-af", f"volume={-14 - il:.2f}dB", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp], check=True)
+        os.replace(tmp, fin)
     print("wrote", os.path.join(OUT, name), f"in {time.time() - t0:.0f}s")
 
 
