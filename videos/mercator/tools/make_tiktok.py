@@ -8,6 +8,7 @@ R = os.path.join(HERE, "..")
 OUT = os.path.join(R, "out", "tiktok")
 SRC = os.path.join(R, "out", "mercator.mp4")
 CUT = float(sys.argv[1]) if len(sys.argv) > 1 else 64.4
+SHORTS = len(sys.argv) > 2 and sys.argv[2] == "shorts"
 END = 4.0
 W, H = 1080, 1920
 FB = "/usr/share/fonts/opentype/inter/Inter-Black.otf"
@@ -34,7 +35,7 @@ text(d, (W / 2, 440), "ISN'T THIS BIG", ImageFont.truetype(FB, 104), GOLD)
 text(d, (W / 2, 560), "...so why does every map lie?", ImageFont.truetype(FX, 48), (255, 255, 255), stroke=5)
 d.rounded_rectangle([140, 1300, W - 140, 1410], radius=55, fill=(10, 24, 32, 235), outline=RED, width=6)
 play_button(d, 225, 1355, 92)
-d.text((292, 1355), "FULL VIDEO ON YOUTUBE", font=ImageFont.truetype(FB, 44), fill=(255, 255, 255), anchor="lm")
+d.text((292, 1355), "FULL VIDEO LINKED BELOW" if SHORTS else "FULL VIDEO ON YOUTUBE", font=ImageFont.truetype(FB, 44), fill=(255, 255, 255), anchor="lm")
 d.text((W / 2, 1460), "@Mapheld", font=ImageFont.truetype(FX, 40), fill=GOLD, anchor="mm", stroke_width=4, stroke_fill=(20, 20, 22))
 ov.save(os.path.join(OUT, "overlay.png"))
 
@@ -46,10 +47,10 @@ text(d, (W / 2, 470), "So how did ONE", ImageFont.truetype(FB, 92), (255, 255, 2
 text(d, (W / 2, 590), "map fix this?", ImageFont.truetype(FB, 92), (255, 255, 255))
 play_button(d, W / 2, 860, 300)
 text(d, (W / 2, 1080), "WATCH THE FULL", ImageFont.truetype(FB, 84), GOLD)
-text(d, (W / 2, 1190), "VIDEO ON YOUTUBE", ImageFont.truetype(FB, 84), GOLD)
+text(d, (W / 2, 1190), "VIDEO BELOW" if SHORTS else "VIDEO ON YOUTUBE", ImageFont.truetype(FB, 84), GOLD)
 d.rounded_rectangle([W / 2 - 250, 1300, W / 2 + 250, 1400], radius=50, fill=(10, 24, 32), outline=GOLD, width=5)
 d.text((W / 2, 1350), "Mapheld", font=ImageFont.truetype(FB, 58), fill=(255, 255, 255), anchor="mm")
-d.text((W / 2, 1460), "link in bio", font=ImageFont.truetype(FX, 40), fill=(220, 230, 235), anchor="mm")
+d.text((W / 2, 1460), "tap the link under this Short ↓" if SHORTS else "link in bio", font=ImageFont.truetype(FX, 40), fill=(220, 230, 235), anchor="mm")
 ec.save(os.path.join(OUT, "endcard.png"))
 
 # end-card audio: whoosh + ding over a soft music tail
@@ -75,7 +76,7 @@ endv = os.path.join(OUT, "end_part.mp4")
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-loop", "1", "-t", f"{END}", "-i", os.path.join(OUT, "endcard.png"), "-i", os.path.join(OUT, "end.wav"),
                 "-vf", "zoompan=z='min(1+0.0015*on,1.06)':d=1:s=1080x1920:fps=30,format=yuv420p", "-r", "30",
                 "-c:v", "libx264", "-crf", "20", "-preset", "medium", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-shortest", endv], check=True)
-final = os.path.join(R, "out", "mercator_tiktok.mp4")
+final = os.path.join(R, "out", "mercator_shorts.mp4" if SHORTS else "mercator_tiktok.mp4")
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", teaser, "-i", endv, "-filter_complex", "[0:v]setsar=1[v0];[1:v]setsar=1[v1];[v0][0:a][v1][1:a]concat=n=2:v=1:a=1[v][a]",
                 "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "21", "-preset", "slow", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", final], check=True)
 print("wrote", final)
