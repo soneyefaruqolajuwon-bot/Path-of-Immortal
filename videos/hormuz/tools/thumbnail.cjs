@@ -9,7 +9,38 @@ const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'hormuz_preview.h
   const data = await pg.evaluate((variant) => {
     const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (variant === 'danger') {
+    if (variant === 'closes') {
+      const c = { cx: 54.9, cy: -mercY(26.45), z: 235, rot: 0, tilt: 1, sx: W / 2, sy: H * 0.52 };
+      drawMap(ctx, c); vignette(ctx);
+      const g = ctx.createLinearGradient(0, 0, W * 0.62, 0);
+      g.addColorStop(0, 'rgba(4,12,18,0.78)'); g.addColorStop(1, 'rgba(4,12,18,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      // queue of tankers stuck inside the Gulf, nose to tail toward the exit
+      const route = [[51.9, 26.05], [53.2, 25.95], [54.4, 26.05], [55.4, 26.25], [56.05, 26.42]].map(p => P(c, p[0], p[1]));
+      for (let i = 0; i < 7; i++) { const [x, y, dx] = pointAlong(route, 0.12 + i / 7.6), [x2, y2] = pointAlong(route, Math.min(1, 0.12 + i / 7.6 + 0.01));
+        sprite(ctx, 'tanker_top', x, y + (i % 2 ? 22 : -22), 250, { rot: Math.atan2(y2 - y, x2 - x) * 180 / Math.PI }); }
+      // red glow around the strait
+      const [sx, sy] = P(c, 56.45, 26.6);
+      ctx.save(); const rg = ctx.createRadialGradient(sx, sy, 60, sx, sy, 260); rg.addColorStop(0, 'rgba(255,40,50,0.35)'); rg.addColorStop(1, 'rgba(255,40,50,0)'); ctx.fillStyle = rg; ctx.fillRect(sx - 300, sy - 300, 600, 600);
+      ctx.strokeStyle = '#FF2D3D'; ctx.lineWidth = 12; ctx.shadowColor = '#FF2D3D'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(sx, sy, 190, 0, 7); ctx.stroke(); ctx.restore();
+      // chain across the strait, Iran to Musandam, with a padlock
+      const [ax, ay] = P(c, 56.25, 27.12), [bx, by] = P(c, 56.36, 26.05), L = Math.hypot(bx - ax, by - ay), ang = Math.atan2(by - ay, bx - ax), n = Math.floor(L / 40);
+      for (let i = 0; i <= n; i++) { const u = i / n, x = lerp(ax, bx, u), y = lerp(ay, by, u) + Math.sin(u * Math.PI) * 30;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(ang + (i % 2 ? Math.PI / 2 : 0)); ctx.lineWidth = 20; ctx.strokeStyle = '#141416'; ctx.beginPath(); ctx.ellipse(0, 0, 30, 16, 0, 0, 7); ctx.stroke(); ctx.lineWidth = 11; ctx.strokeStyle = i % 2 ? '#B7BEC6' : '#D9DEE3'; ctx.stroke(); ctx.restore(); }
+      const px = lerp(ax, bx, 0.5), py = lerp(ay, by, 0.5) + 30;
+      ctx.save(); ctx.translate(px + 10, py + 30); ctx.rotate(0.08); ctx.scale(0.72, 0.72);
+      ctx.lineWidth = 30; ctx.strokeStyle = '#141416'; ctx.beginPath(); ctx.arc(0, -70, 62, Math.PI, 0); ctx.stroke(); ctx.lineWidth = 18; ctx.strokeStyle = '#C9CED4'; ctx.stroke();
+      ctx.fillStyle = '#E8B730'; ctx.strokeStyle = '#141416'; ctx.lineWidth = 10; ctx.beginPath(); ctx.roundRect(-100, -80, 200, 170, 28); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.beginPath(); ctx.roundRect(-82, -64, 40, 120, 14); ctx.fill();
+      ctx.fillStyle = '#141416'; ctx.beginPath(); ctx.arc(0, -5, 22, 0, 7); ctx.fill(); ctx.beginPath(); ctx.moveTo(-12, 5); ctx.lineTo(12, 5); ctx.lineTo(8, 50); ctx.lineTo(-8, 50); ctx.closePath(); ctx.fill(); ctx.restore();
+      // the officer with the key, standing on the Iranian shore
+      sprite(ctx, 'iran_officer_key', 1700, 700, 400, { ay: 0.96 });
+      // headline
+      styledText(ctx, 'IF THIS', 420, 150, 150, { fill: '#FFFFFF', stroke: '#141416', shadow: 12, rot: -4, maxW: 760 });
+      styledText(ctx, 'CLOSES…', 440, 320, 210, { fill: '#FF3B47', stroke: '#141416', shadow: 14, rot: -4, maxW: 820 });
+      ctx.save(); ctx.translate(470, 490); ctx.rotate(-0.07); ctx.font = '800 54px Montserrat'; const tw = ctx.measureText("20% OF THE WORLD'S OIL").width + 70;
+      ctx.fillStyle = '#FFD43B'; ctx.strokeStyle = '#141416'; ctx.lineWidth = 8; ctx.beginPath(); ctx.roundRect(-tw / 2, -52, tw, 104, 22); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#141416'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("20% OF THE WORLD'S OIL", 0, 4); ctx.restore();
+    } else if (variant === 'danger') {
       const c = { cx: 56.2, cy: -mercY(26.72), z: 1050, rot: 0, tilt: 1, sx: W / 2, sy: H * 0.5 };
       drawMap(ctx, c); vignette(ctx);
       const g = ctx.createLinearGradient(0, 0, W * 0.72, 0);
