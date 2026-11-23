@@ -527,11 +527,11 @@ function sceneChart(ctx, t) {
     const kl = clamp((t - 35.4) / 0.6); if (kl > 0) { ctx.strokeStyle = '#D7263D'; ctx.lineWidth = 9; ctx.beginPath(); ctx.ellipse(0, 0, 235, 210, 0, -Math.PI / 2, -Math.PI / 2 + kl * 6.283); ctx.stroke(); }
     ctx.restore();
     styledText(ctx, '= 1', 860, 620, 120, { k: pop(t - 36.0), fill: '#FF6B6B', stroke: C.ink });
-    stamp(ctx, 'COUNTED AS ONE', 600, 1250, t, 36.4, { size: 48, until: 37.3 });
   }
   // the 1987 surveyor (Japan cape)
   const pose = t > 35.9 && t < 36.6 ? 'surveyor_stamp' : t > 34.9 && t < 35.9 ? 'surveyor_idle' : (t > 22.4 && t < 26.3) || (t > 30.8 && t < 34.9) ? 'surveyor_squint' : t > 26.3 && t < 30.8 ? 'surveyor_idle' : 'surveyor_idle';
   person(ctx, t > 36.6 ? 'surveyor_shrug' : pose, 190, 1560, 330, { k: pop(t - 20.0) });
+  stamp(ctx, 'COUNTED AS ONE', 640, 1240, t, 36.4, { size: 48, until: 37.3 });
   ctx.restore();
 }
 
