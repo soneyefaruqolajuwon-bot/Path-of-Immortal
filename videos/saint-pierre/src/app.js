@@ -310,7 +310,7 @@ function sceneMap(ctx, c, t) {
     if (t > 36.4) { const [bx, by] = at(c, 'banks'); const kb = clamp((t - 36.5) / 0.6) * popOut(40.8 - t);
       ctx.save(); ctx.globalAlpha = 0.25 * kb; ctx.fillStyle = '#7FD3FF'; ctx.beginPath(); ctx.ellipse(bx, by, 320, 200, -0.3, 0, 7); ctx.fill(); ctx.restore();
       for (let i = 0; i < 6; i++) { const r = rnd(70 + i * 13); const x = bx + (r() - 0.5) * 520 + Math.sin(t * 1.5 + i) * 30, y = by + (r() - 0.5) * 300; sprite(ctx, 'cod', x, y, 120, { k: pop(t - 36.7 - i * 0.1) * popOut(40.8 - t), flip: i % 2 === 0 }); }
-      goldLabel(ctx, 'GRAND BANKS', bx, by - 230, 58, win(t, 38.4, 40.8)); chip(ctx, '🐟 RICH COD WATERS', W / 2, 330, win(t, 37.0, 40.8), { size: 42 }); }
+      goldLabel(ctx, 'GRAND BANKS', Math.min(bx, W - 230), by - 230, 58, win(t, 38.4, 40.8)); chip(ctx, '🐟 RICH COD WATERS', W / 2, 330, win(t, 37.0, 40.8), { size: 42 }); }
   }
   // B7 seized again and again… always handed back; then the ferry and French border control
   if (t > 45.9 && t < 50.9) {
