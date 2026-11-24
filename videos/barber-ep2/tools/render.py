@@ -22,7 +22,7 @@ END_HOLD = 3.33
 MIN_FRAC = 0.3          # beats follow the voice; the end card is END_HOLD
 
 SFX_CUES = [
-    (0.05, "slap", 0), (1.05, "whoosh", 0), (2.4, "thud", 0), (2.5, "boing", 0), (3.4, "whoosh", 0.3), (4.3, "pop", 0), (5.2, "pop", -0.2), (6.3, "ding", 0), (7.5, "whoosh", 0), (8.25, "slap", 0),
+    (0.05, "slap", 0), (0.75, "whoosh", 0), (2.03, "thud", 0), (2.5, "boing", 0), (3.4, "whoosh", 0.3), (4.3, "pop", 0), (5.2, "pop", -0.2), (6.3, "ding", 0), (7.5, "whoosh", 0), (8.25, "slap", 0),
     (9.15, "boing", 0), (10.0, "pop", 0), (10.5, "pop", 0), (11.5, "ding", 0), (12.85, "clink", -0.2), (13.1, "clink", 0), (13.35, "clink", 0.2), (13.9, "zap", 0), (14.5, "scribble", 0),
     (15.2, "whoosh", 0), (16.8, "harp", 0), (17.8, "whoosh", 0), (19.0, "crickets", 0), (21.3, "boing", 0), (23.5, "harp", 0), (25.3, "chaching", 0), (26.0, "chaching", 0.2),
     (26.7, "pop", 0), (28.4, "drums", 0), (29.0, "whoosh", 0), (31.6, "boing", 0), (33.1, "whoosh", 0), (34.25, "slap", 0), (35.6, "ding", 0),

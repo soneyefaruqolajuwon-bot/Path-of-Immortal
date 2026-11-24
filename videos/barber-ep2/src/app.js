@@ -362,17 +362,17 @@ function heart(ctx, x, y, s, a) { ctx.save(); ctx.globalAlpha = a; ctx.translate
 // ---- S1 (0–3.27): the photo, then "a thousand heads… but never THIS"
 function sceneHook(ctx, t) {
   if (t > 3.3) return;
-  if (t < 1.05) {
+  if (t < 0.75) {
     interior(ctx, t); ctx.save(); shake(ctx, t, 0.08, 16);
     photo(ctx, W / 2, 900, 600, 'dog', t, { phone: true, k: lerp(1.5, 1, easeOut(t / 0.25)), rot: -0.05 }); ctx.restore();
     bigText(ctx, 'MAKE ME LOOK', 300, 100, 1, { fill: '#fff' }); bigText(ctx, 'LIKE HIM.', 420, 120, 1, { fill: C.yellow });
     return;
   }
   interior(ctx, t); chair(ctx, 760, GROUND, 1);
-  actor(ctx, 'tunde', t > 2.4 ? 'shock' : 'cheer', 320, GROUND, { w: 300 });
-  const n = Math.round(lerp(1, 1000, easeOut((t - 1.05) / 0.9)));
-  text(ctx, `${n.toLocaleString('en-US')} HAIRCUTS`, W / 2, 380, 96, { k: win(t, 1.05, 2.4, 0.2, 0.1), fill: C.yellow, stroke: C.ink, strokeW: 8, rot: -3 });
-  if (t > 2.4) { bigText(ctx, 'BUT NEVER', 330, 110, pop(t - 2.4, 0.2), { fill: '#fff' }); bigText(ctx, 'THIS.', 470, 150, pop(t - 2.5, 0.2), { fill: '#FF3B3B', rot: -4 }); }
+  actor(ctx, 'tunde', t > 2.03 ? 'shock' : 'cheer', 320, GROUND, { w: 300 });
+  const n = Math.round(lerp(1, 1000, easeOut((t - 0.75) / 0.8)));
+  text(ctx, `${n.toLocaleString('en-US')} HAIRCUTS`, W / 2, 380, 96, { k: win(t, 0.75, 2.03, 0.2, 0.1), fill: C.yellow, stroke: C.ink, strokeW: 8, rot: -3 });
+  if (t > 2.03) { bigText(ctx, 'BUT NEVER', 330, 110, pop(t - 2.03, 0.2), { fill: '#fff' }); bigText(ctx, 'THIS.', 470, 150, pop(t - 2.5, 0.2), { fill: '#FF3B3B', rot: -4 }); }
 }
 // ---- S2 (3.27–9.07): he walks in, sits, holds up his phone
 function sceneWalkIn(ctx, t) {
@@ -510,7 +510,7 @@ const SUBS = [
   [25.15, 28.3, 'Paid double. Tipped extra. Posted it everywhere.'], [28.4, 33.0, 'By Monday: a line of men holding photos of their pets.'], [33.05, 35.5, '…and right at the front: a goldfish.'],
 ];
 function caption(ctx, str, t, t0, t1) {
-  const a = t0 === 0 ? clamp((t1 - t) / 0.12) * (t >= 1.05 ? 1 : 0) : fade(t, t0, t1, 0.1); if (a <= 0) return;
+  const a = t0 === 0 ? clamp((t1 - t) / 0.12) * (t >= 0.75 ? 1 : 0) : fade(t, t0, t1, 0.1); if (a <= 0) return;
   ctx.save(); ctx.globalAlpha = a; setFont(ctx, 54);
   const lines = []; let cur = ''; for (const wd of str.split(' ')) { const tr = cur ? cur + ' ' + wd : wd; if (ctx.measureText(tr).width > 920 && cur) { lines.push(cur); cur = wd; } else cur = tr; } lines.push(cur);
   const lh = 68, y0 = 1640 - (lines.length - 1) * lh / 2, w = Math.max(...lines.map(l => ctx.measureText(l).width)) + 56;
