@@ -16,3 +16,4 @@
 - Style blueprint: Map Warden-like 9:16 map explainers (teal ocean #1E4D5C, olive land #8A855C, flag characters
   with stick arms and eyes, white 2–4 word captions, gold title cards, yellow kinetic numbers).
 - **Hands stay visible:** when a character holds a prop (shovel, key, flag, scroll, tablet…), draw the hand on top of the prop, and never let an arm or hand hide behind the body or head.
+- **Shorts structure:** end with a loop (the last spoken line flows straight back into the first line, and the last frame matches the first), with the comment question as on-screen text + a pinned comment instead of in the voice. Put one natural interactive question in the middle (about a third to halfway, just before the twist), answered a few seconds later. Exceptions: emotional stories keep a real ending; Shorts that tease a long-form end on the cliffhanger card.
