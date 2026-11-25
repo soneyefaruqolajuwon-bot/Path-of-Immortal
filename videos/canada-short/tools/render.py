@@ -15,20 +15,48 @@ VO_DIR = os.path.join(R, "vo")
 OUT = os.path.join(R, "out")
 FPS = 30
 
-BEATS = [(1, 0, 3.84), (2, 3.84, 12.85), (3, 12.85, 26.58), (4, 26.58, 31.93), (5, 31.93, 42.5)]
+BEATS = [(1, 0, 3.84), (2, 3.84, 12.85), (3, 12.85, 26.58), (4, 26.58, 31.93), (5, 31.93, 45.67), (6, 45.67, 56.24)]
 ANCHORS = []            # storyboard built on the voiceover's own clock
 VO_DELAY, VO_TAIL = 0.06, 0.25
 END_HOLD = 3.59         # the cliffhanger card
 
 SFX_CUES = [
-    (0.05, "whoosh", 0), (0.3, "pop", 0), (2.7, "pop", 0.2), (4.2, "ding", 0), (7.4, "harp", 0), (10.2, "thud", 0), (13.0, "boing", 0), (15.4, "whoosh", 0),
-    (17.3, "pop", 0.3), (19.0, "whoosh", 0), (22.6, "pop", -0.2), (22.7, "pop", 0), (22.8, "pop", 0.2), (26.6, "whoosh", 0), (28.3, "pop", 0), (30.4, "thud", 0),
-    (32.1, "whoosh", 0), (34.4, "rumble", 0), (35.6, "boing", 0), (38.9, "whoosh", 0), (39.7, "ding", 0),
+    (0.05, "whoosh", 0),
+    (0.3, "pop", 0),
+    (2.7, "pop", 0.2),
+    (4.2, "ding", 0),
+    (7.4, "harp", 0),
+    (10.2, "thud", 0),
+    (13.0, "boing", 0),
+    (15.4, "whoosh", 0),
+    (17.3, "pop", 0.3),
+    (19.0, "whoosh", 0),
+    (22.6, "pop", -0.2),
+    (22.7, "pop", 0),
+    (22.8, "pop", 0.2),
+    (26.6, "whoosh", 0),
+    (28.3, "pop", 0),
+    (30.4, "thud", 0),
+    (32.1, "whoosh", 0),
+    (32.4, "pop", -0.3),
+    (32.7, "pop", 0),
+    (33.0, "pop", 0.3),
+    (34.4, "ding", 0),
+    (37.1, "pop", 0),
+    (39.8, "harp", 0),
+    (41.1, "whoosh", 0),
+    (42.8, "pop", 0),
+    (44.6, "chaching", 0),
+    (45.84, "whoosh", 0),
+    (48.14, "rumble", 0),
+    (49.34, "boing", 0),
+    (52.64, "whoosh", 0),
+    (53.44, "ding", 0),
 ]
 
 
 def music_env(T):
-    if T >= 38.9:
+    if T >= 52.64:
         return 0.5       # the cliffhanger card
     return 0.85
 

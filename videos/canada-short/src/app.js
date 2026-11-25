@@ -1,7 +1,7 @@
 /* Why is northern Canada empty? Part 1 — Mapheld 9:16 short (ends on a cliffhanger). renderAt(t) draws storyboard time t (= voiceover time).
    Big-city lights are real cities sized by population; small-town lights are illustrative. */
 'use strict';
-const W = 1080, H = 1920, DURATION = 42.5;
+const W = 1080, H = 1920, DURATION = 56.24;
 const C = {
   ocean: '#1E4D5C', land: '#8A855C', landDim: '#6E6B50', coast: '#2C3531', halo: '#2C6A78', ink: '#141416',
   gold: '#F4D03F', goldDark: '#3A2A08', yellow: '#FFD43B', cyan: '#25E3FF', white: '#FFFFFF',
@@ -357,9 +357,40 @@ const CAPTIONS = [
 ];
 function drawText(ctx, t) { for (const [t0, t1, txt] of CAPTIONS) { const k = t0 === 0 ? (t < t1 ? 1 : 0) * popOut(t1 - t, 0.18) : win(t, t0, t1, .22, .16); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y + 80, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1000 }); } }
 function vignette(ctx) { const g = ctx.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .5, H * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.42)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
-function renderAt(t, ctx) {
+function geoxPath(c, rs) { const M = camMatrix(c), pp = new Path2D(); for (const r of rs) { const q = new Path2D(); for (let i = 0; i < r.length; i += 2) { const x = r[i], y = -mercY(r[i + 1]); i ? q.lineTo(x, y) : q.moveTo(x, y); } q.closePath(); pp.addPath(q, M); } return pp; }
+function stadium(ctx, x, y, s, k, u) { if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.scale(k * s, k * s); ctx.strokeStyle = C.ink; ctx.lineWidth = 7;
+  ctx.fillStyle = '#9AA3AE'; ctx.beginPath(); ctx.ellipse(0, 0, 260, 130, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#4CAF50'; ctx.beginPath(); ctx.ellipse(0, 0, 170, 75, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, -75); ctx.lineTo(0, 75); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, 26, 0, 7); ctx.stroke();
+  const r = rnd(9), n = Math.floor(clamp(u) * 260); for (let i = 0; i < n; i++) { const a = r() * 6.283, d = 0.72 + r() * 0.26; ctx.fillStyle = ['#E63946', '#F4D03F', '#2E86DE', '#FFFFFF', '#F4A261'][i % 5]; ctx.beginPath(); ctx.arc(Math.cos(a) * 260 * d, Math.sin(a) * 130 * d, 5, 0, 7); ctx.fill(); }
+  ctx.restore(); }
+function sceneTerritories(ctx, u) {
+  const z = lerp(10.5, 12.5, easeIO(u / 13.7)), c = { cx: -105, cy: -mercY(68), z, rot: 0, tilt: 1, sx: W / 2, sy: H * 0.5 };
+  drawMap(ctx, c);
+  const cols = { Yukon: '#F4D03F', 'Northwest Territories': '#F4A261', Nunavut: '#E9C46A' }, kT = clamp((u - 0.3) / 1.4) * (u < 7.6 ? 1 : 0.55);
+  Object.entries(GEOX.terr).forEach(([nm, rs], i) => { const pp = geoxPath(c, rs), k = kT * clamp((u - 0.3 - i * 0.25) / 0.6); if (k <= 0) return; ctx.save(); ctx.globalAlpha = 0.85 * k; ctx.fillStyle = cols[nm]; ctx.fill(pp); ctx.globalAlpha = k; ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 3; ctx.stroke(pp); ctx.restore(); });
+  for (const [nm, lo, la] of [['YUKON', -135.5, 64.0], ['N.W.T.', -119.0, 64.5], ['NUNAVUT', -92.0, 70.5]]) { const [x, y] = P(c, lo, la); goldLabel(ctx, nm, x, y, 40, win(u, 1.0, 7.6)); }
+  kinetic(ctx, '≈ 40% OF CANADA', 300, win(u, 2.4, 5.1), 104);
+  if (u > 5.1 && u < 7.7) { const k = win(u, 5.1, 7.6); ctx.save(); ctx.translate(W / 2, 1380); ctx.scale(k, k); ctx.fillStyle = 'rgba(10,24,32,0.94)'; ctx.strokeStyle = C.gold; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-430, -140, 860, 280, 30); ctx.fill(); ctx.stroke();
+    for (let i = 0; i < 300; i++) { const col = i === 0 ? '#F4D03F' : 'rgba(255,255,255,0.6)', x = -400 + (i % 30) * 27.5, y = -110 + Math.floor(i / 30) * 22; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, i === 0 ? 10 : 6, 0, 7); ctx.fill(); } ctx.restore();
+    kinetic(ctx, '1 IN 300 LIVES HERE', 300, k, 92, -3, '#FFFFFF'); }
+  if (u > 7.7) {
+    const nu = geoxPath(c, GEOX.terr.Nunavut); ctx.save(); ctx.globalAlpha = 0.75; ctx.fillStyle = '#E9C46A'; ctx.fill(nu); ctx.strokeStyle = C.gold; ctx.lineWidth = 5; ctx.shadowColor = C.gold; ctx.shadowBlur = 18; ctx.stroke(nu); ctx.restore();
+    const km = clamp((u - 9.1) / 1.0) * popOut(13.6 - u); if (km > 0) { const off = (1 - easeOut(clamp((u - 9.1) / 0.9))) * 30, cm = { ...c, cx: c.cx + off }, mp = geoxPath(cm, GEOX.mexOnNu);
+      ctx.save(); ctx.globalAlpha = km; ctx.fillStyle = 'rgba(0,104,71,0.35)'; ctx.fill(mp); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.setLineDash([18, 12]); ctx.lineDashOffset = -u * 30; ctx.stroke(mp); ctx.restore();
+      const [mx, my] = P(cm, -92, 66.5); styledText(ctx, 'MEXICO', mx, my, 48, { k: km, fill: '#FFFFFF', stroke: C.ink }); }
+    kinetic(ctx, 'NUNAVUT > MEXICO', 300, win(u, 8.6, 10.7), 100);
+    if (u > 10.7) { const k = pop(u - 10.8, 0.35); ctx.save(); ctx.fillStyle = `rgba(10,24,32,${0.55 * clamp(k)})`; ctx.fillRect(0, 0, W, H); ctx.restore(); stadium(ctx, W / 2, 1050, 1.6, k, (u - 11.0) / 2.0);
+      kinetic(ctx, 'ALL OF NUNAVUT', 360, win(u, 10.8, 13.7), 96, -3, '#FFFFFF'); kinetic(ctx, '≈ ONE STADIUM', 1460, win(u, 12.6, 13.7), 96); }
+  }
+  const caps = [[0.1, 4.4, '3 territories: ~40% of Canada'], [4.5, 7.7, '~1 in 300 Canadians lives there'], [7.8, 10.7, 'Nunavut is bigger than Mexico'], [10.8, 13.7, 'Its people fit in one stadium']];
+  for (const [a, b, txt] of caps) { const k = win(u, a, b, .22, .16); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y + 80, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1000 }); }
+}
+const INS0 = 31.93, INSD = 13.74;   // inserted beat: the territories, Nunavut vs Mexico, the stadium
+function renderAt(tt, ctx) {
   ctx = ctx || document.getElementById('cv').getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+  if (tt >= INS0 && tt < INS0 + INSD) { sceneTerritories(ctx, tt - INS0); vignette(ctx); ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore(); return; }
+  const t = tt >= INS0 + INSD ? tt - INSD : tt;
   const c = camAt(t); drawMap(ctx, c); sceneMap(ctx, c, t);
   vignette(ctx); if (t < 38.9) drawText(ctx, t); sceneEnd(ctx, t);
   ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();

@@ -16,9 +16,10 @@ LINES = [
     "It's the second largest country on Earth yet almost everyone lives in a thin glowing ribbon right along the US border while the north stays almost completely dark",
     "Most people think the answer is simple it's too cold up there But look across the Atlantic Oslo Stockholm and Helsinki all sit about as far north as the border of Canada's northern territories and they're capital cities full of highways farms and millions of people",
     "At that same latitude in Canada Mostly forest rock and lakes and very few roads",
+    "Canada's three northern territories cover about forty percent of the whole country yet only about one in every three hundred Canadians lives there Nunavut alone is bigger than Mexico and its entire population could fit inside a single football stadium",
     "So the cold is only part of the story The real reason is hiding right under your feet in some of the oldest rock on the planet",
 ]
-EXTRA = {"canadas": "K AE N AH D AH Z", "oslo": "AA Z L OW", "helsinki": "HH EH L S IH NG K IY", "stockholm": "S T AA K HH OW L M", "gneiss": "N AY S", "muskeg": "M AH S K EH G", "permafrost": "P ER M AH F R AO S T", "scandinavia": "S K AE N D IH N EY V IY AH", "railways": "R EY L W EY Z", "lawrence": "L AO R AH N S", "indigenous": "IH N D IH JH AH N AH S", "toronto": "T ER AA N T OW", "montreal": "M AH N T R IY AO L", "vancouver": "V AE N K UW V ER", "calgary": "K AE L G ER IY", "waterways": "W AO T ER W EY Z", "theyre": "DH EH R", "its": "IH T S", "nickel": "N IH K AH L", "uranium": "Y ER EY N IY AH M", "theyre": "DH EH R"}
+EXTRA = {"canadas": "K AE N AH D AH Z", "oslo": "AA Z L OW", "helsinki": "HH EH L S IH NG K IY", "stockholm": "S T AA K HH OW L M", "gneiss": "N AY S", "muskeg": "M AH S K EH G", "permafrost": "P ER M AH F R AO S T", "scandinavia": "S K AE N D IH N EY V IY AH", "railways": "R EY L W EY Z", "lawrence": "L AO R AH N S", "indigenous": "IH N D IH JH AH N AH S", "toronto": "T ER AA N T OW", "montreal": "M AH N T R IY AO L", "vancouver": "V AE N K UW V ER", "calgary": "K AE L G ER IY", "waterways": "W AO T ER W EY Z", "theyre": "DH EH R", "its": "IH T S", "nickel": "N IH K AH L", "uranium": "Y ER EY N IY AH M", "theyre": "DH EH R", "nunavut": "N UW N AH V UW T", "mexico": "M EH K S IH K OW"}
 
 
 def main():
