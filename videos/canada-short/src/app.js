@@ -30,7 +30,7 @@ const V = {
   na: [-97.0, 56.0, 11], atl: [-40.0, 60.0, 6.0], sixty: [-104.0, 60.5, 22], ground: [-100.0, 57.0, 30],
 };
 const KEYS = [
-  [0, 'na', 1], [3.6, 'na', 1.03], [12.6, 'na', 1.05], [15.4, 'na', 1], [17.0, 'atl', 1], [26.2, 'atl', 1.03], [27.4, 'sixty', 1], [31.8, 'sixty', 1.04], [33.6, 'ground', 1], [42.5, 'ground', 1.05],
+  [0, 'na', 1.22], [3.6, 'na', 1.03], [12.6, 'na', 1.05], [15.4, 'na', 1], [17.0, 'atl', 1], [26.2, 'atl', 1.03], [27.4, 'sixty', 1], [31.8, 'sixty', 1.04], [33.6, 'ground', 1], [42.5, 'ground', 1.05],
 ];
 function camAt(t) {
   let i = 0;
@@ -301,9 +301,11 @@ function borderGlow(ctx, c, k) {   // the 49th parallel + Great Lakes stretch, a
 function sceneMap(ctx, c, t) {
   const n = night(t);
   if (n > 0) { ctx.save(); ctx.fillStyle = `rgba(3,7,18,${0.8 * n})`; ctx.fillRect(0, 0, W, H); ctx.restore(); strokeGeo(ctx, c, 'can', 'rgba(170,190,200,0.35)', 2, { alpha: n }); }
-  cityLights(ctx, c, t, n > 0 ? n : 0.6, n <= 0); usLights(ctx, c, 0.3 * n);
+  cityLights(ctx, c, t + 3, n > 0 ? n : 0.6, n <= 0); usLights(ctx, c, 0.3 * n);
   // hook
-  title(ctx, 'WHY IS CANADA\nSO EMPTY?', 250, t < 0.05 ? 1 : popOut(3.7 - t), 104);
+  styledText(ctx, 'MOST OF CANADA\nIS EMPTY?', W / 2, 250, 112, { k: t < 0.05 ? 1 : popOut(3.7 - t), fill: C.yellow, stroke: C.goldDark, rot: -3 });
+  if (t < 3.7) { const [ax, ay] = P(c, -100, 63), k = popOut(3.7 - t); ctx.save(); ctx.globalAlpha = k; ctx.strokeStyle = '#FFFFFF'; ctx.fillStyle = '#FFFFFF'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(540, 400); ctx.quadraticCurveTo(700, 470, ax, ay - 40); ctx.stroke();
+    const a = Math.atan2(ay - 40 - 470, ax - 700); ctx.translate(ax, ay - 40); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(30, 0); ctx.lineTo(-18, -26); ctx.lineTo(-18, 26); ctx.closePath(); ctx.fill(); ctx.restore(); }
   const [cx, cy] = P(c, -100, 63);
   goldLabel(ctx, 'CANADA', cx, cy, 70, win(t, 2.7, 6.0));
   chip(ctx, '2ND-LARGEST COUNTRY ON EARTH', W / 2, 300, win(t, 4.2, 6.2), { size: 38 });
@@ -343,6 +345,7 @@ function sceneEnd(ctx, t) {
   ctx.fillStyle = `rgba(4,10,14,${0.78 * k})`; ctx.fillRect(0, 0, W, H);
   styledText(ctx, 'THE REAL REASON', W / 2, 640, 100, { k: pop(e - 0.1, 0.35), fill: '#fff', stroke: C.ink });
   styledText(ctx, 'IS UNDERGROUND…', W / 2, 780, 104, { k: pop(e - 0.3, 0.35), fill: C.yellow, stroke: C.goldDark, rot: -3 });
+  chip(ctx, 'GUESS THE REASON 👇', W / 2, 1180, pop(e - 1.3, 0.35), { size: 46 });
   const kc = pop(e - 0.8, 0.35); if (kc > 0) { ctx.save(); ctx.translate(W / 2, 1000); ctx.scale(kc, kc); setFont(ctx, 'Montserrat', 46);
     const w = ctx.measureText('FULL STORY ON MAPHELD').width + 120; ctx.fillStyle = '#E62117'; ctx.beginPath(); ctx.roundRect(-w / 2, -56, w, 112, 56); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(-w / 2 + 40, -20); ctx.lineTo(-w / 2 + 40, 20); ctx.lineTo(-w / 2 + 72, 0); ctx.closePath(); ctx.fill(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('FULL STORY ON MAPHELD', 22, 3); ctx.restore(); }

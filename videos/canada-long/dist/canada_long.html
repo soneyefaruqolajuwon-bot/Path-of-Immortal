@@ -363,7 +363,7 @@ function sceneMap(ctx, c, t) {
     chip(ctx, 'SCANDINAVIA: JUST AS FAR NORTH… AND THRIVING', W / 2, 120, win(t, 5.8, 8.5), { size: 36 });
     [['CLIMATE', 10.9], ['ROCK', 11.8]].forEach(([s, t0], i) => { const k = win(t, t0, 14.3); if (k <= 0) return; ctx.save(); ctx.translate(760 + i * 400, 540); ctx.scale(k, k); ctx.fillStyle = 'rgba(10,24,32,0.95)'; ctx.strokeStyle = C.gold; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-170, -110, 340, 220, 26); ctx.fill(); ctx.stroke();
       setFont(ctx, 'Montserrat', 30); ctx.fillStyle = C.gold; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i ? '#2' : '#1', 0, -50); setFont(ctx, 'Montserrat', 64); ctx.fillStyle = '#fff'; ctx.fillText(s, 0, 20); ctx.restore(); });
-    title(ctx, 'WHY IS NORTHERN CANADA EMPTY?', 110, win(t, 0.1, 4.0), 72);
+    styledText(ctx, 'WHY IS NORTHERN CANADA EMPTY?', W / 2, 115, 84, { k: t < 0.05 ? 1 : popOut(4.0 - t), fill: C.yellow, stroke: C.goldDark, rot: -2, maxW: 1700 });
   }
   // B2 climate: the Gulf Stream vs Arctic air
   if (t > 14.3 && t < 33.5) {
@@ -373,7 +373,7 @@ function sceneMap(ctx, c, t) {
     const [sx, sy] = P(c, 15, 63); goldLabel(ctx, 'SCANDINAVIA', sx, sy - 100, 44, win(t, 15.8, 33.2));
     if (t > 24.3) for (let i = 0; i < 6; i++) { const x0 = P(c, -125 + i * 12, 78)[0], u = ((t - 24.4) * 0.6 + i * 0.15) % 1, ya = P(c, 0, 76)[1], yb = P(c, 0, 52)[1]; ctx.save(); ctx.globalAlpha = (1 - u) * popOut(33.2 - t); arrow(ctx, x0, lerp(ya, yb, u) - 80, x0 + 20, lerp(ya, yb, u), '#7FC8FF', 9); ctx.restore(); }
     chip(ctx, 'NORTHERN CANADA: NO SUCH HELP', W / 2, 120, win(t, 22.4, 24.4), { size: 40 }); chip(ctx, '❄ ARCTIC AIR POURS SOUTH', W / 2, 120, win(t, 24.5, 27.5), { size: 40, stroke: '#7FC8FF' });
-    if (t > 27.5) { const [ox, oy] = P(c, 10.75, 59.9), [yx, yy] = P(c, -114.4, 62.4); thermo(ctx, ox, oy - 160, 0.7, 0.55, '#F4A261', 'OSLO ≈ −4 °C', pop(t - 27.6)); thermo(ctx, yx, yy - 160, 0.7, 0.12, '#2E86DE', 'YELLOWKNIFE ≈ −26 °C', pop(t - 28.3));
+    if (t > 27.5) { const [ox, oy] = P(c, 10.75, 59.9), [yx, yy] = P(c, -114.4, 62.4); thermo(ctx, ox, oy - 160, 0.7, 0.55, '#F4A261', 'OSLO ≈ −4 °C', pop(t - 27.6)); thermo(ctx, Math.max(yx, 330), yy - 160, 0.7, 0.12, '#2E86DE', 'YELLOWKNIFE ≈ −26 °C', pop(t - 28.3));
       chip(ctx, 'JANUARY AVERAGE · 20°+ COLDER', W / 2, 120, win(t, 29.6, 33.2), { size: 40 }); }
   }
   // B3/B4 the Shield reveal
@@ -392,7 +392,9 @@ function sceneMap(ctx, c, t) {
       for (let i = 0; i < 5; i++) { const u = ((t * 0.9) + i / 5) % 1; ctx.globalAlpha = 1 - u; ctx.strokeStyle = '#9DB87A'; ctx.beginPath(); ctx.arc(x - 50 + i * 25, y + 10 - u * 30, 6 + u * 4, 0, 7); ctx.stroke(); }
       ctx.globalAlpha = 1; ctx.translate(x, y + sink * 26); ctx.rotate(sink * 0.12); ctx.fillStyle = '#9AA3AE'; ctx.fillRect(-90, -16, 180, 14); ctx.strokeRect(-90, -16, 180, 14); for (const bx of [-70, 0, 70]) { ctx.fillRect(bx - 5, -2, 10, 30); } ctx.restore(); goldLabel(ctx, 'MUSKEG', x, y + 90, 40, win(t, 99.3, 106.4)); }
     if (t > 101.7) { const kw = clamp((t - 101.8) / 1.4) * popOut(106.4 - t); const M = camMatrix(c); ctx.save(); ctx.globalAlpha = 0.85 * kw; ctx.fillStyle = '#EEF6FA'; ctx.setTransform(M); for (const p of PATHS.lakes) ctx.fill(p); ctx.restore();
-      const [hx, hy] = P(c, ...pl('hudson')); ctx.save(); ctx.globalAlpha = 0.8 * kw; ctx.fillStyle = '#EEF6FA'; ctx.beginPath(); ctx.ellipse(hx + 10, hy + 20, 5.5 * c.z, 6.5 * c.z, 0.3, 0, 7); ctx.fill(); ctx.restore(); }
+      const water = new Path2D(); water.rect(-10, -10, W + 20, H + 20); for (const p of PATHS.wide) water.addPath(p, M); const [bx0, by0] = P(c, -96, 64.5), [bx1, by1] = P(c, -76.5, 51);
+      ctx.save(); ctx.beginPath(); ctx.rect(bx0, by0, bx1 - bx0, by1 - by0); ctx.clip(); ctx.clip(water, 'evenodd'); ctx.globalAlpha = 0.85 * kw; ctx.fillStyle = '#EEF6FA'; ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 0.5 * kw; ctx.strokeStyle = '#BFD7E3'; ctx.lineWidth = 3; const rr = rnd(7); for (let i = 0; i < 40; i++) { const x = lerp(bx0, bx1, rr()), y = lerp(by0, by1, rr()); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 30 * (rr() - 0.5), y + 30 * (rr() - 0.5)); ctx.stroke(); } ctx.restore(); }
     person(ctx, t > 99.2 ? 'engineer_scratch' : 'engineer_plan', 230, 1010, 280, { k: pop(t - 93.3) * popOut(106.4 - t) });
     chip(ctx, 'AN EXPENSIVE NIGHTMARE', W / 2, 120, win(t, 93.2, 96.5), { size: 42 }); chip(ctx, '💥 BLAST THROUGH GRANITE', W / 2, 120, win(t, 96.6, 99.1), { size: 40 });
     chip(ctx, 'BRIDGES ON SHIFTING MUSKEG', W / 2, 120, win(t, 99.2, 101.7), { size: 40 }); chip(ctx, '🧊 RIVERS, LAKES, HUDSON BAY FREEZE', W / 2, 120, win(t, 101.8, 106.4), { size: 38, stroke: '#BFE6FF' });
@@ -411,7 +413,7 @@ function sceneMap(ctx, c, t) {
   }
   // B11 the southern corridor
   if (t > 116.8 && t < 129.0) {
-    const corr = [[-83.5, 42.0], [-79.0, 42.8], [-76.5, 43.8], [-74.0, 45.2], [-71.0, 46.8], [-70.0, 47.6], [-73.0, 46.4], [-76.0, 45.4], [-79.6, 44.4], [-81.8, 43.6], [-83.0, 42.6]];
+    const corr = [[-82.5, 42.0], [-81.0, 42.6], [-79.3, 42.9], [-79.0, 43.25], [-76.3, 43.9], [-75.0, 44.6], [-73.6, 45.3], [-72.0, 46.0], [-70.6, 46.9], [-69.6, 47.6], [-70.2, 47.9], [-71.6, 47.2], [-73.2, 46.5], [-75.0, 45.9], [-76.8, 45.4], [-78.6, 45.0], [-80.0, 44.9], [-80.9, 44.6], [-81.7, 44.2], [-82.2, 43.2]];
     const kc = clamp((t - 117.4) / 1.0) * popOut(128.8 - t); if (kc > 0) { const pp = polyPath(c, corr); ctx.save(); ctx.globalAlpha = 0.45 * kc; ctx.fillStyle = '#6FBF4A'; ctx.fill(pp); ctx.globalAlpha = kc; ctx.strokeStyle = '#B6F08E'; ctx.lineWidth = 5; ctx.shadowColor = '#B6F08E'; ctx.shadowBlur = 20; ctx.stroke(pp); ctx.restore(); }
     for (const [lab, lo, la, t0] of [['ST. LAWRENCE', -71.0, 47.6, 117.9], ['SOUTHERN ONTARIO', -80.5, 44.4, 118.8], ['GREAT LAKES', -84.0, 44.8, 119.7]]) { const [x, y] = P(c, lo, la); goldLabel(ctx, lab, x, y - 50, 40, win(t, t0, 128.6)); }
     [[-80.6, 43.2], [-78.2, 44.0], [-75.5, 45.0], [-72.6, 46.1], [-81.8, 42.8]].forEach(([lo, la], i) => { const [x, y] = P(c, lo, la); sprite(ctx, i % 2 ? 'cow' : 'wheat_ok', x, y, i % 2 ? 90 : 80, { k: pop(t - 120.6 - i * 0.1) * popOut(128.6 - t), ay: 0.9 }); });
@@ -423,6 +425,9 @@ function sceneMap(ctx, c, t) {
   if (t > 128.2 && t < 139.0) {
     const k = clamp((t - 128.6) / 0.8) * popOut(138.8 - t);
     ROUTES.forEach((r, i) => geoLine(ctx, c, r, clamp((t - 133.4 - i * 0.2) / 1.6) * k, '#FF9F43', 9, [6, 12], true));
+    ROUTES.forEach((r, i) => { const kk = clamp((t - 134.6 - i * 0.2) / 0.6) * k; if (kk <= 0) return; const sp = r.map(p => P(c, ...p)), u = ((t - 134.6) * 0.12 + i * 0.23) % 1, [x, y] = pointAlong(sp, u), [x2, y2] = pointAlong(sp, Math.min(1, u + 0.02));
+      ctx.save(); ctx.globalAlpha = clamp(kk); ctx.translate(x, y); ctx.rotate(Math.atan2(y2 - y, x2 - x)); ctx.scale(1.9, 1.9); ctx.fillStyle = '#D9A066'; ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-26, -4); ctx.quadraticCurveTo(0, 12, 26, -4); ctx.quadraticCurveTo(0, 2, -26, -4); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#5A3B28'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-6, -14); ctx.lineTo(10, 8); ctx.stroke(); ctx.restore(); });
     chip(ctx, 'FOR THOUSANDS OF YEARS', W / 2, 120, win(t, 128.4, 131.2), { size: 42 }); chip(ctx, 'NORTHERN FORESTS · ARCTIC COASTS', W / 2, 120, win(t, 131.3, 133.4), { size: 40 }); chip(ctx, 'DEEP KNOWLEDGE OF LAND, WILDLIFE, WATERWAYS', W / 2, 120, win(t, 133.5, 138.6), { size: 34 });
   }
   // B13 mines
@@ -482,6 +487,7 @@ function sceneSubscribe(ctx, t) {
   ctx.fillStyle = `rgba(4,10,14,${0.72 * k})`; ctx.fillRect(0, 0, W, H);
   styledText(ctx, "IT'S NOT JUST THE COLD.", W / 2, 380, 100, { k: pop(e - 0.05, 0.35), fill: '#fff', stroke: C.ink });
   styledText(ctx, "IT'S THE ROCK.", W / 2, 520, 120, { k: pop(e - 0.35, 0.35), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+  chip(ctx, 'WHICH REASON SURPRISED YOU? 👇', W / 2, 880, pop(e - 1.4, 0.35), { size: 40 });
   const kc = pop(e - 0.9, 0.35); if (kc > 0) { ctx.save(); ctx.translate(W / 2, 720); ctx.scale(kc, kc); setFont(ctx, 'Montserrat', 50);
     const w = ctx.measureText('SUBSCRIBE TO MAPHELD').width + 130; ctx.fillStyle = '#E62117'; ctx.beginPath(); ctx.roundRect(-w / 2, -60, w, 120, 60); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(-w / 2 + 44, -22); ctx.lineTo(-w / 2 + 44, 22); ctx.lineTo(-w / 2 + 80, 0); ctx.closePath(); ctx.fill(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('SUBSCRIBE TO MAPHELD', 24, 3); ctx.restore(); }
