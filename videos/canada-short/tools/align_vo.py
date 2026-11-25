@@ -12,7 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VO = os.path.join(HERE, "..", "vo")
 RAW = os.path.join(VO, "raw")
 LINES = [
-    "Pull up a map of North America at night and look at Canada",
+    "Most of Canada is almost completely empty and it's not just because of the cold",
     "It's the second largest country on Earth yet almost everyone lives in a thin glowing ribbon right along the US border while the north stays almost completely dark",
     "Most people think the answer is simple it's too cold up there But look across the Atlantic Oslo Stockholm and Helsinki all sit about as far north as the border of Canada's northern territories and they're capital cities full of highways farms and millions of people",
     "At that same latitude in Canada Mostly forest rock and lakes and very few roads",
