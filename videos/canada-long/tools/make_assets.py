@@ -29,8 +29,13 @@ HARDHAT = (f'<path d="M{CX - HR * 1.0:.0f},{HY - HR * 0.35:.0f} Q{CX},{HY - HR *
 PLAID = "".join(f'<line x1="{CX - S * 0.15:.0f}" y1="{FEET - S * 0.44 + i * 20:.0f}" x2="{CX + S * 0.15:.0f}" y2="{FEET - S * 0.44 + i * 20:.0f}" stroke="#1C1C20" stroke-width="5" opacity="0.6"/>' for i in range(5)) + "".join(f'<line x1="{CX + d:.0f}" y1="{FEET - S * 0.46:.0f}" x2="{CX + d * 1.3:.0f}" y2="{FEET - S * 0.15:.0f}" stroke="#1C1C20" stroke-width="5" opacity="0.6"/>' for d in (-25, 0, 25))
 
 
-def chibi(name, o, front="", back=""):
-    p, hands = PR.chibi(o); save(name, svg(300, 520, f'<g transform="translate(0,80)">{back}{"".join(p)}{front}</g>')); return hands
+def handdot(x, y, col=SK): return f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{S * 0.04:.1f}" fill="{col}" stroke="{INK}" stroke-width="4"/>'
+
+
+def chibi(name, o, front="", back="", grip=()):
+    """grip: arm keys holding a prop; their hands are redrawn on top so the prop never hides them."""
+    p, hands = PR.chibi(o); tops = "".join(handdot(*hands[k], o.get("head", SK)) for k in grip)
+    save(name, svg(300, 520, f'<g transform="translate(0,80)">{back}{"".join(p)}{front}{tops}</g>')); return hands
 
 
 def shovel(x, y, ang, bent=False):
@@ -40,11 +45,11 @@ def shovel(x, y, ang, bent=False):
 
 def main():
     fl = dict(coat="#C0392B", pants="#2B3A55", head=SK)
-    rx, ry = hand("rarm", 60); chibi("farmer_dig.svg", dict(fl, rarm=60, larm=60, face="smile"), PLAID + BEANIE + shovel(rx, ry, 10))
-    rx, ry = hand("rarm", -60); chibi("farmer_clang.svg", dict(fl, rarm=-60, larm=-120, face="panic", stressed=True, sweat=True), PLAID + BEANIE + shovel(rx, ry - 20, -30, True))
+    rx, ry = hand("rarm", 60); chibi("farmer_dig.svg", dict(fl, rarm=60, larm=120, face="smile"), PLAID + BEANIE + shovel(rx, ry, 10), grip=("rarm",))
+    rx, ry = hand("rarm", -60); chibi("farmer_clang.svg", dict(fl, rarm=-60, larm=-120, face="panic", stressed=True, sweat=True), PLAID + BEANIE + shovel(rx, ry - 20, -30, True), grip=("rarm",))
     eng = dict(coat="#E67E22", pants="#2B2B33", head="#E3B48A")
-    rx, ry = hand("rarm", -30); chibi("engineer_plan.svg", dict(eng, rarm=-30, larm=110, face="smile"), BEANIE.replace("#C0392B", "#00000000") * 0 + HARDHAT + f'<g transform="translate({rx:.0f},{ry:.0f}) rotate(-20)"><rect x="-60" y="-14" width="120" height="28" rx="14" fill="#5DADE2" stroke="{INK}" stroke-width="4"/></g>')
-    chibi("engineer_scratch.svg", dict(eng, rarm=-115, larm=110, face="flat", stressed=True, sweat=True), HARDHAT)
+    rx, ry = hand("rarm", -30); chibi("engineer_plan.svg", dict(eng, rarm=-30, larm=110, face="smile"), BEANIE.replace("#C0392B", "#00000000") * 0 + HARDHAT + f'<g transform="translate({rx:.0f},{ry:.0f}) rotate(-20)"><rect x="-60" y="-14" width="120" height="28" rx="14" fill="#5DADE2" stroke="{INK}" stroke-width="4"/></g>', grip=("rarm",))
+    chibi("engineer_scratch.svg", dict(eng, rarm=-115, larm=110, face="flat", stressed=True, sweat=True), HARDHAT, grip=("rarm",))
     for code, flag in (("swe", lambda x, y, w, h: nordic(x, y, w, h, "#006AA7", "#FECC02")), ("nor", lambda x, y, w, h: nordic(x, y, w, h, "#BA0C2F", "#FFFFFF", "#00205B")), ("fin", lambda x, y, w, h: nordic(x, y, w, h, "#FFFFFF", "#002F6C"))):
         GM.caped_person(f"scandi_{code}", flag, dict(coat="#5B7DB1" if code == "swe" else "#8E2A20" if code == "nor" else "#3E6B4F", pants="#2B2B33", head=SK, rarm=-60, larm=110, face="smile"),
                         arms_extra=f'<path d="M{CX - HR * 0.95:.0f},{HY - HR * 0.35:.0f} Q{CX},{HY - HR * 1.4:.0f} {CX + HR * 0.95:.0f},{HY - HR * 0.35:.0f} Z" fill="#F4F1E6" stroke="{INK}" stroke-width="5"/>')

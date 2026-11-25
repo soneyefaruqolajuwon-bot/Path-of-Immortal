@@ -15,3 +15,4 @@
   for simply naming a country.
 - Style blueprint: Map Warden-like 9:16 map explainers (teal ocean #1E4D5C, olive land #8A855C, flag characters
   with stick arms and eyes, white 2–4 word captions, gold title cards, yellow kinetic numbers).
+- **Hands stay visible:** when a character holds a prop (shovel, key, flag, scroll, tablet…), draw the hand on top of the prop, and never let an arm or hand hide behind the body or head.
