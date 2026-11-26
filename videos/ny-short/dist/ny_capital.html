@@ -381,12 +381,13 @@ function scene(ctx, t) {
     title(ctx, 'THE HIDDEN\nREASON', 470, pop(t - 56.4) * (1 + 0.015 * Math.sin(t * 5)), 150);
     styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 700, 58, { k: pop(t - 56.8), fill: '#FFFFFF', stroke: C.ink });
     kinetic(ctx, 'CAN YOU GUESS IT? 👇', 880, pop(t - 57.2), 70);
-    if (window.TIKTOK) {   // TikTok: no Related-video link, so point at the follow (+) button on the right rail
+    if (window.TIKTOK) {   // TikTok: no Related-video link, so send them to YouTube via the profile (bio link)
       person(ctx, 'nyc_point', 300, 1640 + Math.sin(t * 4) * 6, 360, { k: pop(t - 57.0), flip: true });
       const b = Math.abs(Math.sin((t - 57.3) * 4.2)) * 36, kA = pop(t - 57.3);
       if (kA > 0) {
-        chip(ctx, 'PART 2: FOLLOW', 470, 1080, kA, { size: 50, bg: C.gold, fill: C.ink, stroke: C.goldDark });
-        ctx.save(); ctx.translate(820 + b, 1080); ctx.scale(kA, kA); ctx.rotate(-Math.PI / 2); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
+        chip(ctx, '▶ FULL VIDEO ON YOUTUBE', 440, 1020, kA, { size: 44, bg: '#E62117', fill: '#FFFFFF', stroke: '#7A0C08' });
+        chip(ctx, 'SEARCH: MAPHELD · LINK IN BIO', 440, 1140, pop(t - 57.6), { size: 34, bg: C.gold, fill: C.ink, stroke: C.goldDark });
+        ctx.save(); ctx.translate(850 + b, 1080); ctx.scale(kA * 0.85, kA * 0.85); ctx.rotate(-Math.PI / 2); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
         ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
         ring(ctx, 990, 1080, 70, t);
       }
