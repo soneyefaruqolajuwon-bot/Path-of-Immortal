@@ -431,7 +431,7 @@ function scene(ctx, t) {
       if (kA > 0) { ctx.save(); ctx.translate(240, 1300 + b); ctx.scale(kA, kA); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); if (t < 62.85) ring(ctx, 240, 1560, 70, t); }
       person(ctx, 'farmer_wheat', 800, 1500, 340, { k: pop(t - 60.6) });
     }
-    kinetic(ctx, 'DID YOU KNOW THIS? 👇', 740, pop(t - 60.5), 64);
+    styledText(ctx, 'WHICH SOUTHERN COUNTRY\nWOULD YOU MOVE TO? 👇', W / 2, 760, 60, { k: pop(t - 60.5), fill: C.yellow, stroke: C.goldDark, rot: -2 });
     ctx.restore();
   }
   if (t < 3.0) opening(ctx, c, t, 1); else if (t > 62.95) opening(ctx, c, t, clamp((t - 63.0) / 0.5));
