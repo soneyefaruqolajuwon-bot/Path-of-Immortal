@@ -124,7 +124,7 @@ def main():
     loud = os.path.join(seg, "mix_loud.wav")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", loud], check=True)
     wav = loud
-    name = "ny_capital_short.mp4" if tl.vo else "ny_capital_draft_no_voice.mp4"
+    name = ("ny_capital_short_tiktok.mp4" if os.environ.get("TIKTOK") == "1" else "ny_capital_short.mp4") if tl.vo else "ny_capital_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)

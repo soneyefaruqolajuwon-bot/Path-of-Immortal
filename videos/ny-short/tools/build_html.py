@@ -28,7 +28,7 @@ body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1080px;bord
 <div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="60.1" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
-window.ASSETS={json.dumps(assets)};</script>
+window.ASSETS={json.dumps(assets)};window.TIKTOK={'true' if os.environ.get('TIKTOK') == '1' else 'false'};</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""

@@ -360,6 +360,16 @@ function scene(ctx, t) {
     title(ctx, 'THE HIDDEN\nREASON', 470, pop(t - 56.4) * (1 + 0.015 * Math.sin(t * 5)), 150);
     styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 700, 58, { k: pop(t - 56.8), fill: '#FFFFFF', stroke: C.ink });
     kinetic(ctx, 'CAN YOU GUESS IT? 👇', 880, pop(t - 57.2), 70);
+    if (window.TIKTOK) {   // TikTok: no Related-video link, so point at the follow (+) button on the right rail
+      person(ctx, 'nyc_point', 300, 1640 + Math.sin(t * 4) * 6, 360, { k: pop(t - 57.0), flip: true });
+      const b = Math.abs(Math.sin((t - 57.3) * 4.2)) * 36, kA = pop(t - 57.3);
+      if (kA > 0) {
+        chip(ctx, 'PART 2: FOLLOW', 470, 1080, kA, { size: 50, bg: C.gold, fill: C.ink, stroke: C.goldDark });
+        ctx.save(); ctx.translate(820 + b, 1080); ctx.scale(kA, kA); ctx.rotate(-Math.PI / 2); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
+        ring(ctx, 990, 1080, 70, t);
+      }
+    } else {
     // the NYC guy points down-left at the link
     person(ctx, 'nyc_point', 800, 1500 + Math.sin(t * 4) * 6, 380, { k: pop(t - 57.0) });
     // bouncing arrow + label right above where YouTube shows "Related video"
@@ -369,6 +379,7 @@ function scene(ctx, t) {
       ctx.save(); ctx.translate(240, 1300 + b); ctx.scale(kA, kA); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
       ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       ring(ctx, 240, 1560, 70, t);
+    }
     }
     ctx.restore();
   }
