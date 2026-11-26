@@ -1,6 +1,6 @@
 /* Why Albany, not New York City? Mapheld 9:16 short; ends on a cliffhanger card for the long-form. */
 'use strict';
-const W = 1080, H = 1920, DURATION = 60.5;
+const W = 1080, H = 1920, DURATION = 60.1;
 const C = {
   ocean: '#1E4D5C', land: '#8A855C', landDim: '#6E6B50', coast: '#2C3531', halo: '#2C6A78', ink: '#141416',
   gold: '#F4D03F', goldDark: '#3A2A08', yellow: '#FFD43B', cyan: '#25E3FF', white: '#FFFFFF',
@@ -30,7 +30,7 @@ const V = {
   state: [-75.9, 42.75, 145], albany: [-73.76, 42.6, 640], usa: [-96.5, 38.6, 17.5],
 };
 const KEYS = [[0, 'open', 1], [5.6, 'open', 1.04], [7.4, 'hudson', 1], [11.2, 'hudson', 1.03], [12.9, 'harbor', 1], [19.9, 'harbor', 1.05], [21.2, 'kingston', 1], [26.0, 'kingston', 1.04],
-  [27.2, 'coast', 1], [30.0, 'coast', 1.03], [31.4, 'state', 1], [40.2, 'state', 1.03], [41.3, 'albany', 1], [45.6, 'albany', 1.05], [48.0, 'usa', 1], [56.4, 'usa', 1.06], [60.5, 'usa', 1.08]];
+  [27.2, 'coast', 1], [30.0, 'coast', 1.03], [31.4, 'state', 1], [40.2, 'state', 1.03], [41.3, 'albany', 1], [45.6, 'albany', 1.05], [48.0, 'usa', 1], [56.4, 'usa', 1.06], [59.2, 'usa', 1.07], [60.1, 'open', 1]];
 function camAt(t) {
   let i = 0;
   while (i < KEYS.length - 2 && KEYS[i + 1][0] <= t) i++;
@@ -248,7 +248,7 @@ function baseMap(ctx, c, t) {
   fillKey(ctx, c, 'lakes', C.ocean, 1, null); strokeKey(ctx, c, 'lakes', C.coast, 2.5);
   for (const k of Object.keys(GEO)) if (k.startsWith('st_')) strokeKey(ctx, c, k, 'rgba(44,53,49,0.75)', 2.2);
   // New York State always glows a little: it's the subject
-  const usaK = clamp((t - 46.5) / 1.5);
+  const usaK = clamp((t - 46.5) / 1.5) * (1 - clamp((t - 59.3) / 0.7));
   fillKey(ctx, c, 'ny', C.gold, 0.12 * (1 - usaK), null); strokeKey(ctx, c, 'ny', C.gold, 4, 0.85 * (1 - usaK * 0.6));
 }
 function river(ctx, c, p, k, w = 9) { geoLine(ctx, c, p, k, '#5FB6D3', w, null, true); }
@@ -342,7 +342,8 @@ function scene(ctx, t) {
   }
   // ---------------- B8 not the only state: 17 of 50
   if (t > 45.6) {
-    const kA = clamp((t - 47.3) / 0.8), kG = clamp((t - 49.4) / 0.6);
+    const back = 1 - clamp((t - 59.25) / 0.6);
+    const kA = clamp((t - 47.3) / 0.8) * back, kG = clamp((t - 49.4) / 0.6) * back;
     if (kA > 0) for (const k of Object.keys(GEO)) if (k.startsWith('st_') && k !== 'st_DC') { const gold = BIG17.includes(k.slice(3)); fillKey(ctx, c, k, gold ? C.gold : '#C0392B', (gold ? lerp(0.45, 0.9, kG) : lerp(0.45, 0.28, kG)) * kA, null); }
     if (kG > 0) for (const s of BIG17) strokeKey(ctx, c, 'st_' + s, '#FFF6C8', 3, kG);
     strokeKey(ctx, c, 'st_NY', C.white, 5, kA);
@@ -350,11 +351,11 @@ function scene(ctx, t) {
     chip(ctx, 'NEW YORK WASN\'T THE ONLY ONE', W / 2, 300, win(t, 47.3, 49.3), { size: 40 });
     styledText(ctx, '17 / 50', W / 2, 330, 190, { k: win(t, 49.45, 56.4), fill: C.yellow, stroke: C.goldDark, rot: -3 });
     chip(ctx, 'CAPITAL = BIGGEST CITY', W / 2, 480, win(t, 50.5, 56.4), { size: 40 }); chip(ctx, '+ HAWAII', 170, 1330, win(t, 50.0, 56.4), { size: 30 });
-    if (t > 53.6) { const d = clamp((t - 53.8) / 1.2); ctx.save(); ctx.globalAlpha = 0.55 * d; ctx.fillStyle = '#05080A'; ctx.fillRect(0, 0, W, H); ctx.restore(); styledText(ctx, '?', W / 2, 1000, 420, { k: pop(t - 54.0, 0.5), fill: C.yellow, stroke: C.goldDark }); }
+    if (t > 53.6 && t < 59.3) { const d = clamp((t - 53.8) / 1.2); ctx.save(); ctx.globalAlpha = 0.55 * d; ctx.fillStyle = '#05080A'; ctx.fillRect(0, 0, W, H); ctx.restore(); styledText(ctx, '?', W / 2, 1000, 420, { k: pop(t - 54.0, 0.5), fill: C.yellow, stroke: C.goldDark }); }
   }
   // ---------------- cliffhanger card: points at the Related-video link (bottom-left, above the title)
-  if (t > 56.3) {
-    const k = clamp((t - 56.3) / 0.4); ctx.save(); ctx.globalAlpha = 0.72 * k; ctx.fillStyle = '#071318'; ctx.fillRect(0, 0, W, H); ctx.restore();
+  if (t > 56.3 && t < 59.95) {
+    const k = clamp((t - 56.3) / 0.4) * (1 - clamp((t - 59.25) / 0.6)); ctx.save(); ctx.globalAlpha = 0.72 * k; ctx.fillStyle = '#071318'; ctx.fillRect(0, 0, W, H); ctx.restore(); ctx.save(); ctx.globalAlpha = clamp(k * 1.4);
     const g = ctx.createRadialGradient(W / 2, 520, 40, W / 2, 520, 520); g.addColorStop(0, `rgba(244,208,63,${0.22 * k})`); g.addColorStop(1, 'rgba(244,208,63,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     title(ctx, 'THE HIDDEN\nREASON', 470, pop(t - 56.4) * (1 + 0.015 * Math.sin(t * 5)), 150);
     styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 700, 58, { k: pop(t - 56.8), fill: '#FFFFFF', stroke: C.ink });
@@ -369,7 +370,16 @@ function scene(ctx, t) {
       ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       ring(ctx, 240, 1560, 70, t);
     }
+    ctx.restore();
   }
+  // loop seam: glide back into the exact opening frame
+  if (t > 59.3) opening(ctx, c, t, clamp((t - 59.4) / 0.6));
+}
+function opening(ctx, c, t, k) {
+  if (k <= 0) return; const [nx, ny] = P(c, NYC[0], NYC[1]); ctx.save(); ctx.globalAlpha = k;
+  icon(ctx, c, 'skyline', NYC, 320, 1, { dy: 10 }); person(ctx, 'nyc_smug', 810, 1500, 380, { k: 1 });
+  styledText(ctx, 'CAPITAL OF\nNEW YORK?', W / 2, 300, 112, { fill: C.yellow, stroke: C.goldDark, rot: -3, k: 1 });
+  goldLabel(ctx, 'NEW YORK CITY', nx - 40, ny + 70, 46, 1); ctx.restore();
 }
 const CAPTIONS = [
   [0.0, 2.5, 'You\'ve had this wrong…'], [2.5, 5.5, 'NOT New York City'], [5.7, 9.2, 'It\'s Albany'], [9.3, 11.2, '150 miles up the Hudson'],
@@ -383,6 +393,7 @@ function vignette(ctx) { const g = ctx.createRadialGradient(W / 2, H * .45, H * 
 function renderAt(t, ctx) {
   ctx = ctx || document.getElementById('cv').getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
   scene(ctx, t); vignette(ctx); if (t < 56.3) drawText(ctx, t);
+  if (t > 59.4) { ctx.save(); ctx.globalAlpha = clamp((t - 59.5) / 0.5); styledText(ctx, 'You\'ve had this wrong…', W / 2, CAPTION.y + 80, CAPTION.size, { k: 1, shadow: CAPTION.shadow, maxW: 1000 }); ctx.restore(); }
   ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
 }
 window.renderAt = renderAt; window.READY = false;

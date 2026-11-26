@@ -15,10 +15,10 @@ VO_DIR = os.path.join(R, "vo")
 OUT = os.path.join(R, "out")
 FPS = 30
 
-BEATS = [(1, 0, 5.59), (2, 5.59, 11.30), (3, 11.30, 20.26), (4, 20.26, 26.24), (5, 26.24, 30.15), (6, 30.15, 40.44), (7, 40.44, 45.72), (8, 45.72, 60.50)]   # last beat includes the 4 s END_HOLD
+BEATS = [(1, 0, 5.59), (2, 5.59, 11.30), (3, 11.30, 20.26), (4, 20.26, 26.24), (5, 26.24, 30.15), (6, 30.15, 40.44), (7, 40.44, 45.72), (8, 45.72, 60.10)]   # last beat includes END_HOLD (card + glide back to frame 1)
 ANCHORS = []            # storyboard built on the voiceover's own clock
 VO_DELAY, VO_TAIL = 0.06, 0.25
-END_HOLD = 4.0          # cliffhanger card -> long-form
+END_HOLD = 3.6          # cliffhanger card 2.8 s, then 0.8 s glide back into the opening frame (loop)
 
 SFX_CUES = [
     (0.05, "pop", 0), (3.95, "slap", 0), (4.0, "boing", 0.2), (5.85, "pop", 0), (6.0, "harp", 0), (7.3, "whoosh", 0), (9.3, "whoosh", 0),
@@ -26,7 +26,7 @@ SFX_CUES = [
     (20.4, "whoosh", 0), (22.4, "pop", 0), (23.5, "drums", 0), (24.7, "bang", 0), (24.9, "slap", 0),
     (26.5, "whoosh", 0), (29.2, "zap", 0), (30.4, "whoosh", 0), (31.9, "whoosh", 0), (32.7, "pop", -0.3), (33.0, "pop", 0.3), (33.3, "boing", 0), (35.9, "ding", 0), (36.5, "whoosh", 0), (38.7, "pop", 0),
     (40.5, "zap", 0), (41.6, "pop", 0), (42.7, "thud", 0), (44.4, "slap", 0), (44.6, "chaching", 0),
-    (46.0, "whoosh", 0), (47.3, "scribble", 0), (49.45, "thud", 0), (50.0, "ding", 0), (54.0, "rumble", 0), (56.4, "whoosh", 0), (57.0, "pop", 0), (57.2, "boing", 0), (57.3, "ding", 0), (58.3, "pop", 0), (59.3, "pop", 0),
+    (46.0, "whoosh", 0), (47.3, "scribble", 0), (49.45, "thud", 0), (50.0, "ding", 0), (54.0, "rumble", 0), (56.4, "whoosh", 0), (57.0, "pop", 0), (57.2, "boing", 0), (57.3, "ding", 0), (58.3, "pop", 0), (59.3, "whoosh", 0),
 ]
 
 
