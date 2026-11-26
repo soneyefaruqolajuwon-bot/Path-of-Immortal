@@ -320,8 +320,8 @@ function pizza(ctx, t, k) {
   ctx.strokeStyle = C.gold; ctx.lineWidth = 8; ctx.setLineDash([24, 14]); ctx.beginPath(); ctx.moveTo(-430, 0); ctx.lineTo(430, 0); ctx.stroke(); ctx.setLineDash([]);
   ctx.restore();
   styledText(ctx, 'NORTH', W / 2, 420, 64, { k: pop(t - 42.3) * clamp(k * 1.3), fill: C.gold, stroke: C.goldDark });
-  styledText(ctx, 'SOUTH: MOSTLY BOX', W / 2, 1360, 60, { k: pop(t - 44.0) * clamp(k * 1.3), fill: '#fff', stroke: C.ink });
-  person(ctx, 'south_poke', 200, 1560, 260, { k: pop(t - 43.6) * clamp(k * 1.3) });
+  styledText(ctx, 'SOUTH:\nMOSTLY BOX', W / 2, 1380, 60, { k: pop(t - 44.0) * clamp(k * 1.3), fill: '#fff', stroke: C.ink });
+  person(ctx, 'south_poke', 920, 1560, 250, { k: pop(t - 43.6) * clamp(k * 1.3), flip: true });
 }
 
 // ------------------------------------------------------------------ the story
@@ -362,9 +362,9 @@ function scene(ctx, t) {
     goldLabel(ctx, 'CHICAGO', chx, chy - 50, 56, pop(t - 13.8)); goldLabel(ctx, 'HOBART', hbx, hby - 50, 56, pop(t - 11.4));
     chip(ctx, '42° NORTH', 200, 120, pop(t - 14.3), { size: 34 }); chip(ctx, '43° SOUTH', 200, H / 2 + 80, pop(t - 12.7), { size: 34 });
     person(ctx, 'north_cold', 800, 860 + Math.sin(t * 40) * 3, 260, { k: pop(t - 8.4) }); person(ctx, 'south_chill', 800, 1780, 260, { k: pop(t - 9.6) });
-    thermo(ctx, 230, 700, 0.18, '#3A86FF', '≈ −4°C', pop(t - 15.3)); thermo(ctx, 230, 1600, 0.55, '#FF6B35', '≈ +8°C', pop(t - 15.5));
+    thermo(ctx, 170, 640, 0.18, '#3A86FF', '≈ −4°C', pop(t - 15.3)); thermo(ctx, 170, 1330, 0.55, '#FF6B35', '≈ +8°C', pop(t - 15.5));
     badge(ctx, 'EXTREME WINTERS', W / 2, 330, win(t, 9.4, 17.8), '#3A6EA5'); badge(ctx, 'MILDER ✓', W / 2, H / 2 + 200, win(t, 10.4, 17.8), '#1E8E3E');
-    kinetic(ctx, '10°C+ WARMER', H / 2 + 330, win(t, 16.1, 17.8), 90);
+    styledText(ctx, '10°C+ WARMER', 640, H / 2 + 300, 84, { k: win(t, 16.1, 17.8), fill: C.yellow, stroke: C.goldDark, rot: -3 });
     ctx.restore();
   }
   // ---------------- B3 not much south to live on
@@ -439,11 +439,11 @@ function scene(ctx, t) {
 const CAPTIONS = [
   [0.0, 2.9, 'Two equal halves…'], [3.0, 4.4, '…but not equal people'], [4.5, 8.0, 'The whole south < India'],
   [8.3, 11.3, 'It\'s not the weather'], [11.4, 14.2, 'Hobart vs. Chicago'], [14.3, 17.7, 'Hobart: 10°C+ warmer'],
-  [18.0, 19.4, 'Nobody avoided the south'], [19.5, 21.3, 'There just wasn\'t much of it'],
+  [18.0, 19.4, 'Nobody avoided the south'], [19.5, 21.3, 'Not much south to live on'],
   [21.6, 26.3, 'The continents drifted…'], [26.4, 28.7, '…and most ended up north'], [28.8, 32.5, '68% of all land'],
-  [32.7, 37.0, 'Australia, South America, Africa\'s tip…'], [37.1, 40.4, '…and ocean. 80% water'],
+  [32.7, 35.5, 'Australia, South America…'], [35.6, 37.0, '…the tip of Africa'], [37.1, 40.4, '…and ocean. 80% water'],
   [40.6, 44.0, 'A badly cut pizza'], [44.1, 45.6, 'Mostly box'],
-  [45.9, 49.3, 'More land, more people'], [49.6, 53.4, 'Wheat: all the way to China'], [53.5, 57.5, 'Corn: thousands of years'], [57.6, 60.1, 'The shape of the continents'],
+  [45.9, 49.3, 'More land, more people'], [49.6, 53.4, 'Wheat reached China fast'], [53.5, 57.5, 'Corn: thousands of years'], [57.6, 60.1, 'The continents\' shape'],
 ];
 function drawText(ctx, t) { for (const [t0, t1, txt] of CAPTIONS) { const k = t0 === 0 ? (t < t1 ? 1 : 0) * popOut(t1 - t, 0.18) : win(t, t0, t1, .22, .16); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y + 80, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1000 }); } }
 function vignette(ctx) { const g = ctx.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .5, H * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.42)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
