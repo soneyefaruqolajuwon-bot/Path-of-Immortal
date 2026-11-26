@@ -360,16 +360,17 @@ function scene(ctx, t) {
     title(ctx, 'THE HIDDEN\nREASON', 470, pop(t - 56.4) * (1 + 0.015 * Math.sin(t * 5)), 150);
     styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 700, 58, { k: pop(t - 56.8), fill: '#FFFFFF', stroke: C.ink });
     kinetic(ctx, 'CAN YOU GUESS IT? 👇', 880, pop(t - 57.2), 70);
-    if (window.TIKTOK) {   // TikTok: no Related-video link, so send them to YouTube via the profile (bio link)
-      person(ctx, 'nyc_point', 300, 1640 + Math.sin(t * 4) * 6, 360, { k: pop(t - 57.0), flip: true });
-      const b = Math.abs(Math.sin((t - 57.3) * 4.2)) * 36, kA = pop(t - 57.3);
-      if (kA > 0) {
-        chip(ctx, '▶ FULL VIDEO ON YOUTUBE', 440, 1020, kA, { size: 44, bg: '#E62117', fill: '#FFFFFF', stroke: '#7A0C08' });
-        chip(ctx, 'SEARCH: MAPHELD · LINK IN BIO', 440, 1140, pop(t - 57.6), { size: 34, bg: C.gold, fill: C.ink, stroke: C.goldDark });
-        ctx.save(); ctx.translate(850 + b, 1080); ctx.scale(kA * 0.85, kA * 0.85); ctx.rotate(-Math.PI / 2); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
-        ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
-        ring(ctx, 990, 1080, 70, t);
+    if (window.TIKTOK) {   // TikTok (no bio link yet): tell them what to search on YouTube
+      person(ctx, 'nyc_point', 220, 1760 + Math.sin(t * 4) * 6, 340, { k: pop(t - 57.0), flip: true });
+      const kA = pop(t - 57.3), kS = pop(t - 57.6), b = Math.abs(Math.sin((t - 57.9) * 4.2)) * 24;
+      chip(ctx, '▶ FULL VIDEO ON YOUTUBE', W / 2, 1040, kA, { size: 48, bg: '#E62117', fill: '#FFFFFF', stroke: '#7A0C08' });
+      if (kS > 0) { ctx.save(); ctx.translate(W / 2 + 60, 1200); ctx.scale(kS, kS);
+        ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-330, -58, 660, 116, 58); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#555'; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(-255, -6, 24, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-238, 12); ctx.lineTo(-215, 35); ctx.stroke();
+        setFont(ctx, 'Montserrat', 60); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; const typed = 'Mapheld'.slice(0, Math.max(0, Math.min(7, Math.floor((t - 57.8) * 12))));
+        ctx.fillText(typed, -190, 4); if (Math.floor(t * 2.5) % 2 === 0) { const tw = ctx.measureText(typed).width; ctx.fillRect(-186 + tw, -30, 5, 62); } ctx.restore();
       }
+      chip(ctx, 'DETAILS IN THE CAPTION ⬇', W / 2 + 60, 1340, pop(t - 58.3), { size: 32 });
     } else {
     // the NYC guy points down-left at the link
     person(ctx, 'nyc_point', 800, 1500 + Math.sin(t * 4) * 6, 380, { k: pop(t - 57.0) });
