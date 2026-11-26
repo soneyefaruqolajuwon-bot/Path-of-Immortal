@@ -42,6 +42,8 @@ def main():
     # New York City: sunglasses, suit, crown held high, briefcase in the other hand
     person("nyc_smug.svg", dict(coat="#22252B", pants="#22252B", tie="#F4D03F", shades=True, rarm=-55, larm=100),
            front=lambda h: crown(h["rarm"][0], h["rarm"][1] - 22, 1.5) + briefcase(*h["larm"]), grip=("rarm", "larm"), top=HAIR)
+    person("nyc_point.svg", dict(coat="#22252B", pants="#22252B", tie="#F4D03F", shades=True, rarm=-60, larm=150),
+           front=lambda h: crown(h["rarm"][0], h["rarm"][1] - 22, 1.3), grip=("rarm", "larm"), top=HAIR)
     person("nyc_shock.svg", dict(coat="#22252B", pants="#22252B", tie="#F4D03F", face="panic", sweat=True, stressed=True, rarm=-70, larm=-110), top=HAIR)
     # colonial lawmaker: powdered wig, scrolls in both hands, running pose
     person("law_run.svg", dict(coat="#22306E", pants="#E8DFC8", face="panic", sweat=True, rarm=-10, larm=160), back=WIG,

@@ -352,13 +352,23 @@ function scene(ctx, t) {
     chip(ctx, 'CAPITAL = BIGGEST CITY', W / 2, 480, win(t, 50.5, 56.4), { size: 40 }); chip(ctx, '+ HAWAII', 170, 1330, win(t, 50.0, 56.4), { size: 30 });
     if (t > 53.6) { const d = clamp((t - 53.8) / 1.2); ctx.save(); ctx.globalAlpha = 0.55 * d; ctx.fillStyle = '#05080A'; ctx.fillRect(0, 0, W, H); ctx.restore(); styledText(ctx, '?', W / 2, 1000, 420, { k: pop(t - 54.0, 0.5), fill: C.yellow, stroke: C.goldDark }); }
   }
-  // ---------------- cliffhanger card
+  // ---------------- cliffhanger card: points at the Related-video link (bottom-left, above the title)
   if (t > 56.3) {
-    const k = clamp((t - 56.3) / 0.4); ctx.save(); ctx.globalAlpha = 0.82 * k; ctx.fillStyle = '#071318'; ctx.fillRect(0, 0, W, H); ctx.restore();
-    title(ctx, 'THE HIDDEN\nREASON', 640, pop(t - 56.5), 140);
-    styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 900, 58, { k: pop(t - 57.0), fill: '#FFFFFF', stroke: C.ink });
-    chip(ctx, 'FULL VIDEO ▶', W / 2, 1110, pop(t - 57.6) * (1 + 0.04 * Math.sin(t * 6)), { size: 56, bg: C.gold, fill: C.ink, stroke: C.goldDark });
-    kinetic(ctx, 'CAN YOU GUESS IT? 👇', 1300, pop(t - 58.2), 72);
+    const k = clamp((t - 56.3) / 0.4); ctx.save(); ctx.globalAlpha = 0.72 * k; ctx.fillStyle = '#071318'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    const g = ctx.createRadialGradient(W / 2, 520, 40, W / 2, 520, 520); g.addColorStop(0, `rgba(244,208,63,${0.22 * k})`); g.addColorStop(1, 'rgba(244,208,63,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    title(ctx, 'THE HIDDEN\nREASON', 470, pop(t - 56.4) * (1 + 0.015 * Math.sin(t * 5)), 150);
+    styledText(ctx, 'a fear most people\nhave never heard of', W / 2, 700, 58, { k: pop(t - 56.8), fill: '#FFFFFF', stroke: C.ink });
+    kinetic(ctx, 'CAN YOU GUESS IT? 👇', 880, pop(t - 57.2), 70);
+    // the NYC guy points down-left at the link
+    person(ctx, 'nyc_point', 800, 1500 + Math.sin(t * 4) * 6, 380, { k: pop(t - 57.0) });
+    // bouncing arrow + label right above where YouTube shows "Related video"
+    const b = Math.abs(Math.sin((t - 57.3) * 4.2)) * 40, kA = pop(t - 57.3);
+    if (kA > 0) {
+      chip(ctx, 'FULL STORY: TAP HERE', 370, 1180, kA, { size: 40, bg: C.gold, fill: C.ink, stroke: C.goldDark });
+      ctx.save(); ctx.translate(240, 1300 + b); ctx.scale(kA, kA); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
+      ring(ctx, 240, 1560, 70, t);
+    }
   }
 }
 const CAPTIONS = [
