@@ -13,14 +13,14 @@ VO = os.path.join(HERE, "..", "vo")
 RAW = os.path.join(VO, "raw")
 LINES = [
     "You can drive nineteen thousand miles from the top of Alaska to the bottom of Argentina except for sixty miles Right here between Panama and Colombia the road just stops",
-    "And it's not because nobody could build it A hundred and fifty miles up the coast engineers dug the entire Panama Canal more than a century ago",
-    "So what stopped them here The jungle is part of it It's called the Darien Gap rainforest swamps and mud deep enough to swallow a bulldozer",
-    "But the thing that really stopped the road was something you can't even see A virus",
+    "And it's not because nobody could build it A hundred and fifty miles away engineers dug the entire Panama Canal more than a century ago",
+    "So what's in there Swamps mountains and mud that never dries In nineteen seventy two the British Army tried to drive two Range Rovers through it Soldiers hacked the path with machetes floated the cars across rivers on rafts and it took them about a hundred days just to get through",
+    "But in the end what stopped the road was something you can't even see A virus",
     "South America had foot and mouth disease which can wipe out entire herds of cattle North America didn't and that jungle was the only wall between them",
     "Building a road through it would've been like drilling a hole in a submarine just to save a short walk",
-    "So the wall stayed And today if you drive the longest road on Earth it ends at a tiny town called Yaviza staring at sixty miles of jungle",
+    "So the wall stayed And today the longest road on Earth ends at a tiny town called Yaviza staring at sixty miles of jungle",
 ]
-EXTRA = {"its": "IH T S", "cant": "K AE N T", "didnt": "D IH D AH N T", "wouldve": "W UH D AH V", "darien": "D EH R IY EH N", "yaviza": "Y AH V IY Z AH"}
+EXTRA = {"its": "IH T S", "whats": "W AH T S", "cant": "K AE N T", "didnt": "D IH D AH N T", "wouldve": "W UH D AH V", "yaviza": "Y AH V IY Z AH", "machetes": "M AH SH EH T IY Z", "rovers": "R OW V ER Z"}
 
 
 def main():

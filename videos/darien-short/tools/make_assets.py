@@ -85,6 +85,16 @@ def main():
     sign = (f'<rect x="96" y="90" width="12" height="140" fill="#6B4423" stroke="{INK}" stroke-width="3"/><rect x="20" y="20" width="164" height="80" rx="10" fill="#1E8E3E" stroke="{INK}" stroke-width="5"/>'
             f'<text x="102" y="56" font-family="Montserrat, Arial" font-weight="800" font-size="30" fill="#FFF" text-anchor="middle">YAVIZA</text><text x="102" y="86" font-family="Montserrat, Arial" font-weight="800" font-size="18" fill="#FFF" text-anchor="middle">END OF ROAD</text>')
     save("yaviza.svg", svg(204, 240, sign))
+    rr = (f'<ellipse cx="190" cy="232" rx="165" ry="10" fill="#000" opacity="0.22"/>'
+          f'<path d="M30,200 L30,140 Q32,120 60,118 L110,116 L130,70 Q136,58 152,58 L300,58 Q318,58 322,74 L340,118 Q356,122 358,140 L360,200 Z" fill="#2F5D3A" stroke="{INK}" stroke-width="7" stroke-linejoin="round"/>'
+          f'<path d="M140,76 L150,110 L222,110 L222,74 Z M236,74 L236,110 L318,110 L306,76 Z" fill="#9ED0E6" stroke="{INK}" stroke-width="5"/>'
+          f'<rect x="30" y="150" width="330" height="16" fill="#E8D8B0"/><rect x="128" y="40" width="190" height="16" rx="4" fill="#5A3A1E" stroke="{INK}" stroke-width="4"/>'
+          + "".join(f'<circle cx="{x}" cy="204" r="32" fill="#2B2B33" stroke="{INK}" stroke-width="6"/><circle cx="{x}" cy="204" r="12" fill="#9AA3AD"/>' for x in (95, 290)))
+    save("rangerover.svg", svg(390, 250, rr))
+    BUSH = (f'<ellipse cx="{CX}" cy="{HY - HR * 0.55:.0f}" rx="{HR * 1.45:.0f}" ry="{HR * 0.26:.0f}" fill="#5B6B3A" stroke="{INK}" stroke-width="5"/>'
+            f'<path d="M{CX - HR * 0.82:.0f},{HY - HR * 0.58:.0f} Q{CX - HR * 0.8:.0f},{HY - HR * 1.3:.0f} {CX:.0f},{HY - HR * 1.3:.0f} Q{CX + HR * 0.8:.0f},{HY - HR * 1.3:.0f} {CX + HR * 0.82:.0f},{HY - HR * 0.58:.0f} Z" fill="#5B6B3A" stroke="{INK}" stroke-width="5"/>')
+    person("soldier.svg", dict(coat="#556B2F", pants="#4A5A2A", face="flat", stressed=True, sweat=True, rarm=-70, larm=110), top=BUSH,
+           front=lambda h: f'<path d="M{h["rarm"][0]:.0f},{h["rarm"][1]:.0f} L{h["rarm"][0] + 26:.0f},{h["rarm"][1] - 120:.0f} L{h["rarm"][0] + 44:.0f},{h["rarm"][1] - 116:.0f} L{h["rarm"][0] + 14:.0f},{h["rarm"][1] + 6:.0f} Z" fill="#C0C8CC" stroke="{INK}" stroke-width="4"/><rect x="{h["rarm"][0] - 10:.0f}" y="{h["rarm"][1] - 4:.0f}" width="22" height="34" rx="5" fill="#5A3A1E" stroke="{INK}" stroke-width="3" transform="rotate(30 {h["rarm"][0]:.0f} {h["rarm"][1]:.0f})"/>', grip=("rarm",))
     print(len(os.listdir(OUT)), "files")
 
 

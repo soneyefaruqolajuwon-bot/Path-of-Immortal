@@ -1,6 +1,6 @@
 /* The Darién Gap — Mapheld 9:16 short; card, then glides back into frame 1 (loop). */
 'use strict';
-const W = 1080, H = 1920, DURATION = 54.27;
+const W = 1080, H = 1920, DURATION = 58.86;
 const C = {
   ocean: '#1E4D5C', land: '#8A855C', landDim: '#6E6B50', coast: '#2C3531', halo: '#2C6A78', ink: '#141416',
   gold: '#F4D03F', goldDark: '#3A2A08', yellow: '#FFD43B', cyan: '#25E3FF', white: '#FFFFFF',
@@ -379,22 +379,61 @@ function scene(ctx, t) {
   }
   if (t > 53.6) opening(ctx, c, t, clamp((t - 53.65) / 0.5));
 }
+// ------------------------------------------------------------------ v2 voice: remap new clock -> old storyboard (expedition beat is new)
+const RMAP = [[0, 0], [17.44, 17.44], [31.86, 25.9], [35.6, 29.4], [36.69, 30.44], [44.55, 38.3], [49.17, 42.87], [53.7, 48.1], [56.66, 50.97], [58.16, 53.55], [58.86, 54.27]];
+function remap(t) { for (let i = 0; i < RMAP.length - 1; i++) { const [a, oa] = RMAP[i], [b, ob] = RMAP[i + 1]; if (t <= b) return lerp(oa, ob, clamp((t - a) / (b - a))); } return 54.27; }
+function expedition(ctx, t) {   // 17.44–31.86: swamps, mountains, mud… and the 1972 Range Rovers
+  const c = camAt(17.4); drawMap(ctx, c); road(ctx, c, HN); road(ctx, c, HS);
+  { const sp = CANAL.map(p => P(c, p[0], p[1])); ctx.save(); ctx.strokeStyle = '#5FD3FF'; ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.beginPath(); sp.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore(); }
+  const g = clamp((t - 18.3) / 0.6); gapFill(ctx, c, lerp(0.5, 0.6, g), g < 0.5 ? '#D7263D' : '#2E7D32', g < 0.5 ? '#FF6B6B' : null); if (g > 0.5) trees(ctx, c, clamp((t - 18.4) / 0.6));
+  carAt(ctx, c, CARSTOP, 1); barrier(ctx, c, 1, t);
+  const [gx, gy] = P(c, -77.5, 8.9); goldLabel(ctx, 'THE DARIÉN GAP', gx, gy - 110, 66, pop(t - 17.6));
+  kinetic(ctx, "SO WHAT'S IN THERE?", 330, win(t, 17.5, 18.4), 84);
+  ['🐊 SWAMPS', '⛰️ MOUNTAINS', '🟫 MUD'].forEach((s2, i) => chip(ctx, s2, 250 + i * 290, 470, win(t, [18.4, 19.1, 19.8][i], 21.3), { size: 34 }));
+  chip(ctx, '1972: THE BRITISH ARMY TRIES', W / 2, 330, win(t, 21.4, 24.1), { size: 42 }); chip(ctx, 'TWO RANGE ROVERS', W / 2, 330, win(t, 24.1, 25.2), { size: 44 });
+  chip(ctx, 'MACHETES…', W / 2, 330, win(t, 25.3, 27.1), { size: 44 }); chip(ctx, '…AND RAFTS', W / 2, 330, win(t, 27.2, 29.3), { size: 44 });
+  styledText(ctx, '≈ 100 DAYS', W / 2, 340, 130, { k: win(t, 29.7, 31.8), fill: C.yellow, stroke: C.goldDark, rot: -3 });
+  // the expedition panel
+  const k = win(t, 21.3, 31.8, 0.35, 0.3); if (k <= 0) return; const x0 = 60, y0 = 860, w = 960, h = 640;
+  ctx.save(); ctx.globalAlpha = clamp(k * 1.4); ctx.beginPath(); ctx.roundRect(x0, y0, w, h, 28); ctx.fillStyle = '#2F6B3A'; ctx.fill(); ctx.save(); ctx.clip();
+  const r = rnd(8); for (let i = 0; i < 14; i++) { const tx = x0 + r() * w, ty = y0 + 40 + r() * 200; ctx.fillStyle = i % 2 ? '#1F4D29' : '#3E8A4B'; ctx.beginPath(); ctx.arc(tx, ty, 60 + r() * 50, 0, 7); ctx.fill(); }
+  const groundY = y0 + 470, river = clamp((t - 26.9) / 0.5) * (1 - clamp((t - 29.4) / 0.5));
+  ctx.fillStyle = '#5C4033'; ctx.fillRect(x0, groundY, w, h); ctx.fillStyle = '#7A5A44'; for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.arc(x0 + 60 + i * 105, groundY + 40 + ((t * 30 + i * 25) % 60), 7, 0, 7); ctx.fill(); }
+  if (river > 0) { ctx.globalAlpha = clamp(k * 1.4) * river; ctx.fillStyle = '#3A86C8'; ctx.fillRect(x0, groundY - 10, w, h); ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 4; for (let i = 0; i < 6; i++) { const yy = groundY + 30 + i * 22; ctx.beginPath(); for (let xx = 0; xx <= w; xx += 30) ctx.lineTo(x0 + xx, yy + Math.sin(xx * 0.04 + t * 4 + i) * 5); ctx.stroke(); } ctx.globalAlpha = clamp(k * 1.4); }
+  // vines being cut (25.3–27.1)
+  if (t > 25.0 && t < 27.4) { for (let i = 0; i < 5; i++) { const vx = x0 + 600 + i * 70, cut = clamp((t - 25.6 - i * 0.25) / 0.4); ctx.strokeStyle = '#1F4D29'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(vx, y0); ctx.lineTo(vx + Math.sin(i) * 10, y0 + 380 + cut * 120); ctx.stroke(); } }
+  // the Range Rover: stuck in mud (wheels spinning), then on a raft, then rolling out
+  const stuck = t < 25.3, onRaft = t > 27.1 && t < 29.4; const bob = onRaft ? Math.sin(t * 3) * 6 : 0;
+  const rx = onRaft ? lerp(x0 + 140, x0 + 760, easeIO(clamp((t - 27.3) / 1.9))) : t >= 29.4 ? lerp(x0 + 760, x0 + 980, clamp((t - 29.5) / 2.0)) : x0 + 300;
+  if (onRaft) { ctx.fillStyle = '#8B5A2B'; ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.fillRect(rx - 170, groundY - 6 + bob, 340, 26); ctx.strokeRect(rx - 170, groundY - 6 + bob, 340, 26); }
+  sprite(ctx, 'rangerover', rx + (stuck ? Math.sin(t * 30) * 3 : 0), groundY + (stuck ? 34 : 4) + bob, 300, { ay: 1 });
+  if (stuck && t > 19.8) for (let i = 0; i < 6; i++) { const u = ((t * 2 + i / 6) % 1); ctx.fillStyle = '#5C4033'; ctx.beginPath(); ctx.arc(rx - 120 - u * 90, groundY - u * 70 + u * u * 80, 9, 0, 7); ctx.fill(); }
+  if (t > 25.2) person(ctx, 'soldier', t < 27.2 ? x0 + 560 : rx - 230, groundY + 10 + (onRaft ? bob : 0), 210, { k: pop(t - 25.2) });
+  if (t > 25.6 && t < 27.2) person(ctx, 'soldier', x0 + 770, groundY + 10, 190, { k: pop(t - 25.6), flip: true });
+  ctx.restore();
+  // day counter
+  const day = Math.max(1, Math.round(100 * easeIn(clamp((t - 21.6) / 8.8)) ** 0.6)); chip(ctx, `DAY ${day}`, x0 + w - 130, y0 + 60, 1, { size: 40, bg: '#141416', fill: day >= 100 ? C.yellow : '#fff' });
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(x0, y0, w, h, 28); ctx.stroke(); ctx.restore();
+}
 const CAPTIONS = [
-  [0.0, 4.7, 'Alaska to Argentina by car…'], [4.8, 6.4, '…except 60 miles'], [6.5, 10.1, 'Here, the road just stops'],
-  [10.4, 12.3, 'Not because nobody could build it'], [12.4, 15.2, '150 miles away…'], [15.3, 17.7, '…they dug the Panama Canal'],
-  [18.0, 19.3, 'So what stopped them?'], [19.4, 22.0, 'The jungle is part of it'], [22.1, 25.8, 'Swamps, rain and mud'],
-  [26.0, 29.2, 'Something you can\'t see…'], [29.3, 30.3, 'A virus'],
-  [30.6, 32.6, 'Foot-and-mouth disease'], [32.7, 34.6, 'It kills cattle herds'], [34.7, 35.8, 'North America: free of it'], [35.9, 38.2, 'The jungle was the wall'],
-  [38.5, 41.1, 'Like drilling a submarine…'], [41.2, 42.8, '…to save a short walk'],
-  [43.0, 44.3, 'So the wall stayed'], [44.4, 47.5, 'The longest road on Earth…'], [47.6, 49.2, '…ends in Yaviza'], [49.3, 50.9, '60 miles of jungle'],
+  [0.0, 4.6, 'Alaska to Argentina by car…'], [4.7, 6.3, '…except 60 miles'], [6.4, 10.0, 'Here, the road just stops'],
+  [10.4, 12.2, 'Not because nobody could build it'], [12.3, 14.9, '150 miles away…'], [15.0, 17.3, '…they dug the Panama Canal'],
+  [17.5, 18.4, 'So what\'s in there?'], [18.5, 21.3, 'Swamps, mountains, mud'], [21.4, 25.2, '1972: two Range Rovers'], [25.3, 27.1, 'Machetes…'], [27.2, 29.3, '…rafts across rivers'], [29.4, 31.7, '100 days to get through'],
+  [32.0, 35.5, 'What stopped the road?'], [35.6, 36.5, 'A virus'],
+  [36.8, 38.5, 'Foot-and-mouth disease'], [38.6, 40.9, 'It kills cattle herds'], [41.0, 42.0, 'North America: free of it'], [42.1, 44.4, 'The jungle was the wall'],
+  [44.7, 47.5, 'Like drilling a submarine…'], [47.6, 49.0, '…to save a short walk'],
+  [49.3, 50.6, 'So the wall stayed'], [50.7, 53.6, 'The longest road on Earth…'], [53.7, 54.9, '…ends in Yaviza'], [55.0, 56.5, '60 miles of jungle'],
 ];
 function drawText(ctx, t) { for (const [t0, t1, txt] of CAPTIONS) { const k = t0 === 0 ? (t < t1 ? 1 : 0) * popOut(t1 - t, 0.18) : win(t, t0, t1, .22, .16); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y + 80, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1000 }); } }
 function vignette(ctx) { const g = ctx.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .5, H * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.42)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
 function renderAt(t, ctx) {
   ctx = ctx || document.getElementById('cv').getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
-  scene(ctx, t); submarine(ctx, t, clamp((t - 38.3) / 0.35) * clamp((42.85 - t) / 0.35));
-  vignette(ctx); if (t < 50.9) drawText(ctx, t);
-  if (t > 53.6) { ctx.save(); ctx.globalAlpha = clamp((t - 53.65) / 0.5); styledText(ctx, 'Alaska to Argentina by car…', W / 2, CAPTION.y + 80, CAPTION.size, { k: 1, shadow: CAPTION.shadow, maxW: 1000 }); ctx.restore(); }
+  const o = remap(t);
+  if (t >= 17.44 && t < 31.86) expedition(ctx, t); else { scene(ctx, o); submarine(ctx, o, clamp((o - 38.3) / 0.35) * clamp((42.85 - o) / 0.35)); }
+  vignette(ctx); if (t < 56.6) drawText(ctx, t);
+  // the comment question rides the last spoken line, then stays on the short card
+  if (t > 53.6 && t < 56.75) styledText(ctx, 'PAVE IT OR\nKEEP IT CLOSED? 👇', W / 2, 600, 64, { k: pop(t - 53.7), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+  if (o > 53.6) { ctx.save(); ctx.globalAlpha = clamp((o - 53.65) / 0.5); styledText(ctx, 'Alaska to Argentina by car…', W / 2, CAPTION.y + 80, CAPTION.size, { k: 1, shadow: CAPTION.shadow, maxW: 1000 }); ctx.restore(); }
   ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
 }
 window.renderAt = renderAt; window.READY = false;
