@@ -25,7 +25,7 @@ canvas{{height:calc(100% - 56px);max-width:100%;aspect-ratio:9/16;object-fit:con
 body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1080px;border-radius:0;box-shadow:none}}
 </style></head><body>
 <div id="wrap"><canvas id="cv" width="1080" height="1920"></canvas>
-<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="58.86" step="0.01" value="0"></div></div>
+<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="51.72" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
 window.ASSETS={json.dumps(assets)};window.TIKTOK={'true' if os.environ.get('TIKTOK') == '1' else 'false'};</script>

@@ -15,21 +15,19 @@ VO_DIR = os.path.join(R, "vo")
 OUT = os.path.join(R, "out")
 FPS = 30
 
-BEATS = [(1, 0, 10.26), (2, 10.26, 17.44), (3, 17.44, 31.86), (4, 31.86, 36.69), (5, 36.69, 44.55), (6, 44.55, 49.17), (7, 49.17, 58.86)]   # last beat includes END_HOLD (1.5 s card + glide back to frame 1)
+BEATS = [(1, 0, 8.83), (2, 8.83, 19.32), (3, 19.32, 29.46), (4, 29.46, 36.14), (5, 36.14, 41.1), (6, 41.1, 51.72)]   # last beat includes END_HOLD (scoreboard card)
 ANCHORS = []            # storyboard built on the voiceover's own clock
 VO_DELAY, VO_TAIL = 0.06, 0.25
-END_HOLD = 2.2          # ~1.5 s card (question already on screen during the last line) + 0.7 s glide into frame 1
+END_HOLD = 2.0          # scoreboard card (question already on screen during the last line)
 
 SFX_CUES = [
-    (0.05, "pop", 0), (0.3, "whoosh", 0), (4.7, "zap", 0), (6.3, "whoosh", 0), (8.4, "pop", 0), (9.1, "bang", 0), (9.15, "slap", 0),
-    (10.4, "whoosh", 0), (12.3, "scribble", 0), (14.0, "horn", 0), (15.0, "ding", 0), (15.6, "boing", 0),
-    (17.5, "whoosh", 0), (18.4, "pop", -0.3), (19.1, "pop", 0), (19.8, "drip", 0.3), (21.4, "drums", 0), (22.0, "rumble", 0), (24.1, "pop", 0),
-    (25.6, "slap", -0.2), (26.0, "slap", 0.2), (26.4, "slap", 0), (27.2, "drip", 0), (27.6, "whoosh", 0), (29.7, "thud", 0), (30.4, "ding", 0),
-    (32.0, "whoosh", 0), (34.0, "zap", 0), (35.6, "thud", 0),
-    (36.8, "whoosh", 0), (37.4, "pop", 0), (38.9, "pop", 0), (41.0, "ding", 0), (42.1, "rumble", 0), (43.0, "slap", 0),
-    (44.7, "whoosh", 0), (46.0, "zap", 0), (47.2, "slap", 0), (47.4, "boing", 0),
-    (49.3, "whoosh", 0), (49.8, "ding", 0), (53.7, "pop", 0), (55.0, "thud", 0),
-    (56.7, "whoosh", 0), (57.0, "ding", 0), (58.15, "whoosh", 0),
+    (0.05, "pop", 0), (2.8, "ding", 0), (4.8, "whoosh", 0), (5.8, "pop", 0), (7.6, "boing", 0),
+    (8.9, "whoosh", 0), (9.0, "ding", 0.3), (10.3, "whistle", 0), (11.2, "bang", 0), (11.5, "bang", 0.2), (13.6, "ding", 0.3), (15.0, "drums", 0), (16.9, "boing", 0),
+    (19.4, "rumble", 0), (19.5, "ding", 0.3), (20.5, "whoosh", 0), (21.7, "bang", 0), (24.1, "pop", 0), (24.2, "ding", 0.3), (25.3, "scribble", 0), (28.3, "slap", 0),
+    (29.6, "whoosh", 0), (29.7, "ding", 0.3), (31.4, "drums", 0), (32.6, "crickets", 0), (34.1, "scribble", 0),
+    (36.2, "whoosh", 0), (37.6, "pop", 0), (38.0, "pop", 0), (38.4, "pop", 0), (38.8, "pop", 0), (39.2, "pop", 0), (39.4, "ding", 0),
+    (41.2, "whoosh", 0), (42.5, "thud", 0), (44.5, "pop", 0), (46.3, "boing", 0), (47.0, "pop", 0), (48.2, "whoosh", 0), (48.8, "zap", 0),
+    (49.75, "whoosh", 0), (49.9, "chaching", 0),
 ]
 
 
