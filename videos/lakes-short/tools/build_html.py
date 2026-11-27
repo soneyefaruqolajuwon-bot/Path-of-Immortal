@@ -1,4 +1,4 @@
-"""Bundle app.js + geometry + SVG assets + fonts into one self-contained dist/darien_short.html."""
+"""Bundle app.js + geometry + SVG assets + fonts into one self-contained dist/lakes_short.html."""
 import base64, glob, json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 R = os.path.join(HERE, "..")
@@ -13,7 +13,7 @@ fonts = "".join(
     for fam, fn in (("Montserrat", "montserrat-latin-800-normal.woff2"), ("Playfair Display", "playfair-display-latin-800-normal.woff2")))
 html = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Darién Gap</title>
+<title>Canada Lakes</title>
 <style>{fonts}
 :root{{--bg:#0b1a20;--fg:#e8eef0}}
 html,body{{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:Montserrat,system-ui,sans-serif;overflow:hidden}}
@@ -25,14 +25,14 @@ canvas{{height:calc(100% - 56px);max-width:100%;aspect-ratio:9/16;object-fit:con
 body.render #wrap{{padding:0}} body.render canvas{{height:auto;width:1080px;border-radius:0;box-shadow:none}}
 </style></head><body>
 <div id="wrap"><canvas id="cv" width="1080" height="1920"></canvas>
-<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="58.86" step="0.01" value="0"></div></div>
+<div id="ctl"><button id="play" aria-label="Play">▶</button><input id="bar" type="range" min="0" max="57.11" step="0.01" value="0"></div></div>
 <audio id="aud" preload="auto"></audio>
 <script>if(location.search.includes('render'))document.body.classList.add('render');
 window.ASSETS={json.dumps(assets)};window.TIKTOK={'true' if os.environ.get('TIKTOK') == '1' else 'false'};</script>
 <script>{open(os.path.join(R, "src", "geo_data.js")).read()}</script>
 <script>{open(os.path.join(R, "src", "app.js")).read()}</script>
 </body></html>"""
-out = os.path.join(R, "dist", "darien_short.html")
+out = os.path.join(R, "dist", "lakes_short.html")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 open(out, "w").write(html)
 print(out, os.path.getsize(out) // 1024, "KB")

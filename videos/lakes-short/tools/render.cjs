@@ -3,7 +3,7 @@
 //   node render.cjs video frames.json out_dir N     -> N mp4 segments (1080x1920), one per worker
 const fs = require('fs'), path = require('path'), { spawn } = require('child_process');
 const { chromium } = require('playwright');
-const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'darien_short.html') + '?render=1';
+const HTML = 'file://' + path.resolve(__dirname, '..', 'dist', 'lakes_short.html') + '?render=1';
 
 async function openPage(browser) {
   const pg = await browser.newPage({ viewport: { width: 1080, height: 1920 } });

@@ -258,7 +258,7 @@ function cheese(ctx, c, k) {
 function iceSheet(ctx, c, k, a = 1, t = 0) {   // k: wipe from the north (0..1)
   if (k <= 0 || a <= 0) return; const M = camMatrix(c), pp = new Path2D(); for (const p of PATHS.ice) pp.addPath(p, M);
   const [, yN] = P(c, -95, 84), [, yS] = P(c, -95, 38), yE = lerp(yN, yS, easeOut(k));
-  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, yE); ctx.clip(); ctx.globalAlpha = a;
+  ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); for (let x = W; x >= 0; x -= 30) ctx.lineTo(x, yE + Math.sin(x * 0.02 + k * 9) * 40 + Math.sin(x * 0.051) * 22); ctx.closePath(); ctx.clip(); ctx.globalAlpha = a;
   const g = ctx.createLinearGradient(0, yN, 0, yS); g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, '#CFEFFF'); ctx.fillStyle = g; ctx.fill(pp);
   ctx.strokeStyle = '#8FD3F0'; ctx.lineWidth = 6; ctx.shadowColor = '#BFF0FF'; ctx.shadowBlur = 20; ctx.stroke(pp); ctx.shadowBlur = 0;
   ctx.clip(pp); ctx.strokeStyle = 'rgba(120,190,220,0.45)'; ctx.lineWidth = 3; const r = rnd(9);
@@ -272,8 +272,8 @@ function sun(ctx, x, y, s, k, t) {
   if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.scale(s * k, s * k); ctx.rotate(t * 0.6); ctx.strokeStyle = '#FFB703'; ctx.lineWidth = 12; ctx.lineCap = 'round';
   for (let i = 0; i < 10; i++) { const a = i * 0.628; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 72, Math.sin(a) * 72); ctx.lineTo(Math.cos(a) * 100, Math.sin(a) * 100); ctx.stroke(); }
   ctx.fillStyle = '#FFD43B'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, 58, 0, 7); ctx.fill(); ctx.stroke(); ctx.restore(); }
-function upArrow(ctx, x, y, s, k, col = '#7CFC9A') {
-  if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.scale(s * k, s * k); ctx.fillStyle = col; ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.lineJoin = 'round';
+function upArrow(ctx, x, y, s, k, col = '#7CFC9A', rot = 0) {
+  if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s * k, s * k); ctx.fillStyle = col; ctx.strokeStyle = C.ink; ctx.lineWidth = 5; ctx.lineJoin = 'round';
   ctx.beginPath(); ctx.moveTo(0, -60); ctx.lineTo(40, -14); ctx.lineTo(16, -14); ctx.lineTo(16, 40); ctx.lineTo(-16, 40); ctx.lineTo(-16, -14); ctx.lineTo(-40, -14); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
 function bucketC(ctx, x, y, w, label, k, col = '#9AA3AD') {   // small labelled bucket of lakes, (x,y) = bottom centre
   if (k <= 0) return; const h = w * 0.78; ctx.save(); ctx.translate(x, y); ctx.scale(k, k); ctx.lineJoin = 'round';
@@ -284,7 +284,7 @@ function bucketC(ctx, x, y, w, label, k, col = '#9AA3AD') {   // small labelled 
 
 // ------------------------------------------------------------------ B1 the balance scale (0–9.64); also the loop frame
 const DROPS = [['ASIA', 1.2], ['AFRICA', 1.7], ['EUROPE', 2.33], ['S. AMERICA', 2.95], ['AUSTRALIA', 3.78], ['USA', 5.2]];
-const SLOT = [[-92, 0], [0, 0], [92, 0], [-46, -78], [46, -78], [0, -156]];
+const SLOT = [[-100, 0], [0, 0], [100, 0], [-50, -82], [50, -82], [0, -164]];
 function scaleAngle(t) {
   let a = 0; for (const [, t0] of DROPS) a += 2.6 * easeOut(clamp((t - t0 - 0.28) / 0.35));
   const tl = t - 6.9; if (tl > 0) { const target = -15.5, spring = target - (target - a) * Math.exp(-tl * 4.5) * Math.cos(tl * 11); return spring; }
@@ -292,24 +292,24 @@ function scaleAngle(t) {
 function scaleScene(ctx, t, A = 1) {
   if (A <= 0) return; ctx.save(); ctx.globalAlpha = A;
   dim(ctx, 0.5); title(ctx, 'CANADA vs\nTHE WORLD', 330, 1, 118); chip(ctx, 'WHO HAS MORE LAKES? 🌊', W / 2, 520, 1, { size: 40 });
-  const px = W / 2, py = 760, L = 360, ang = scaleAngle(t) * Math.PI / 180;
+  const px = W / 2, py = 880, L = 315, ang = scaleAngle(t) * Math.PI / 180;
   // stand
   ctx.fillStyle = '#C9A227'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.moveTo(px - 26, py); ctx.lineTo(px + 26, py); ctx.lineTo(px + 34, py + 640); ctx.lineTo(px - 34, py + 640); ctx.closePath(); ctx.fill(); ctx.stroke();
-  ctx.beginPath(); ctx.ellipse(px, py + 650, 170, 34, 0, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px - 26, py); ctx.lineTo(px + 26, py); ctx.lineTo(px + 34, py + 600); ctx.lineTo(px - 34, py + 600); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(px, py + 610, 170, 34, 0, 0, 7); ctx.fill(); ctx.stroke();
   const ends = [-1, 1].map(sd => [px + sd * L * Math.cos(ang), py + sd * L * Math.sin(ang)]);
   // pans hang straight down from the beam ends
   ends.forEach(([ex, ey], i) => {
-    const pyy = ey + 300; ctx.strokeStyle = '#3A2A08'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex - 150, pyy); ctx.moveTo(ex, ey); ctx.lineTo(ex + 150, pyy); ctx.stroke();
-    if (i === 1) DROPS.forEach(([lab, t0], j) => { const f = clamp((t - t0 + 0.3) / 0.3), yy = pyy + SLOT[j][1] - (1 - easeIn(f)) * 700; bucketC(ctx, ex + SLOT[j][0], yy, j === 5 ? 104 : 96, lab, f > 0 ? 1 : 0, j === 5 ? '#B8C4D6' : '#9AA3AD'); });
+    const pyy = ey + 300; ctx.strokeStyle = '#3A2A08'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex - 140, pyy); ctx.moveTo(ex, ey); ctx.lineTo(ex + 140, pyy); ctx.stroke();
+    if (i === 1) DROPS.forEach(([lab, t0], j) => { const f = clamp((t - t0 + 0.3) / 0.3), yy = pyy + SLOT[j][1] - (1 - easeIn(f)) * 700; bucketC(ctx, ex + SLOT[j][0], yy, j === 5 ? 110 : 100, lab, f > 0 ? 1 : 0, j === 5 ? '#B8C4D6' : '#9AA3AD'); });
     if (i === 0 && t > 6.3) { const f = clamp((t - 6.3) / 0.55), yy = pyy - (1 - easeIn(f)) * 900; person(ctx, 'canadian_bucket', ex, yy + 6, 270, { sq: f >= 1 && t < 7.2 ? 0.1 * Math.sin((t - 6.85) * 30) * Math.exp(-(t - 6.85) * 5) : 0 }); }
-    ctx.fillStyle = '#C9A227'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(ex - 170, pyy); ctx.quadraticCurveTo(ex, pyy + 90, ex + 170, pyy); ctx.closePath(); ctx.fill(); ctx.stroke();
-    chip(ctx, i ? '🌍 THE REST OF THE WORLD' : '🇨🇦 CANADA', ex + (i ? -40 : 0), pyy + 110, 1, { size: i ? 30 : 34 });
+    ctx.fillStyle = '#C9A227'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(ex - 160, pyy); ctx.quadraticCurveTo(ex, pyy + 90, ex + 160, pyy); ctx.closePath(); ctx.fill(); ctx.stroke();
+    chip(ctx, i ? '🌍 EVERYONE ELSE' : '🇨🇦 CANADA', ex, pyy + 105, 1, { size: 34 });
   });
   // beam on top
   ctx.save(); ctx.translate(px, py); ctx.rotate(ang); ctx.fillStyle = '#E0B93A'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-L - 14, -14, 2 * L + 28, 28, 14); ctx.fill(); ctx.stroke(); ctx.restore();
   ctx.fillStyle = '#E0B93A'; ctx.beginPath(); ctx.arc(px, py, 30, 0, 7); ctx.fill(); ctx.stroke();
-  if (t > 7.7) kinetic(ctx, 'CANADA WINS 🏆', 1420, pop(t - 7.75), 88);
+  if (t > 7.7) kinetic(ctx, 'CANADA WINS 🏆', 660, pop(t - 7.75), 88);
   ctx.restore(); }
 
 // ------------------------------------------------------------------ cross-sections
@@ -337,13 +337,13 @@ function crossIce(ctx, t, k) {   // B4: ice sheet up to 2 miles thick presses th
   ctx.restore(); ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(x0, y0, w, h, 28); ctx.stroke();
   if (iceH > 40) { const ax = x0 + w / 2 + slide - 30, top = base - iceH; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(ax, top + 6); ctx.lineTo(ax, base - 8); ctx.stroke();
     for (const [yy, d] of [[top + 6, 1], [base - 8, -1]]) { ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(ax, yy); ctx.lineTo(ax - 16, yy + 24 * d); ctx.lineTo(ax + 16, yy + 24 * d); ctx.fill(); } }
-  styledText(ctx, 'UP TO 2 MILES', W / 2, 760, 92, { k: win(t, 25.2, 32.7), fill: C.yellow, stroke: C.goldDark, rot: -3 });
-  chip(ctx, '≈ 3 KM OF ICE', W / 2, 870, win(t, 25.8, 28.3), { size: 34 });
+  styledText(ctx, 'UP TO 2 MILES', W / 2, 420, 100, { k: win(t, 25.2, 32.7), fill: C.yellow, stroke: C.goldDark, rot: -3 });
+  chip(ctx, '≈ 3 KM OF ICE', W / 2, 530, win(t, 25.8, 28.3), { size: 34 });
   if (kT > 0) { chip(ctx, 'CN TOWER', x0 + 150, base - 140, win(t, 26.0, 28.3), { size: 26 }); sarrow(ctx, x0 + 120, base - 110, x0 + 82, base - 62, win(t, 26.1, 28.3), C.white, 6); }
-  for (let i = 0; i < 3; i++) upArrow(ctx, x0 + 300 + i * 200 + slide, base + 120, 0.9, win(t, 28.5 + i * 0.1, 30.1), '#FF6B6B');   // drawn as down arrows below
-  chip(ctx, 'CRUST PUSHED DOWN ⬇', W / 2, 870, win(t, 28.6, 30.15), { size: 36, stroke: '#FF6B6B' });
+  for (let i = 0; i < 3; i++) upArrow(ctx, x0 + 300 + i * 200, base + 110 + Math.sin(t * 6 + i) * 6, 0.9, win(t, 28.5 + i * 0.1, 30.1), '#FF6B6B', Math.PI);
+  chip(ctx, 'CRUST PUSHED DOWN ⬇', W / 2, 530, win(t, 28.6, 30.15), { size: 36, stroke: '#FF6B6B' });
   stamp(ctx, 'BARE ROCK', x0 + 260, base + 70, t, 31.8, { size: 56, until: 32.75, color: '#FFFFFF' });
-  chip(ctx, 'SOIL SCRAPED AWAY', W / 2, 870, win(t, 30.3, 31.75), { size: 36 });
+  chip(ctx, 'SOIL SCRAPED AWAY', W / 2, 530, win(t, 30.3, 31.75), { size: 36 });
   ctx.restore(); }
 function crossRock(ctx, t, k) {   // B6: a lake sitting in a basin of waterproof Shield rock
   if (k <= 0) return; const x0 = 40, y0 = 640, w = 1000, h = 760, base = y0 + 330;
@@ -359,8 +359,8 @@ function crossRock(ctx, t, k) {   // B6: a lake sitting in a basin of waterproof
   for (let i = 0; i < 4; i++) { const u = ((t - 41.0) * 0.9 + i * 0.25) % 1; if (t < 41.0) break; const dx = x0 + 380 + i * 80, bottom = base + 200 + Math.sin(i * 1.3) * 18; const yy = u < 0.6 ? lerp(base + 30, bottom, u / 0.6) : bottom - Math.sin((u - 0.6) / 0.4 * Math.PI) * 50;
     ctx.fillStyle = '#1E6FA8'; ctx.beginPath(); ctx.arc(dx, yy, 11, 0, 7); ctx.fill(); }
   ctx.restore(); ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(x0, y0, w, h, 28); ctx.stroke();
-  chip(ctx, 'BILLIONS OF YEARS OLD', W / 2, y0 + 640, win(t, 40.8, 41.95), { size: 36 });
-  stamp(ctx, 'WATERPROOF ROCK', W / 2, y0 + 640, t, 42.0, { size: 58, until: 44.0, color: '#FFD43B' });
+  chip(ctx, 'BILLIONS OF YEARS OLD', W / 2, y0 + 120, win(t, 40.8, 41.95), { size: 36 });
+  stamp(ctx, 'WATERPROOF ROCK', W / 2, y0 + 120, t, 42.0, { size: 58, until: 44.0, color: '#FFD43B' });
   if (t > 42.9) { const kx = clamp((t - 43.0) / 0.4); sarrow(ctx, x0 + 500, base + 250, x0 + 500, base + 400, win(t, 42.85, 44.0), '#5FC3E4', 12); redX(ctx, x0 + 500, base + 340, 120, kx * popOut(44.0 - t)); }
   ctx.restore(); }
 function scoop(ctx, t) {   // giant hand + ice cream scoop gouging Canada (33.2–36.9)
@@ -383,3 +383,123 @@ function scoop(ctx, t) {   // giant hand + ice cream scoop gouging Canada (33.2�
   ctx.lineWidth = 4; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(85 + k * 22, -185 + k * 12); ctx.lineTo(105 + k * 22, -160 + k * 12); ctx.stroke(); }
   ctx.restore(); }
 const SKIN_C = '#F2C9A0';
+
+// ------------------------------------------------------------------ the story
+const HUD = [[-95, 60.5], [-91, 64.5], [-80.5, 63.5], [-78, 58], [-89, 56.3], [-86, 67.5]];
+function scene(ctx, t) {
+  const c = camAt(t); drawMap(ctx, c);
+  // ---------- lakes layer: hidden in B1, revealed B2, under ice B4, empty basins B5, refilled B6, on from then on
+  let lk = 0, lkMode = 'water';
+  if (t > 9.9 && t < 24.5) lk = clamp((t - 10.0) / 1.6);
+  if (t >= 32.6 && t < 38.0) { lkMode = 'empty'; lk = t < 35.85 ? clamp((t - 33.9) / 2.0) * 0.55 : 0.55 + 0.45 * clamp((t - 35.9) / 0.6); }
+  if (t >= 38.0) lk = t < 56.4 ? 1 : 1 - clamp((t - 56.45) / 0.5);
+  if (lkMode === 'water') drawLakes(ctx, c, lk, LAKE, 1);
+  else drawLakes(ctx, c, lk, '#3B3836', 1, '#1E1C1B');
+  if (t > 37.6 && t < 40.4) { const f = clamp((t - 38.5) / 1.4); drawLakes(ctx, c, f, LAKE, 1); }   // water pours into the holes
+  // ---------- B1 the scale over a dimmed map
+  if (t < 10.2) scaleScene(ctx, t, t < 9.4 ? 1 : 1 - clamp((t - 9.4) / 0.6));
+  // ---------- B2 Swiss cheese + 60 %
+  if (t > 9.6 && t < 16.5) {
+    const ch = win(t, 11.55, 12.95, 0.3, 0.35); cheese(ctx, c, ch);
+    chip(ctx, '🧀 LIKE SWISS CHEESE', W / 2, 330, win(t, 11.6, 12.9), { size: 44 });
+    if (t > 15.2) strokeKey(ctx, c, 'can', C.gold, 6, win(t, 15.25, 16.35));
+    styledText(ctx, '60%', W / 2, 300, 190, { k: win(t, 13.05, 16.3), fill: C.yellow, stroke: C.goldDark, rot: -4 });
+    chip(ctx, "OF ALL THE WORLD'S LAKES", W / 2, 450, win(t, 13.5, 16.3), { size: 40 });
+  }
+  // ---------- B3 not the rain; blame the Ice Age
+  if (t > 16.4 && t < 22.5) {
+    const [cx1, cy1] = P(c, -100, 66);
+    const kc = win(t, 16.5, 18.0); cloud(ctx, cx1, cy1, 1.3, kc, true);
+    if (kc > 0) { ctx.save(); ctx.strokeStyle = '#7FD3FF'; ctx.lineWidth = 6; ctx.lineCap = 'round'; for (let i = 0; i < 9; i++) { const u = ((t * 1.6 + i / 9) % 1), xx = cx1 - 110 + i * 28; ctx.globalAlpha = kc * (1 - u); ctx.beginPath(); ctx.moveTo(xx, cy1 + 90 + u * 160); ctx.lineTo(xx - 6, cy1 + 112 + u * 160); ctx.stroke(); } ctx.restore(); }
+    redX(ctx, cx1, cy1 + 30, 240, clamp((t - 17.3) / 0.3) * popOut(18.0 - t));
+    chip(ctx, 'NOT THE RAIN', W / 2, 330, win(t, 16.6, 18.0), { size: 46 });
+    sun(ctx, cx1, cy1, 1.0, win(t, 18.1, 20.3), t); chip(ctx, 'THE FAR NORTH: SURPRISINGLY DRY', W / 2, 330, win(t, 18.2, 20.3), { size: 38 });
+    // frost creeping in from the edges + the Ice Age title
+    const fr = clamp((t - 20.4) / 1.6); if (fr > 0) { ctx.save(); const g = ctx.createRadialGradient(W / 2, H / 2, H * (0.75 - 0.35 * fr), W / 2, H / 2, H * 0.8); g.addColorStop(0, 'rgba(220,245,255,0)'); g.addColorStop(1, `rgba(220,245,255,${0.75 * fr})`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+  }
+  // ---------- B4 the ice sheet (map), then the cross-section
+  if (t > 21.0 && t < 33.6) {
+    const kI = clamp((t - 21.3) / 2.4), aI = t < 32.6 ? 1 : 1 - clamp((t - 32.6) / 0.8); iceSheet(ctx, c, kI, aI, t);
+    if (t < 24.5) chip(ctx, 'TENS OF THOUSANDS OF YEARS', W / 2, 330, win(t, 22.55, 24.4), { size: 40 });
+    crossIce(ctx, t, win(t, 24.35, 32.75, 0.35, 0.3));
+    title(ctx, 'THE LAST\nICE AGE ❄️', 360, win(t, 20.9, 22.45), 120);
+  }
+  // ---------- B5 the giant ice cream scoop (ice gone, basins left behind)
+  if (t > 32.8 && t < 37.6) {
+    chip(ctx, '🍨 A GIANT ICE CREAM SCOOP', W / 2, 330, win(t, 33.6, 35.8), { size: 42 });
+    chip(ctx, '…LEAVING THE HOLES BEHIND', W / 2, 330, win(t, 35.9, 37.4), { size: 42 });
+    scoop(ctx, t);
+  }
+  // ---------- B6 meltwater, waterproof rock, still there today
+  if (t > 37.4 && t < 46.6) {
+    chip(ctx, '💧 THE ICE MELTS', W / 2, 330, win(t, 37.6, 38.5), { size: 44 }); chip(ctx, '…AND FILLS THE HOLES', W / 2, 330, win(t, 38.55, 40.2), { size: 44 });
+    if (t < 39.8) iceSheet(ctx, c, 1, 0.55 * (1 - clamp((t - 37.6) / 1.4)), t);
+    crossRock(ctx, t, win(t, 40.2, 44.05, 0.35, 0.3));
+    chip(ctx, 'NOWHERE TO DRAIN', W / 2, 330, win(t, 42.8, 44.0), { size: 46, stroke: '#FF6B6B' });
+    chip(ctx, 'SO IT STAYED…', W / 2, 330, win(t, 44.1, 44.9), { size: 46 }); chip(ctx, '…STILL THERE TODAY', W / 2, 330, win(t, 44.95, 46.4), { size: 46 });
+    if (t > 44.0) { const [qx, qy] = P(c, -104, 58.5); person(ctx, 'canadian_canoe', qx + Math.sin(t * 2) * 6, qy + 140 + Math.sin(t * 3) * 4, 300, { k: pop(t - 44.15) * popOut(46.5 - t) }); }
+  }
+  // ---------- B7 the ground is still bouncing back (Hudson Bay)
+  if (t > 46.45 && t < 55.0) {
+    const end = t < 54.7 ? 1 : popOut(54.95 - t, 0.25);
+    kinetic(ctx, 'THE WILD PART 🤯', 330, win(t, 46.6, 47.9), 88);
+    HUD.forEach(([lo, la], i) => { const [x, y] = P(c, lo, la); upArrow(ctx, x, y - 10 - Math.abs(Math.sin(t * 3 + i)) * 26, 0.85, pop(t - 48.1 - i * 0.12) * end); });
+    const [hx, hy] = P(c, -86, 60); goldLabel(ctx, 'HUDSON BAY', hx, hy, 62, pop(t - 50.8) * end);
+    chip(ctx, 'STILL BOUNCING BACK', W / 2, 330, win(t, 48.0, 50.6), { size: 44 });
+    styledText(ctx, '+1 CM A YEAR', W / 2, 310, 120, { k: pop(t - 51.85) * end, fill: C.yellow, stroke: C.goldDark, rot: -3 });
+    chip(ctx, '≈ 0.4 INCH, EVERY SINGLE YEAR', W / 2, 440, pop(t - 52.6) * end, { size: 34 });
+    person(ctx, 'canadian_shock', 870, 1240 - Math.abs(Math.sin(t * 3)) * 30, 210, { k: pop(t - 48.4) * end });
+  }
+  // ---------- card (54.75–56.4) then glide back into frame 1
+  if (t > 54.6 && t < 57.2) {
+    const k = clamp((t - 54.7) / 0.35) * (1 - clamp((t - 56.4) / 0.3)); ctx.save(); ctx.globalAlpha = 0.74 * k; ctx.fillStyle = '#071318'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    ctx.save(); ctx.globalAlpha = clamp(k * 1.4);
+    title(ctx, 'SCOOPED BY\nTHE ICE AGE', 430, pop(t - 54.75), 120);
+    if (window.TIKTOK) {
+      chip(ctx, '▶ FULL VIDEO ON YOUTUBE', W / 2, 1000, pop(t - 54.9), { size: 48, bg: '#E62117', fill: '#FFFFFF', stroke: '#7A0C08' });
+      const kS = pop(t - 55.0); if (kS > 0) { ctx.save(); ctx.translate(W / 2, 1150); ctx.scale(kS, kS); ctx.fillStyle = '#FFFFFF'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.beginPath(); ctx.roundRect(-330, -58, 660, 116, 58); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#555'; ctx.lineWidth = 9; ctx.beginPath(); ctx.arc(-255, -6, 24, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-238, 12); ctx.lineTo(-215, 35); ctx.stroke();
+        setFont(ctx, 'Montserrat', 60); ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText('Mapheld'.slice(0, Math.max(0, Math.min(7, Math.floor((t - 55.1) * 14)))), -190, 4); ctx.restore(); }
+      chip(ctx, 'DETAILS IN THE CAPTION ⬇', W / 2, 1290, pop(t - 55.3), { size: 32 });
+    } else {
+      chip(ctx, 'WHY IS CANADA SO EMPTY? ▶', 400, 1180, pop(t - 54.9), { size: 38, bg: C.gold, fill: C.ink, stroke: C.goldDark });
+      const b = Math.abs(Math.sin((t - 54.9) * 4.2)) * 40, kA = pop(t - 54.9);
+      if (kA > 0) { ctx.save(); ctx.translate(240, 1300 + b); ctx.scale(kA, kA); ctx.fillStyle = C.yellow; ctx.strokeStyle = C.goldDark; ctx.lineWidth = 8; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(-34, -70); ctx.lineTo(34, -70); ctx.lineTo(34, 10); ctx.lineTo(80, 10); ctx.lineTo(0, 100); ctx.lineTo(-80, 10); ctx.lineTo(-34, 10); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); if (t < 56.4) ring(ctx, 240, 1560, 70, t); }
+      person(ctx, 'canadian_canoe', 820, 1500, 300, { k: pop(t - 55.0) });
+    }
+    ctx.restore();
+  }
+}
+const QUESTION = 'WITHOUT GOOGLING:\nHOW MANY LAKES\nDOES CANADA HAVE? 👇';
+const CAPTIONS = [
+  [0.0, 4.6, 'Every lake on Earth…'], [4.7, 6.4, '…plus the USA'], [6.45, 7.7, 'Canada alone…'], [7.75, 9.5, '…still has more'],
+  [9.75, 11.5, 'From above…'], [11.55, 12.8, '…Swiss cheese'], [12.87, 15.05, "60% of the world's lakes"], [15.11, 16.3, '…are right here'],
+  [16.5, 18.0, 'Not because of rain'], [18.1, 20.3, 'The far north is dry'], [20.44, 22.3, 'Blame the Ice Age'],
+  [22.56, 24.3, 'Tens of thousands of years'], [24.37, 26.45, 'Ice up to 2 miles thick'], [26.5, 27.8, '…on top of Canada'], [27.84, 30.1, 'It pushed the crust down'], [30.2, 32.6, '…and scraped it bare'],
+  [32.93, 34.0, 'Like a giant…'], [34.05, 35.8, '…ice cream scoop'], [35.88, 37.3, '…leaving the holes'],
+  [37.58, 38.5, 'The ice melted…'], [38.54, 40.2, '…water filled the holes'], [40.31, 42.7, 'Hard, waterproof rock'], [42.78, 43.95, 'Nowhere to drain'], [44.07, 44.9, 'So it stayed…'], [44.92, 46.3, '…still there today'],
+  [46.56, 47.9, "Here's the wild part"], [47.96, 50.6, 'The ground is bouncing back'], [50.74, 51.7, 'Around Hudson Bay…'], [51.76, 54.5, '…1 cm every year'],
+];
+function drawText(ctx, t) { for (const [t0, t1, txt] of CAPTIONS) { const k = t0 === 0 ? (t < t1 ? 1 : 0) * popOut(t1 - t, 0.18) : win(t, t0, t1, .22, .16); if (k > 0) styledText(ctx, txt, W / 2, CAPTION.y + 80, CAPTION.size, { k, shadow: CAPTION.shadow, maxW: 1000 }); } }
+function vignette(ctx) { const g = ctx.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .5, H * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.42)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+function renderAt(t, ctx) {
+  ctx = ctx || document.getElementById('cv').getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1;
+  scene(ctx, t);
+  if (t > 56.5) scaleScene(ctx, 0, clamp((t - 56.55) / 0.5));   // glide back into frame 1 (loop)
+  vignette(ctx); if (t < 54.7) drawText(ctx, t);
+  // the comment question rides the last spoken line, then stays on the card
+  if (t > 51.0 && t < 56.5) { const y = t < 54.7 ? 1450 : lerp(1450, 760, easeIO((t - 54.7) / 0.45)); styledText(ctx, QUESTION, W / 2, y, 60, { k: pop(t - 51.1) * (t > 56.2 ? popOut(56.5 - t, 0.3) : 1), fill: C.yellow, stroke: C.goldDark, rot: -2 }); }
+  if (t > 56.35) { ctx.save(); ctx.globalAlpha = clamp((t - 56.4) / 0.55); styledText(ctx, 'Every lake on Earth…', W / 2, CAPTION.y + 80, CAPTION.size, { k: 1, shadow: CAPTION.shadow, maxW: 1000 }); ctx.restore(); }
+  ctx.save(); ctx.globalAlpha = 0.5; ctx.fillStyle = ctx.createPattern(NOISE_FINE, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
+}
+window.renderAt = renderAt; window.READY = false;
+loadAssets().then(() => {
+  window.READY = true; if (new URLSearchParams(location.search).has('render')) return;
+  const ctl = document.getElementById('ctl'), bar = document.getElementById('bar'), btn = document.getElementById('play');
+  ctl.style.display = 'flex'; let playing = false, t = 0, last = 0;
+  const draw = () => { renderAt(t); bar.value = t; };
+  btn.onclick = () => { playing = !playing; btn.textContent = playing ? '❚❚' : '▶'; last = performance.now(); };
+  bar.max = DURATION; bar.oninput = () => { t = +bar.value; draw(); };
+  const tick = now => { if (playing) { t += (now - last) / 1000; if (t >= DURATION) t = 0; last = now; draw(); } requestAnimationFrame(tick); };
+  draw(); requestAnimationFrame(tick);
+});

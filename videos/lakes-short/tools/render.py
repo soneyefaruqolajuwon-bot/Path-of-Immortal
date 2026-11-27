@@ -1,4 +1,4 @@
-"""Render the Pheasant Island short to MP4 (video via headless Chromium, audio procedural + voice).
+"""Render the Canada lakes short to MP4 (video via headless Chromium, audio procedural + voice).
 
   python tools/render.py            # uses vo/NN.mp3 + vo/timing.json if present
   python tools/render.py --no-vo
@@ -15,21 +15,21 @@ VO_DIR = os.path.join(R, "vo")
 OUT = os.path.join(R, "out")
 FPS = 30
 
-BEATS = [(1, 0, 10.26), (2, 10.26, 17.44), (3, 17.44, 31.86), (4, 31.86, 36.69), (5, 36.69, 44.55), (6, 44.55, 49.17), (7, 49.17, 58.86)]   # last beat includes END_HOLD (1.5 s card + glide back to frame 1)
+BEATS = [(1, 0, 9.64), (2, 9.64, 16.4), (3, 16.4, 22.45), (4, 22.45, 32.82), (5, 32.82, 37.47), (6, 37.47, 46.45), (7, 46.45, 57.11)]   # last beat includes END_HOLD (1.5 s card + glide back to frame 1)
 ANCHORS = []            # storyboard built on the voiceover's own clock
 VO_DELAY, VO_TAIL = 0.06, 0.25
 END_HOLD = 2.2          # ~1.5 s card (question already on screen during the last line) + 0.7 s glide into frame 1
 
 SFX_CUES = [
-    (0.05, "pop", 0), (0.3, "whoosh", 0), (4.7, "zap", 0), (6.3, "whoosh", 0), (8.4, "pop", 0), (9.1, "bang", 0), (9.15, "slap", 0),
-    (10.4, "whoosh", 0), (12.3, "scribble", 0), (14.0, "horn", 0), (15.0, "ding", 0), (15.6, "boing", 0),
-    (17.5, "whoosh", 0), (18.4, "pop", -0.3), (19.1, "pop", 0), (19.8, "drip", 0.3), (21.4, "drums", 0), (22.0, "rumble", 0), (24.1, "pop", 0),
-    (25.6, "slap", -0.2), (26.0, "slap", 0.2), (26.4, "slap", 0), (27.2, "drip", 0), (27.6, "whoosh", 0), (29.7, "thud", 0), (30.4, "ding", 0),
-    (32.0, "whoosh", 0), (34.0, "zap", 0), (35.6, "thud", 0),
-    (36.8, "whoosh", 0), (37.4, "pop", 0), (38.9, "pop", 0), (41.0, "ding", 0), (42.1, "rumble", 0), (43.0, "slap", 0),
-    (44.7, "whoosh", 0), (46.0, "zap", 0), (47.2, "slap", 0), (47.4, "boing", 0),
-    (49.3, "whoosh", 0), (49.8, "ding", 0), (53.7, "pop", 0), (55.0, "thud", 0),
-    (56.7, "whoosh", 0), (57.0, "ding", 0), (58.15, "whoosh", 0),
+    (0.05, "pop", 0), (1.2, "pop", 0.3), (1.7, "pop", 0.3), (2.33, "pop", 0.3), (2.95, "pop", 0.3), (3.78, "pop", 0.3), (5.2, "thud", 0.3),
+    (6.3, "whoosh", -0.3), (6.85, "thud", -0.3), (6.9, "boing", 0), (7.75, "ding", 0),
+    (9.5, "whoosh", 0), (10.1, "drip", -0.2), (10.6, "drip", 0.2), (11.1, "drip", 0), (11.6, "boing", 0), (13.05, "ding", 0), (15.25, "pop", 0),
+    (16.5, "pop", 0), (17.3, "zap", 0), (18.1, "pop", 0), (20.5, "whoosh", 0), (20.9, "rumble", 0),
+    (22.5, "whoosh", 0), (24.4, "rumble", 0), (25.25, "ding", 0), (26.0, "pop", 0), (28.5, "thud", 0), (28.7, "rumble", 0), (30.3, "scratch", 0), (31.8, "slap", 0),
+    (33.2, "whoosh", 0.3), (34.35, "munch", 0), (35.05, "munch", 0), (35.75, "munch", 0), (36.4, "whoosh", 0.3),
+    (37.6, "drip", 0), (38.5, "drip", -0.3), (38.9, "drip", 0.3), (39.3, "drip", 0), (40.3, "whoosh", 0), (42.0, "slap", 0), (43.0, "zap", 0), (44.15, "pop", 0),
+    (46.6, "boing", 0), (48.1, "pop", -0.2), (48.4, "boing", 0), (50.8, "pop", 0), (51.85, "ding", 0), (51.1, "whoosh", 0),
+    (54.75, "whoosh", 0), (54.9, "ding", 0), (56.4, "whoosh", 0),
 ]
 
 
@@ -127,7 +127,7 @@ def main():
     loud = os.path.join(seg, "mix_loud.wav")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav, "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", loud], check=True)
     wav = loud
-    name = ("darien_short_tiktok.mp4" if os.environ.get("TIKTOK") == "1" else "darien_short.mp4") if tl.vo else "darien_draft_no_voice.mp4"
+    name = ("lakes_short_tiktok.mp4" if os.environ.get("TIKTOK") == "1" else "lakes_short.mp4") if tl.vo else "darien_draft_no_voice.mp4"
     final = os.path.join(OUT, name)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", silent, "-i", wav, "-c:v", "libx264", "-crf", "23", "-preset", "slow",
                     "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final], check=True)
