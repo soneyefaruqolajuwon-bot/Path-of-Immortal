@@ -30,6 +30,11 @@ SFX_CUES = [
     (37.6, "drip", 0), (38.5, "drip", -0.3), (38.9, "drip", 0.3), (39.3, "drip", 0), (40.3, "whoosh", 0), (42.0, "slap", 0), (43.0, "zap", 0), (44.15, "pop", 0),
     (46.6, "boing", 0), (48.1, "pop", -0.2), (48.4, "boing", 0), (50.8, "pop", 0), (51.85, "ding", 0), (51.1, "whoosh", 0),
     (54.75, "whoosh", 0), (54.9, "ding", 0), (56.4, "whoosh", 0),
+    # counters tick while they roll; whoosh on each cutaway-world switch; thud as the silhouette is revealed
+    (13.05, "tick", 0), (13.11, "tick", 0), (13.17, "tick", 0), (13.23, "tick", 0), (13.29, "tick", 0), (13.35, "tick", 0), (13.41, "tick", 0), (13.47, "tick", 0), (13.53, "tick", 0),
+    (25.15, "tick", 0), (25.22, "tick", 0), (25.29, "tick", 0), (25.36, "tick", 0), (25.43, "tick", 0), (25.5, "tick", 0), (25.57, "tick", 0), (25.64, "tick", 0), (25.71, "tick", 0),
+    (51.85, "tick", 0), (51.94, "tick", 0), (52.03, "tick", 0), (52.12, "tick", 0), (52.21, "tick", 0), (52.3, "tick", 0), (52.39, "tick", 0), (52.48, "tick", 0), (52.57, "tick", 0),
+    (24.3, "whoosh", 0), (40.15, "whoosh", 0), (34.0, "thud", 0), (6.9, "drip", 0.2), (7.0, "drip", -0.2), (50.0, "boing", 0.3), (52.1, "boing", 0.3), (53.4, "boing", 0.3),
 ]
 
 
@@ -55,8 +60,13 @@ def _register_sfx():
         f = 1400 + 900 * np.exp(-t * 40)
         return AU.norm(AU.chirp_sine(f, d) * AU.env_exp(d, 30), 0.35)
 
-    AU.SFX.update(jet=jet, rumble=rumble, drip=drip)
-    AU.GAIN.update(jet=0.22, rumble=0.8, drip=0.5)   # the plane is a background swish, never louder than the voice
+    def tick():
+        d = 0.03
+        t = AU.t_(d)
+        return AU.norm(AU.bp(AU.noise(d), 2500, 6000) * AU.env_exp(d, 120), 0.5)
+
+    AU.SFX.update(jet=jet, rumble=rumble, drip=drip, tick=tick)
+    AU.GAIN.update(jet=0.22, rumble=0.8, drip=0.5, tick=0.35)   # the plane is a background swish, never louder than the voice
 
 
 def probe(path):
