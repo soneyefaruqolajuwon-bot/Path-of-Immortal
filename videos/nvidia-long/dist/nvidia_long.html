@@ -408,23 +408,64 @@ function house16(ctx, t, k, mode) {   // mode 'neighbour' (B8) or 'flip' (B17: w
   }
   ctx.restore(); }
 
+
+// ------------------------------------------------------------------ cold open: a bright full-screen stage (0–16 s)
+function coldOpen(ctx, t, A) {
+  if (A <= 0) return; ctx.save(); ctx.globalAlpha = A;
+  const e = t - 4.3; if (e > 0 && e < 0.45) ctx.translate(Math.sin(e * 80) * 22 * (1 - e / 0.45), Math.cos(e * 64) * 16 * (1 - e / 0.45));
+  // back wall + floor
+  const g = ctx.createLinearGradient(0, 0, 0, 860); g.addColorStop(0, '#1B1430'); g.addColorStop(1, '#3B2A55'); ctx.fillStyle = g; ctx.fillRect(-40, -40, W + 80, 900);
+  ctx.fillStyle = '#5A3B28'; ctx.fillRect(-40, 860, W + 80, 260); ctx.fillStyle = '#6E4A33'; for (let i = 0; i < 16; i++) ctx.fillRect(i * 130 - 20, 860, 6, 260);
+  // stock chart behind the CEO: climbs, then crashes on "quit"
+  ctx.save(); ctx.globalAlpha *= 0.9; ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 2; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.moveTo(380, 200 + i * 100); ctx.lineTo(1540, 200 + i * 100); ctx.stroke(); }
+  const pts = []; const r = rnd(4); let y = 640; for (let i = 0; i <= 40; i++) { y -= 9 + r() * 6 - (i % 5 === 0 ? 14 : 0); pts.push([380 + i * 24, Math.max(220, y)]); }
+  const up = clamp(t / 4.2), nUp = Math.floor(up * 40);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#2ECC71'; ctx.shadowColor = '#2ECC71'; ctx.shadowBlur = 18; ctx.lineWidth = 9; ctx.beginPath(); pts.slice(0, nUp + 1).forEach(([x, yy], i) => i ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy)); ctx.stroke();
+  if (t > 4.3) { const last = pts[40], cr = easeOut(clamp((t - 4.3) / 0.5)); ctx.strokeStyle = '#FF3B3B'; ctx.shadowColor = '#FF3B3B'; ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(last[0] + 120 * cr, last[1] + 420 * cr); ctx.stroke();
+    ctx.fillStyle = '#FF3B3B'; ctx.beginPath(); const ax = last[0] + 120 * cr, ay = last[1] + 420 * cr; ctx.moveTo(ax - 22, ay - 26); ctx.lineTo(ax + 26, ay - 16); ctx.lineTo(ax + 6, ay + 30); ctx.fill(); }
+  else if (nUp > 0) { const [x, yy] = pts[nUp]; ctx.fillStyle = '#2ECC71'; ctx.beginPath(); ctx.moveTo(x - 4, yy - 34); ctx.lineTo(x + 26, yy - 2); ctx.lineTo(x - 18, yy + 14); ctx.fill(); }
+  ctx.restore();
+  // curtains
+  for (const sd of [-1, 1]) { const x0 = sd < 0 ? 0 : W - 300; const cg = ctx.createLinearGradient(x0, 0, x0 + 300, 0); cg.addColorStop(0, '#7A0F1C'); cg.addColorStop(0.5, '#B3192B'); cg.addColorStop(1, '#7A0F1C'); ctx.fillStyle = cg; ctx.fillRect(x0 - 40, -40, 340, 1160);
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 8; for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(x0 + 30 + i * 60, -40); ctx.quadraticCurveTo(x0 + 50 + i * 60, 540, x0 + 30 + i * 60, 1120); ctx.stroke(); } }
+  ctx.fillStyle = '#5E0B15'; ctx.fillRect(-40, -40, W + 80, 90);
+  // the spotlight (clicks off after he leaves, back on for the return)
+  const lightOn = !(t > 11.2 && t < 12.9); if (lightOn) { ctx.save(); const sg = ctx.createRadialGradient(960, 900, 40, 960, 900, 520); sg.addColorStop(0, 'rgba(255,240,190,0.55)'); sg.addColorStop(1, 'rgba(255,240,190,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.moveTo(860, -40); ctx.lineTo(1060, -40); ctx.lineTo(1340, 1000); ctx.lineTo(580, 1000); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,240,190,0.22)'; ctx.beginPath(); ctx.ellipse(960, 960, 360, 60, 0, 0, 7); ctx.fill(); ctx.restore(); }
+  // the CEO: on stage → drops the chip on "quit" → walks off with a box → runs back on day 11
+  const feet = 1000, w = 520;
+  let cx = 960, pose = t > 4.3 && t < 13.8 ? 'ceo_sad' : 'ceo', flip = false, bob = 0;
+  if (t > 9.6 && t < 13.8) { cx = lerp(960, -260, easeIn(clamp((t - 9.6) / 1.5))); flip = true; bob = Math.abs(Math.sin(t * 9)) * 14; }
+  if (t >= 13.8) { cx = lerp(-260, 960, easeOut(clamp((t - 13.8) / 0.6))); bob = t < 14.4 ? Math.abs(Math.sin(t * 14)) * 18 : 0; }
+  person(ctx, pose, cx, feet - bob, w, { k: 1, flip });
+  if (t > 9.6 && t < 13.8) { const by = feet - bob + (440 - 499) * w / 300; ctx.fillStyle = '#C68B4E'; ctx.strokeStyle = C.ink; ctx.lineWidth = 6; ctx.fillRect(cx - 110, by - 70, 220, 120); ctx.strokeRect(cx - 110, by - 70, 220, 120);
+    ctx.fillStyle = '#2B2B33'; ctx.fillRect(cx - 40, by - 110, 22, 50); ctx.fillStyle = '#7CB342'; ctx.beginPath(); ctx.arc(cx + 40, by - 86, 26, 0, 7); ctx.fill();   // mug + plant
+    ctx.fillStyle = '#F2C9A0'; for (const hx of [cx - 110, cx + 110]) { ctx.beginPath(); ctx.arc(hx, by - 10, 16, 0, 7); ctx.fill(); ctx.stroke(); } }
+  // the chip he drops, bouncing on the floor
+  if (t > 4.3 && t < 9.6) { const u = clamp((t - 4.3) / 0.6), x = 1130 + u * 160, yy = u < 1 ? lerp(560, 890, u * u) : 890 - Math.abs(Math.sin((t - 4.9) * 9)) * 40 * Math.exp(-(t - 4.9) * 3); chipIcon(ctx, x, yy, 1.1, 1, true); }
+  // podium in front (drawn after him so his hand + chip stay visible above it)
+  ctx.fillStyle = '#2B2B33'; ctx.strokeStyle = C.ink; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(860, 760); ctx.lineTo(1060, 760); ctx.lineTo(1030, 990); ctx.lineTo(890, 990); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = C.gold; ctx.fillRect(900, 800, 120, 12);
+  if (!lightOn) { ctx.fillStyle = 'rgba(5,6,12,0.7)'; ctx.fillRect(-40, -40, W + 80, H + 80); }
+  // text
+  if (t < 4.3) { chip(ctx, '📅 NOVEMBER 12, 2026', W / 2, 110, 1, { size: 46 }); styledText(ctx, 'THE CEO WHO QUIT', W / 2, 225, 96, { k: t < 1.5 ? 1 : popOut(1.75 - t, 0.25), fill: C.yellow, stroke: C.goldDark, rot: -2 }); chip(ctx, 'ONE OF THE MOST VALUABLE COMPANIES ON EARTH', W / 2, 205, win(t, 1.8, 4.25), { size: 34 }); }
+  stamp(ctx, 'RESIGNED', 440, 470, t, 4.3, { size: 120, until: 9.5 });
+  chip(ctx, 'JENSEN HUANG · NVIDIA CEO', W / 2, 120, win(t, 5.0, 7.3), { size: 46 });
+  if (t > 6.2 && t < 7.4) { chip(ctx, '🧥 THE LEATHER JACKET', 1460, 520, win(t, 6.2, 7.35), { size: 38 }); sarrow(ctx, 1330, 545, 1090, 640, win(t, 6.3, 7.35), C.gold, 9); }
+  styledText(ctx, 'THE ENGINE OF THE AI BOOM', W / 2, 130, 78, { k: win(t, 7.4, 9.5), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+  styledText(ctx, 'GONE. EFFECTIVE IMMEDIATELY.', W / 2, 130, 72, { k: win(t, 9.6, 12.5), fill: '#FF6B6B', stroke: C.ink, rot: -2 });
+  // day 11: the calendar flips and he's back
+  const kc = win(t, 12.6, 15.5); if (kc > 0) { ctx.save(); ctx.translate(1430, 420); ctx.scale(kc, kc); ctx.fillStyle = '#FFF'; ctx.strokeStyle = C.ink; ctx.lineWidth = 8; ctx.beginPath(); ctx.roundRect(-150, -150, 300, 320, 20); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#D7263D'; ctx.fillRect(-146, -146, 292, 74);
+    setFont(ctx, 'Montserrat', 46); ctx.fillStyle = '#FFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('NOV', 0, -108); const d = Math.round(lerp(12, 23, easeIO(clamp((t - 12.8) / 1.0)))); setFont(ctx, 'Montserrat', 150); ctx.fillStyle = C.ink; ctx.fillText(String(d), 0, 50); ctx.restore(); }
+  styledText(ctx, '11 DAYS LATER…', W / 2, 130, 92, { k: win(t, 12.7, 15.5), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+  stamp(ctx, 'BACK!', 560, 470, t, 14.2, { size: 120, color: '#2ECC71', until: 15.5 });
+  ctx.restore(); }
 // ------------------------------------------------------------------ the story
 function scene(ctx, t) {
   const c = camAt(t); drawMap(ctx, c);
   const wallOn = (t > 15.8 && t < 23.6) || (t > 41.0 && t < 82.3) || (t > 89.0 && t < 192.9) || t > 211.8;
   if (wallOn) chinaWall(ctx, c, clamp(Math.min(t - 15.8, t > 41 ? t - 41.0 : 9, t > 211.8 ? t - 211.8 : 9) / 0.5), t, t > 212.5 && t < 214 ? 2.5 : 1);
-  // ---------- B1–2 cold open: the resignation and return (0–15.6)
-  if (t < 16.0) {
-    dim(ctx, 0.62 * (1 - clamp((t - 15.0) / 0.8)));
-    stage16(ctx, t, win(t, 0.0, 15.4, 0.01, 0.4), { in: 0.0, off0: 4.3, back0: 13.6, sadFrom: 4.2, sadTo: 13.6, cal: [12.6, 15.2, 12, 23] });
-    if (t < 4.3) chip(ctx, '📅 NOVEMBER 12, 2026', W / 2, 140, 1, { size: 44 });
-    stamp(ctx, 'RESIGNED', 420, 500, t, 4.3, { size: 70, until: 13.5 });
-    chip(ctx, 'JENSEN HUANG · NVIDIA CEO', W / 2, 140, win(t, 5.0, 7.3), { size: 44 });
-    styledText(ctx, 'THE ENGINE OF THE AI BOOM', W / 2, 140, 64, { k: win(t, 7.4, 9.5), fill: C.yellow, stroke: C.goldDark, rot: -2 });
-    chip(ctx, 'EFFECTIVE IMMEDIATELY', W / 2, 140, win(t, 9.6, 12.4), { size: 46, stroke: '#FF6B6B' });
-    styledText(ctx, '11 DAYS LATER…', W / 2, 140, 84, { k: win(t, 12.7, 15.4), fill: C.yellow, stroke: C.goldDark, rot: -2 });
-    stamp(ctx, 'BACK', 1500, 500, t, 14.1, { size: 70, color: '#2ECC71', until: 15.4 });
-  }
+  // ---------- B1–2 cold open: the resignation and return (0–16), full-screen stage
+  if (t < 16.0) coldOpen(ctx, t, 1 - clamp((t - 15.1) / 0.8));
   // ---------- B2 the loophole + a tiny country to the south (15.6–23.5)
   if (t > 15.6 && t < 23.7) {
     const k = win(t, 15.9, 23.4);
