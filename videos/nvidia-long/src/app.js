@@ -280,6 +280,30 @@ function seal(ctx, x, y, k) {
   if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.rotate(-0.15); ctx.scale(k, k); ctx.strokeStyle = C.gold; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(0, 0, 92, 0, 7); ctx.stroke(); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 78, 0, 7); ctx.stroke();
   setFont(ctx, 'Montserrat', 34); ctx.fillStyle = C.gold; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('MAPHELD', 0, 2); ctx.restore(); }
 
+// ------------------------------------------------------------------ visual-polish kit (counters, silhouettes, cutaway worlds)
+function odometer(ctx, t, t0, dur, from, to, fmt, x, y, size, o = {}) {   // eased count-up with a little slot-roll jitter
+  const k = o.k === undefined ? 1 : o.k; if (k <= 0 || t < t0) return; const u = clamp((t - t0) / dur), e = easeOut(u);
+  const v = from + (to - from) * e, jit = u < 1 ? Math.sin(t * 60) * 5 * (1 - u) : 0;
+  styledText(ctx, fmt(v, u), x, y + jit, size * (u < 1 ? 1 : 1 + 0.08 * Math.max(0, 1 - (t - t0 - dur) * 5)), { k: k * pop(t - t0, 0.25), fill: o.fill || C.yellow, stroke: o.stroke || C.goldDark, rot: o.rot ?? -3 }); }
+let SIL_CV = null;
+function silhouette(ctx, drawFn, reveal) {   // draw anything as a black shape with a white rim, cross-fading to the real thing (reveal 0..1)
+  if (!SIL_CV) { SIL_CV = document.createElement('canvas'); SIL_CV.width = W; SIL_CV.height = H; }
+  const g = SIL_CV.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); drawFn(g);
+  if (reveal < 1) { const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = H; const tg = tmp.getContext('2d');
+    tg.drawImage(SIL_CV, 0, 0); tg.globalCompositeOperation = 'source-in'; tg.fillStyle = '#FFFFFF'; tg.fillRect(0, 0, W, H);
+    ctx.save(); ctx.globalAlpha = 1 - reveal; for (const [dx, dy] of [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [-4, 4], [4, -4]]) ctx.drawImage(tmp, dx, dy);
+    tg.globalCompositeOperation = 'source-over'; tg.clearRect(0, 0, W, H); tg.drawImage(SIL_CV, 0, 0); tg.globalCompositeOperation = 'source-in'; tg.fillStyle = '#0A0A0C'; tg.fillRect(0, 0, W, H); ctx.drawImage(tmp, 0, 0); ctx.restore(); }
+  if (reveal > 0) { ctx.save(); ctx.globalAlpha = reveal; ctx.drawImage(SIL_CV, 0, 0); ctx.restore(); } }
+function cutWorld(ctx, k, kind, t = 0) {   // full-screen backdrop for cutaways: 'ice' | 'blueprint' | 'parchment'
+  if (k <= 0) return; ctx.save(); ctx.globalAlpha = clamp(k);
+  if (kind === 'ice') { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#DFF4FB'); g.addColorStop(0.62, '#9ED5EA'); g.addColorStop(1, '#2C6A78'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; const r = rnd(17); for (let i = 0; i < 60; i++) { const x = (r() * W + Math.sin(t + i) * 30) % W, y = (r() * H + t * (40 + r() * 50)) % H; ctx.beginPath(); ctx.arc(x, y, 3 + r() * 5, 0, 7); ctx.fill(); } }
+  else if (kind === 'blueprint') { ctx.fillStyle = '#0F5CA8'; ctx.fillRect(0, 0, W, H); ctx.strokeStyle = '#2D7BC6'; ctx.lineWidth = 2; for (let x = 0; x <= W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); } for (let y = 0; y <= H; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3; for (let x = 0; x <= W; x += 300) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); } for (let y = 0; y <= H; y += 300) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); } }
+  else { ctx.fillStyle = '#B9A389'; ctx.fillRect(0, 0, W, H); }
+  ctx.restore(); }
+const countUp = (t, t0, dur, to) => to * easeOut(clamp((t - t0) / dur));
+const fmtInt = v => Math.round(v).toLocaleString('en-US');
 // ------------------------------------------------------------------ long-form helpers
 const JOHOR = [103.6, 1.62], HKG = [114.17, 22.3], TPE = [121.0, 23.8], SHA = [121.47, 31.23];
 const CAL2 = [237.9, 37.4];
@@ -383,7 +407,7 @@ function scene(ctx, t) {
     kinetic(ctx, 'A LOOPHOLE', 130, win(t, 16.5, 19.3), 90);
     const [sx, sy] = P(c, ...SGP); dotted(ctx, c, arcPts(SGP, SHZ, 2), clamp((t - 17.4) / 1.0) * k, C.gold, 7, [4, 14], t * 40); dotted(ctx, c, arcPts(SGP, BJ, 4), clamp((t - 17.7) / 1.0) * k, C.gold, 7, [4, 14], t * 40);
     if (t > 19.4) { ring(ctx, sx, sy, 60, t); goldLabel(ctx, 'SINGAPORE', sx + 10, sy + 80, 50, pop(t - 19.6) * k); }
-    const [hx, hy] = P(c, ...HKG); if (t > 20.5) { ctx.save(); ctx.globalAlpha = k; ctx.strokeStyle = '#FFF'; ctx.lineWidth = 5; ctx.setLineDash([16, 12]); const u = clamp((t - 20.5) / 0.7); ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(lerp(hx, sx, u), lerp(hy, sy, u)); ctx.stroke(); ctx.restore(); chip(ctx, '1,600 MILES', (hx + sx) / 2 + 170, (hy + sy) / 2, pop(t - 21.0) * k, { size: 38 }); }
+    const [hx, hy] = P(c, ...HKG); if (t > 20.5) { ctx.save(); ctx.globalAlpha = k; ctx.strokeStyle = '#FFF'; ctx.lineWidth = 5; ctx.setLineDash([16, 12]); const u = clamp((t - 20.5) / 0.7); ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(lerp(hx, sx, u), lerp(hy, sy, u)); ctx.stroke(); ctx.restore(); chip(ctx, t < 21.6 ? `${fmtInt(countUp(t, 21.0, 0.6, 1600))} MILES` : '1,600 MILES (2,600 KM)', (hx + sx) / 2 + 200, (hy + sy) / 2, pop(t - 21.0) * k, { size: 38 }); }
   }
   // ---------- B3–4 follow one server: California → Taiwan → shipped (23.5–39.6)
   if (t > 23.5 && t < 41.5) {
@@ -426,7 +450,9 @@ function scene(ctx, t) {
   if (t > 64.4 && t < 82.4) {
     const k = popOut(82.2 - t, 0.3);
     const [jx, jy] = P(c, ...JOHOR);
-    const on = t > 65.9; serverChar(ctx, t < 72.0 ? 1500 : jx, t < 72.0 ? 900 : jy + 10, t < 72.0 ? 0.95 : 0.32, t, { k: pop(t - 64.6) * k, on, look: -1 });
+    cutWorld(ctx, win(t, 68.9, 72.0, 0.35, 0.25), 'blueprint', t);
+    const hop = [66.9, 68.2].reduce((acc, h) => acc + (t > h && t < h + 0.4 ? Math.sin((t - h) / 0.4 * Math.PI) * 60 : 0), 0);
+    const on = t > 65.9; serverChar(ctx, t < 72.0 ? 1500 : jx, t < 72.0 ? 900 - hop : jy + 10, t < 72.0 ? 0.95 : 0.32, t, { k: pop(t - 64.6) * k, on, look: -1 });
     if (t < 72.0 && t > 65.1) { ctx.save(); ctx.strokeStyle = C.ink; ctx.lineWidth = 10; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(1590, 760); ctx.bezierCurveTo(1700, 760, 1700, 900, 1800, 920); ctx.stroke(); ctx.restore(); }
     if (t < 72.0) stamp(ctx, 'FOR RENT', 1500, 520, t, 66.9, { size: 56, color: C.gold, until: 71.9 });
     styledText(ctx, "HERE'S THE TRICK", W / 2, 140, 76, { k: win(t, 67.8, 69.2), fill: C.yellow, stroke: C.goldDark, rot: -2 });
@@ -435,7 +461,7 @@ function scene(ctx, t) {
         ctx.fillStyle = '#FFF'; ctx.strokeStyle = '#999'; ctx.lineWidth = 3; for (let i = 0; i < 2; i++) { ctx.fillRect(-170, -60 + i * 70, 340, 46); ctx.strokeRect(-170, -60 + i * 70, 340, 46); } ctx.fillStyle = C.ink; setFont(ctx, 'Montserrat', 26); ctx.fillText('••••••••', 0, 33); ctx.fillStyle = '#2ECC71'; ctx.beginPath(); ctx.roundRect(-80, 88, 160, 40, 12); ctx.fill(); ctx.fillStyle = '#FFF'; ctx.fillText('ENTER', 0, 109); ctx.restore(); } }
     if (t > 72.0) { const [hx, hy] = P(c, ...SHA); goldLabel(ctx, 'SHANGHAI', hx + 20, hy - 60, 46, pop(t - 72.2) * k); person(ctx, 'china_reach', hx + 160, hy + 200, 200, { k: pop(t - 72.4) * k });
       dotted(ctx, c, arcPts(JOHOR, SHA, 3), clamp((t - 72.8) / 1.2) * k, C.gold, 7, [4, 14], t * 40);
-      const [mx, my] = P(c, 114, 16); chip(ctx, '2,000+ MILES', mx + 140, my, win(t, 73.4, 76.5), { size: 40 });
+      const [mx, my] = P(c, 114, 16); chip(ctx, t < 74.0 ? `${fmtInt(countUp(t, 73.4, 0.6, 2000))} MILES` : '2,000+ MILES (3,200+ KM)', mx + 180, my, win(t, 73.4, 76.5), { size: 40 });
       chip(ctx, 'THE SERVER MOVES: 0 INCHES', W / 2, 130, win(t, 76.6, 78.6), { size: 42 });
       [['ship', 78.7], ['form', 79.3], ['sneak', 80.3]].forEach(([kd, t0], i) => iconX(ctx, kd, 1280 + i * 230, 700, pop(t - t0) * k, clamp((t - t0 - 0.25) / 0.3)));
       ['NO SHIP', 'NO FORMS', 'NO SMUGGLER'].forEach((s2, i) => chip(ctx, s2, 1280 + i * 230, 815, pop(t - [78.7, 79.3, 80.3][i]) * k, { size: 26 })); }
@@ -449,8 +475,8 @@ function scene(ctx, t) {
     pts.forEach(([lo, la], i) => { const [x, y] = P(c, lo, la); rack(ctx, x + (i % 3) * 22 - 22, y + 10, 0.45, pop(t - 89.6 - i * 0.12) * k, t); });
     chip(ctx, "THIS WASN'T A FEW SERVERS", W / 2, 130, win(t, 89.2, 90.7), { size: 42 });
     chip(ctx, 'ONE ESTIMATE: INSTITUTE FOR PROGRESS (WASHINGTON)', W / 2, 130, win(t, 90.8, 95.2), { size: 34 });
-    donut(ctx, 1500, 380, 120, 0.24, win(t, 95.2, 101.2), '≈ 24%', "OF CHINA'S AI COMPUTE");
-    donut(ctx, 1500, 760, 90, 0.75, win(t, 97.8, 101.2), '75%', 'OF THAT: SE ASIA');
+    donut(ctx, 1500, 380, 120, 0.24, win(t, 95.2, 101.2), '≈ ' + Math.round(countUp(t, 95.2, 0.6, 24)) + '%', "OF CHINA'S AI COMPUTE");
+    donut(ctx, 1500, 760, 90, 0.75, win(t, 97.8, 101.2), Math.round(countUp(t, 97.8, 0.6, 75)) + '%', 'OF THAT: SE ASIA');
     if (t > 98.8) fillKey(ctx, c, 'mys', C.gold, 0.35 * win(t, 98.9, 101.2)), fillKey(ctx, c, 'tha', C.gold, 0.35 * win(t, 98.9, 101.2)), fillKey(ctx, c, 'idn', C.gold, 0.35 * win(t, 98.9, 101.2)), fillKey(ctx, c, 'sgp', C.gold, 0.6 * win(t, 98.9, 101.2));
   }
   // ---------- B10–11 Megaspeed (101.3–127.5)
@@ -460,7 +486,7 @@ function scene(ctx, t) {
     if (c.z > 100) { building(ctx, sx + 40, sy + 60 * bs, 1.0 * bs, pop(t - 102.8) * k, false); goldLabel(ctx, 'MEGASPEED', sx + 40, sy - 200 * bs, 56, pop(t - 103.5) * k); }
     chip(ctx, 'ONE OF THE BIGGEST BUYERS', W / 2, 130, win(t, 101.4, 103.4), { size: 42 });
     chip(ctx, 'CUSTOMS RECORDS (BLOOMBERG)', W / 2, 130, win(t, 104.2, 106.8), { size: 40 });
-    styledText(ctx, 'AT LEAST $4.6 BILLION', W / 2, 140, 92, { k: win(t, 106.8, 109.8), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+    odometer(ctx, t, 106.8, 0.75, 0, 4.6, v => 'AT LEAST $' + v.toFixed(1) + ' BILLION', W / 2, 140, 92, { k: popOut(109.8 - t), rot: -2 });
     if (t > 109.8) { serverChar(ctx, jx - 40, jy + 30, 0.4 * bs / 1.04, t, { k: pop(t - 110.0) * k }); chip(ctx, 'RENTED TO ALIBABA (REPORTED)', W / 2, 130, win(t, 111.6, 113.7), { size: 40 }); badge(ctx, 'LEGAL UNDER CURRENT RULES ✓', W / 2, 130, win(t, 113.7, 115.4), '#1E8E3E'); }
     // B11 investigators
     person(ctx, 'us_investigator', 300, 920, 300, { k: win(t, 116.8, 127.3) });
@@ -500,7 +526,7 @@ function scene(ctx, t) {
   }
   // ---------- B15 our server switches off (171.5–175.4)
   if (t > 171.4 && t < 175.6) {
-    const k = win(t, 171.5, 175.4, 0.35, 0.3); dim(ctx, 0.5 * k);
+    const k = win(t, 171.5, 175.4, 0.35, 0.3); cutWorld(ctx, k, 'blueprint', t);
     serverChar(ctx, W / 2, 880, 1.25, t, { k, on: t < 173.7, sad: t > 172.6, look: 0 });
     if (t > 173.7) { styledText(ctx, 'z', W / 2 + 150, 420 - ((t - 173.7) * 40) % 60, 54, { k, fill: '#BFE6F2' }); styledText(ctx, 'z', W / 2 + 200, 360 - ((t - 173.9) * 40) % 60, 40, { k: k * clamp((t - 173.9) * 3), fill: '#BFE6F2' }); }
     chip(ctx, 'OUR SERVER…', W / 2, 130, win(t, 171.6, 172.9), { size: 44 }); chip(ctx, '…SWITCHED OFF?', W / 2, 130, win(t, 173.0, 175.3), { size: 44 });
@@ -512,11 +538,11 @@ function scene(ctx, t) {
     chip(ctx, 'AMERICA: YEARS KEEPING CHIPS OUT…', W / 2, 130, win(t, 177.9, 180.8), { size: 40 });
     const [hx, hy] = P(c, 114.17, 22.29); const n = Math.floor(clamp((t - 181.0) / 2.0) * 18);
     crates(ctx, hx + 200, hy + 330, n, k, t); if (t > 186.4) ring(ctx, hx, hy, 50, t); goldLabel(ctx, 'HONG KONG', hx - 200, hy - 70, 60, pop(t - 186.6) * k);
-    styledText(ctx, '≈ 600,000 NVIDIA H200s', W / 2, 140, 84, { k: win(t, 181.0, 184.0), fill: C.yellow, stroke: C.goldDark, rot: -2 });
+    odometer(ctx, t, 181.0, 0.9, 0, 600000, v => '≈ ' + fmtInt(Math.round(v / 1000) * 1000) + ' NVIDIA H200s', W / 2, 140, 84, { k: popOut(184.0 - t), rot: -2 });
     person(ctx, 'us_officer', 300, 930, 280, { k: win(t, 183.9, 192.6) }); stamp(ctx, 'US: APPROVED ✓', 300, 520, t, 184.6, { size: 46, color: '#7CFC9A', until: 192.6 });
     chip(ctx, '⏳ WAITING', hx + 300, hy - 90, win(t, 187.8, 192.6), { size: 40 });
-    person(ctx, 'china_lock', 1730, 930, 280, { k: win(t, 189.8, 192.6) });
-    styledText(ctx, 'BLOCKED BY… BEIJING', W / 2, 140, 84, { k: win(t, 189.9, 192.7), fill: '#FF6B6B', stroke: C.ink, rot: -2 });
+    if (t > 189.2 && t < 192.7) { const ks = pop(t - 189.2) * popOut(192.6 - t); silhouette(ctx, g => person(g, 'china_lock', 1730, 930, 280, { k: ks }), clamp((t - 190.9) / 0.3)); if (t < 190.9) styledText(ctx, '?', 1730, 600, 120, { k: pop(t - 189.4), fill: C.yellow, stroke: C.goldDark }); }
+    styledText(ctx, t < 190.9 ? 'BLOCKED BY…' : 'BLOCKED BY… BEIJING', W / 2, 140, 84, { k: win(t, 189.7, 192.7), fill: '#FF6B6B', stroke: C.ink, rot: -2 });
   }
   // ---------- B17 China locks its own front door (192.9–202)
   house16(ctx, t, win(t, 192.9, 201.9, 0.35, 0.3), 'flip');

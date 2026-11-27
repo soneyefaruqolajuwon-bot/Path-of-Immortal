@@ -41,6 +41,14 @@ SFX_CUES = [
     (202.0, "whoosh", 0), (205.0, "zap", -0.4), (206.4, "whoosh", 0), (207.0, "pop", 0),
     (211.4, "whoosh", 0), (212.6, "rumble", 0), (214.2, "boing", 0), (214.5, "boing", 0.2),
     (217.1, "whoosh", 0), (217.8, "ding", 0), (218.2, "pop", 0),
+    # counters tick while they roll; whoosh on blueprint cutaways; thud on the silhouette reveal
+    (21.0, "tick", 0), (21.06, "tick", 0), (21.12, "tick", 0), (21.18, "tick", 0), (21.24, "tick", 0), (21.3, "tick", 0), (21.36, "tick", 0), (21.42, "tick", 0), (21.48, "tick", 0),
+    (73.4, "tick", 0), (73.46, "tick", 0), (73.52, "tick", 0), (73.58, "tick", 0), (73.64, "tick", 0), (73.7, "tick", 0), (73.76, "tick", 0), (73.82, "tick", 0), (73.88, "tick", 0),
+    (95.2, "tick", 0), (95.26, "tick", 0), (95.32, "tick", 0), (95.38, "tick", 0), (95.44, "tick", 0), (95.5, "tick", 0), (95.56, "tick", 0), (95.62, "tick", 0), (95.68, "tick", 0),
+    (97.8, "tick", 0), (97.86, "tick", 0), (97.92, "tick", 0), (97.98, "tick", 0), (98.04, "tick", 0), (98.1, "tick", 0), (98.16, "tick", 0), (98.22, "tick", 0), (98.28, "tick", 0),
+    (106.8, "tick", 0), (106.88, "tick", 0), (106.96, "tick", 0), (107.04, "tick", 0), (107.12, "tick", 0), (107.2, "tick", 0), (107.28, "tick", 0), (107.36, "tick", 0), (107.44, "tick", 0),
+    (181.0, "tick", 0), (181.1, "tick", 0), (181.2, "tick", 0), (181.3, "tick", 0), (181.4, "tick", 0), (181.5, "tick", 0), (181.6, "tick", 0), (181.7, "tick", 0), (181.8, "tick", 0),
+    (68.9, "whoosh", 0), (190.9, "thud", 0.4), (189.3, "pop", 0.4),
 ]
 
 
@@ -66,8 +74,13 @@ def _register_sfx():
         f = 1400 + 900 * np.exp(-t * 40)
         return AU.norm(AU.chirp_sine(f, d) * AU.env_exp(d, 30), 0.35)
 
-    AU.SFX.update(jet=jet, rumble=rumble, drip=drip)
-    AU.GAIN.update(jet=0.22, rumble=0.6, drip=0.5)   # the plane is a background swish, never louder than the voice
+    def tick():
+        d = 0.03
+        t = AU.t_(d)
+        return AU.norm(AU.bp(AU.noise(d), 2500, 6000) * AU.env_exp(d, 120), 0.5)
+
+    AU.SFX.update(jet=jet, rumble=rumble, drip=drip, tick=tick)
+    AU.GAIN.update(jet=0.22, rumble=0.6, drip=0.5, tick=0.35)   # the plane is a background swish, never louder than the voice
 
 
 def probe(path):
