@@ -19,6 +19,7 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
       ctx.save(); const sg = ctx.createLinearGradient(980, 0, 1300, 0); sg.addColorStop(0, 'rgba(10,20,26,0)'); sg.addColorStop(1, 'rgba(10,20,26,0.4)'); ctx.fillStyle = sg; ctx.fillRect(980, 0, 940, H); ctx.restore();
       styledText(ctx, 'WHY DID\nHE QUIT?', 1490, 170, 128, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -4, maxW: 760 });
       person(ctx, 'ceo_sad', 1500, 1240, 560, {});
+      chip(ctx, 'JENSEN HUANG · NVIDIA CEO', 1490, 440, 1, { size: 50, stroke: '#F4D03F' }); sarrow(ctx, 1490, 490, 1490, 560, 1, '#F4D03F', 10);
       stamp(ctx, 'RESIGNED', 1490, 900, 10, 0, { size: 84, rot: -10 });
     } else if (v === 'A') {
       styledText(ctx, 'THE AI\nLOOPHOLE', 1480, 290, 170, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -4, maxW: 760 });
