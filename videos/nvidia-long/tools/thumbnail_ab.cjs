@@ -14,7 +14,13 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
     ctx.strokeStyle = 'rgba(244,208,63,0.35)'; ctx.lineWidth = 40; ctx.stroke(); ctx.strokeStyle = '#3A2A08'; ctx.lineWidth = 20; ctx.stroke(); ctx.strokeStyle = '#FFD43B'; ctx.lineWidth = 13; ctx.setLineDash([4, 26]); ctx.stroke(); ctx.restore();
     const [ex, ey] = sp[sp.length - 1]; chipIcon(ctx, ex, ey, 1.6, 1); const [sx, sy] = sp[0]; ctx.save(); ctx.strokeStyle = '#FFD43B'; ctx.lineWidth = 10; ctx.shadowColor = '#FFD43B'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(sx, sy, 46, 0, 7); ctx.stroke(); ctx.restore();
     styledText(ctx, 'SINGAPORE', sx + 10, sy + 90, 54, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 8 });
-    if (v === 'A') {
+    if (v === 'C') {
+      // the CEO, big and stressed, with the RESIGNED stamp and a curiosity line (no accusation)
+      ctx.save(); const sg = ctx.createLinearGradient(980, 0, 1300, 0); sg.addColorStop(0, 'rgba(10,20,26,0)'); sg.addColorStop(1, 'rgba(10,20,26,0.4)'); ctx.fillStyle = sg; ctx.fillRect(980, 0, 940, H); ctx.restore();
+      styledText(ctx, 'WHY DID\nHE QUIT?', 1490, 170, 128, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -4, maxW: 760 });
+      person(ctx, 'ceo_sad', 1500, 1240, 560, {});
+      stamp(ctx, 'RESIGNED', 1490, 900, 10, 0, { size: 84, rot: -10 });
+    } else if (v === 'A') {
       styledText(ctx, 'THE AI\nLOOPHOLE', 1480, 290, 170, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -4, maxW: 760 });
       serverChar(ctx, 1500, 1040, 1.55, 0.4, { shock: true, look: -1 });
     } else {
@@ -24,6 +30,6 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
     }
     const o = document.createElement('canvas'); o.width = 1280; o.height = 720; const gg = o.getContext('2d'); gg.imageSmoothingQuality = 'high'; gg.drawImage(cv, 0, 0, 1280, 720); return o.toDataURL('image/jpeg', 0.92);
   }, variant);
-  for (const [v, out] of [['A', process.argv[2]], ['B', process.argv[3]]]) { const d = await shot(v); fs.writeFileSync(out, Buffer.from(d.split(',')[1], 'base64')); }
+  for (const [v, out] of [['A', process.argv[2]], ['B', process.argv[3]], ['C', process.argv[4]]].filter(x => x[1])) { const d = await shot(v); fs.writeFileSync(out, Buffer.from(d.split(',')[1], 'base64')); }
   await b.close();
 })();
