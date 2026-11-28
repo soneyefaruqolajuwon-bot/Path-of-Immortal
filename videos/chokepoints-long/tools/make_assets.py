@@ -46,6 +46,9 @@ def main():
     gate = f'<rect x="{rx - 10:.0f}" y="{ry - 16:.0f}" width="150" height="26" rx="6" fill="#FFF" stroke="{INK}" stroke-width="5"/>' + "".join(f'<rect x="{rx + 6 + i * 36:.0f}" y="{ry - 16:.0f}" width="18" height="26" fill="#D7263D"/>' for i in range(4))
     GM.caped_person("iran_gate", flag_irn, dict(coat="#1B4D2E", pants="#2B2B33", rarm=ra, larm=120, face="flat"), arms_extra=CAP)
     GM.caped_person("egypt_panic", flag_egy, dict(coat="#1F3B73", pants="#2B2B33", rarm=-35, larm=-145, face="panic"), arms_extra=CAP)
+    # thumbnail: a panicked ship captain pinching a shipping lane (two finger dots drawn on top of the lane in the canvas)
+    p, _ = PR.chibi(dict(coat="#1F3B73", pants="#2B2B33", rarm=-50, larm=125, face="panic", stressed=True, sweat=True))
+    open(os.path.join(OUT, "captain_pinch.svg"), "w").write(GM.svg(300, 520, f'<g transform="translate(0,80)">{"".join(p)}{CAP}</g>'))
     print(sorted(os.listdir(OUT)))
 
 
