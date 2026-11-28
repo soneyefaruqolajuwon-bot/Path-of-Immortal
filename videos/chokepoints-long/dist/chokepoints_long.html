@@ -378,10 +378,10 @@ function digger(ctx, x, y, s, t) { ctx.save(); ctx.translate(x, y); ctx.scale(s,
 function tollbooths16(ctx, t, A, blocked) {   // 10 lanes flowing right into 6 booths
   if (A <= 0) return; ctx.save(); ctx.globalAlpha = A; ctx.fillStyle = '#2B2D33'; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#1C1F26'; ctx.beginPath(); ctx.moveTo(1000, 0); ctx.lineTo(1400, 300); ctx.lineTo(W, 300); ctx.lineTo(W, 0); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(1000, H); ctx.lineTo(1400, 780); ctx.lineTo(W, 780); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = '#F4D03F'; ctx.lineWidth = 3; ctx.setLineDash([28, 24]); for (let i = 1; i < 10; i++) { const y = 60 + i * 96; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(980, y); ctx.stroke(); } ctx.setLineDash([]);
+  ctx.strokeStyle = '#F4D03F'; ctx.lineWidth = 3; ctx.setLineDash([28, 24]); for (let i = 1; i < 10; i++) { const y = 110 + i * 80; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(980, y); ctx.stroke(); } ctx.setLineDash([]);
   for (let b = 0; b < 6; b++) { const by = 330 + b * 80; ctx.fillStyle = '#F4F1EA'; ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.fillRect(1430, by - 22, 50, 44); ctx.strokeRect(1430, by - 22, 50, 44); const closed = blocked && b === 2;
     ctx.strokeStyle = closed ? '#FF3B3B' : '#7CFC9A'; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(1480, by); ctx.lineTo(closed ? 1580 : 1520, closed ? by : by - 40); ctx.stroke(); }
-  for (let lane = 0; lane < 10; lane++) for (let i = 0; i < 6; i++) { const y = 108 + lane * 96, base = 900 - i * 170, x = base + (blocked ? 0 : ((t * 140 + lane * 33) % 170)); ctx.save(); ctx.translate(x, y); ctx.scale(1, 2.0); topShip(ctx, 0, 0, 130, 0, { seed: lane + i, hull: '#3A5BA0' }); ctx.restore(); }
+  for (let lane = 0; lane < 10; lane++) for (let i = 0; i < 6; i++) { const y = 150 + lane * 80, base = 900 - i * 170, x = base + (blocked ? 0 : ((t * 140 + lane * 33) % 170)); ctx.save(); ctx.translate(x, y); ctx.scale(1, 1.7); topShip(ctx, 0, 0, 130, 0, { seed: lane + i, hull: '#3A5BA0' }); ctx.restore(); }
   ctx.restore(); }
 function icon(ctx, kind, x, y, s, k) {   // everyday items + small symbols
   if (k <= 0) return; ctx.save(); ctx.translate(x, y); ctx.scale(s * k, s * k); ctx.fillStyle = 'rgba(11,13,18,0.85)'; ctx.strokeStyle = C.gold; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, 70, 0, 7); ctx.fill(); ctx.stroke();
@@ -423,8 +423,8 @@ function scene(ctx, t) {
     lanes.forEach((ln, i) => lineGlow(ctx, c, ln, C.gold, 5, clamp((t - 12.4 - i * 0.3) / 1.4) * k, [6, 10]));
     for (let i = 0; i < 6; i++) cpRing(ctx, c, i, pop(t - 17.5 - i * 0.12) * k, t, C.gold, t > 17.5);
     styledText(ctx, 'SIX TINY GAPS', W / 2, 140, 84, { k: win(t, 15.4, 19.4), fill: C.yellow, stroke: C.goldDark, rot: -2 });
-    [['phone', 19.6], ['coffee', 20.2], ['shoe', 20.9], ['fuel', 21.5]].forEach(([kd, t0], i) => icon(ctx, kd, 200, 220 + i * 170, 0.9, win(t, t0, 26.9)));
-    [['KANSAS', -98, 38.5, 23.1], ['TORONTO', -79.4, 43.7, 23.7], ['SYDNEY', 151.2, -33.9, 24.3], ['ENGLISH MIDLANDS', -1.9, 52.5, 25.4]].forEach(([n, lo, la, t0]) => { const [x, y] = P(c, lo, la); if (x > -50 && x < W + 50) chip(ctx, n, x, y, win(t, t0, 26.9), { size: 24 }); });
+    [['phone', 19.6], ['coffee', 20.2], ['shoe', 20.9], ['fuel', 21.5]].forEach(([kd, t0], i) => icon(ctx, kd, W - 150, 200 + i * 160, 0.9, win(t, t0, 26.9)));
+    [['KANSAS', -98, 38.5, 23.1], ['TORONTO', -79.4, 43.7, 23.7], ['SYDNEY', 151.2, -33.9, 24.3], ['ENGLISH MIDLANDS', -1.9, 52.5, 25.4]].forEach(([n, lo, la, t0]) => { const [x0, y] = P(c, lo, la), hw = n.length * 9 + 30, x = clamp(x0, 30 + hw, W - 30 - hw); if (x0 > -50 && x0 < W + 50) chip(ctx, n, x, y, win(t, t0, 26.9), { size: 24 }); });
     // P3: the countdown promise
     if (t > 27.1) { countdownRow(ctx, t, 0, pop(t - 27.2) * k); styledText(ctx, 'COUNTING DOWN: #6 → #1', W / 2, 220, 72, { k: win(t, 28.4, 32.3), fill: C.yellow, stroke: C.goldDark, rot: -2 }); }
   }
@@ -500,7 +500,7 @@ function scene(ctx, t) {
       // around Africa
       lineGlow(ctx, c, [[43.4, 12.6], [32.45, 30.4], [30, 33], [10, 37], [-6, 36]], 'rgba(255,255,255,0.5)', 5, 1, [6, 10]);
       lineGlow(ctx, c, [[50, 12], [52, -5], [40, -25], [20, -36], [10, -25], [5, 0], [-18, 12], [-12, 30], [-6, 36]], C.gold, 7, clamp((t - 176.6) / 2.0), [8, 10]);
-      chip(ctx, 'AROUND AFRICA', ...P(c, 5, -30), win(t, 177.0, 188.0), { size: 34 });
+      chip(ctx, 'AROUND AFRICA', ...P(c, -6, -12), win(t, 177.0, 188.0), { size: 34 });
       odometer(ctx, t, 179.2, 0.8, 0, 4000, (v, u) => `+${fmtN(v)} MILES`, W / 2, 170, 80, { k: t < 182.8 ? 1 : popOut(183.0 - t) });
       chip(ctx, '+ UP TO 2 WEEKS', 1560, 300, win(t, 180.8, 188.0), { size: 40 });
       icon(ctx, 'fuel', 1500, 520, 0.8, win(t, 182.9, 188.0)); icon(ctx, 'doc', 1660, 520, 0.8, win(t, 183.8, 188.0));
