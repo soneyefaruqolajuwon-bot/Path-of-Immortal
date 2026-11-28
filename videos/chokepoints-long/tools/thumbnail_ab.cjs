@@ -43,6 +43,7 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
       const offC = { 6: [-95, -60], 5: [80, -95], 4: [-10, 100], 3: [-105, 20], 2: [-70, -100], 1: [90, -70] };
       for (const [n, , lo, la] of CP) { const [bx, by] = P(c, lo, la); badge(bx + offC[n][0], by + offC[n][1], n, 84); }
       styledText(ctx, '6 TINY GAPS', 560, 150, 180, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -3, maxW: 1050 });
+      styledText(ctx, 'CONTROL THE WORLD?', 560, 290, 92, { fill: '#FFFFFF', stroke: '#141416', shadow: 12, rot: -3, maxW: 1000 });
     } else {
       // Hormuz close-up: a queue of ships and a CLOSED barrier across the gap
       const c = { cx: 56.6, cy: -mercY(26.2), z: 150, rot: 0, tilt: 1, sx: W * 0.5, sy: H * 0.55 };
