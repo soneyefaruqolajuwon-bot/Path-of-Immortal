@@ -40,6 +40,8 @@ const { chromium } = require('playwright'); const path = require('path'), fs = r
       // squeeze marks
       ctx.save(); ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 6; ctx.lineCap = 'round'; for (const a of [-0.5, 0, 0.5]) { ctx.beginPath(); ctx.moveTo(px + 70 * Math.cos(a), py - 70 * Math.sin(a) - 10); ctx.lineTo(px + 100 * Math.cos(a), py - 100 * Math.sin(a) - 14); ctx.stroke(); } ctx.restore();
       ctx.save(); ctx.textAlign = 'left'; ctx.restore();
+      const offC = { 6: [-95, -60], 5: [80, -95], 4: [-10, 100], 3: [-105, 20], 2: [-70, -100], 1: [90, -70] };
+      for (const [n, , lo, la] of CP) { const [bx, by] = P(c, lo, la); badge(bx + offC[n][0], by + offC[n][1], n, 84); }
       styledText(ctx, '6 TINY GAPS', 560, 150, 180, { fill: '#FFD43B', stroke: '#3A2A08', shadow: 14, rot: -3, maxW: 1050 });
     } else {
       // Hormuz close-up: a queue of ships and a CLOSED barrier across the gap
